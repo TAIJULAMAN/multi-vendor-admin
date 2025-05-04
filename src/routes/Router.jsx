@@ -1,5 +1,4 @@
 import { createBrowserRouter } from "react-router-dom";
-import DashboardLayout from "../layout/dashboardLayout/DashboardLayout";
 import Dashboard from "../components/Dashboard/Dashboard";
 import UserManagement from "../page/UserManagement/UserManagement";
 import Profile from "../page/Settings/Profile";
@@ -17,6 +16,7 @@ import ManageBar from "../components/VendorDashboard/ManageBar";
 import Transaction from "../components/VendorDashboard/Transaction";
 import ForgetPassword from "../Auth/ForgetPass";
 import VerificationCode from "../auth/VerificationCode";
+import DashboardLayout from "../layout/DashboardLayout";
 
 export const router = createBrowserRouter([
   {
@@ -78,7 +78,6 @@ export const router = createBrowserRouter([
       },
     ],
   },
-  // Auth routes
   {
     path: "/login",
     element: <Login />,

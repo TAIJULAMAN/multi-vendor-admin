@@ -1,13 +1,13 @@
 import { FaChevronDown } from "react-icons/fa";
 import { useState } from "react";
 import dayjs from "dayjs";
-import RecentUsers from "./RecentUsers";
 import user from "../../assets/user.png";
 import medal from "../../assets/medal.png";
 import profit from "../../assets/profit.png";
 import seller from "../../assets/seller.png";
 import SubscriptionGrowth from "./SubscriptionGrowth";
 import SellerGrowth from "./SellerGrowth";
+import RecentSellerRequests from "./RecentSellerRequests";
 
 function DashboardPage() {
   const currentYear = dayjs().year();
@@ -163,8 +163,8 @@ function DashboardPage() {
         </div>
       </div>
       <div className="mt-5">
-        <h1 className="text-2xl font-bold mb-5">Seller Requests</h1>
-        <RecentUsers />
+        <h1 className="text-2xl font-bold mb-5">Recent Seller Requests</h1>
+        <RecentSellerRequests />
       </div>
     </div>
   );
