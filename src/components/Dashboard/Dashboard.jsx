@@ -162,8 +162,8 @@ function DashboardPage() {
           <SellerGrowth />
         </div>
       </div>
-      <div className="">
-        <h1 className="text-2xl font-bold mb-5">Recent Joined User</h1>
+      <div className="mt-5">
+        <h1 className="text-2xl font-bold mb-5">Seller Requests</h1>
         <RecentUsers />
       </div>
     </div>

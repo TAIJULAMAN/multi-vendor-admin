@@ -116,7 +116,6 @@ const SideBar = () => {
     );
   };
 
-  // Logout Function
   const handleLogout = () => {
     navigate("/login");
   };
