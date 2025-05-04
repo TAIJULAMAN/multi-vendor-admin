@@ -1,10 +1,5 @@
 import { MdDashboard, MdManageAccounts } from "react-icons/md";
-import {
-  FaUsers,
-  FaChevronRight,
-  FaFileAlt,
-  FaCog,
-} from "react-icons/fa";
+import { FaUsers, FaChevronRight, FaFileAlt, FaCog } from "react-icons/fa";
 import { IoIosLogIn } from "react-icons/io";
 import logo from "../../assets/header/logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -78,7 +73,7 @@ const AdminItems = [
   },
 ];
 
-const SidBar = () => {
+const SideBar = () => {
   const [selectedKey, setSelectedKey] = useState("dashboard");
   const [expandedKeys, setExpandedKeys] = useState([]);
   const location = useLocation();
@@ -234,4 +229,4 @@ const SidBar = () => {
   );
 };
 
-export default SidBar;
+export default SideBar;
