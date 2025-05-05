@@ -4,6 +4,7 @@ import { FiMoreVertical } from "react-icons/fi";
 import img1 from "../../assets/ads.png";
 import img2 from "../../assets/ads2.png";
 import img3 from "../../assets/ads3.png";
+import PageHeading from "../../shared/PageHeading";
 
 export default function AdPromotion() {
   const campaigns = [
@@ -32,8 +33,16 @@ export default function AdPromotion() {
 
   return (
     <div className="p-6 bg-neutral-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-6">Ad Campaigns</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="flex justify-between items-center text-center mb-5">
+        <PageHeading title="Ads Promotion" />
+
+        <div className="flex justify-end items-center">
+          <button className="bg-[#FF914C] text-white px-4 py-3 rounded-lg hover:bg-[#FF914C]/80">
+            + Add New Promotion
+          </button>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {campaigns.map((campaign) => (
           <AdCard key={campaign.id} campaign={campaign} />
         ))}
