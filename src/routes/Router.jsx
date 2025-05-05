@@ -6,9 +6,7 @@ import PrivacyPolicy from "../page/Settings/PrivacyPolicy";
 import ResetPass from "../Auth/ResetPass";
 import Notification from "../page/Notification/Notification";
 import Login from "../Auth/Login";
-import VendorDashboard from "../page/VendorDashboard/VendorDashboard";
 import AddNewBar from "../components/VendorDashboard/AddNewBar";
-import AddNewEvent from "../components/VendorDashboard/AddNewEvent";
 import ManageBar from "../components/VendorDashboard/ManageBar";
 import Transaction from "../components/VendorDashboard/Transaction";
 import ForgetPassword from "../Auth/ForgetPass";
@@ -18,6 +16,8 @@ import SellerManagement from "../page/sellerManagement/SellerManagement";
 import UserManagement from "../page/userManagement/UserManagement";
 import Subscription from "../page/subscription/Subscription";
 import UpdateSubscription from "../page/subscription/UpdateSubscription";
+import PremiumSubscribers from "../page/PremiumSubscribers/PremiumSubscribers";
+import AdPromotion from "../page/AdPromotion/AdPromotion";
 
 export const router = createBrowserRouter([
   {
@@ -46,17 +46,18 @@ export const router = createBrowserRouter([
         element: <UpdateSubscription />,
       },
       {
-        path: "/vendorDashboard",
-        element: <VendorDashboard />,
+        path: "/premium-subscribers",
+        element: <PremiumSubscribers />,
+      },
+      {
+        path: "/ads-promotion",
+        element: <AdPromotion />,
       },
       {
         path: "/vendorDashboard/AddNewBar",
         element: <AddNewBar />,
       },
-      {
-        path: "/vendorDashboard/AddNewEvent",
-        element: <AddNewEvent />,
-      },
+    
       {
         path: "/vendorDashboard/ManageBar",
         element: <ManageBar />,

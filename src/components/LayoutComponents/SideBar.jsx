@@ -40,7 +40,13 @@ const AdminItems = [
     key: "premiumSubscribers",
     label: "Premium Subscribers",
     icon: MdManageAccounts,
-    link: "",
+    link: "/premium-subscribers",
+  },
+  {
+    key: "adPromotion",
+    label: "Ads Promotion",
+    icon: MdManageAccounts,
+    link: "/ads-promotion",
   },
   {
     key: "support",
