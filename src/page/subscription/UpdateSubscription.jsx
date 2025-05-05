@@ -50,7 +50,7 @@ export default function UpdateSubscription() {
             <div className="mb-5">
               <label
                 htmlFor="subscription-type"
-                className="block text-sm font-medium text-gray-800 mb-2"
+                className="text-xl text-gray-800 mb-2 flex justify-start text-start"
               >
                 Subscription Type:
               </label>
@@ -61,8 +61,8 @@ export default function UpdateSubscription() {
                 className="px-5 py-3 bg-white block w-full text-gray-600 border-2 border-[#FF914C] rounded-lg outline-none"
                 style={{
                   backgroundColor:
-                    subscriptionType === "Monthly" ||
-                    subscriptionType === "Yearly"
+                    subscriptionType === "Basic" ||
+                    subscriptionType === "Premium"
                       ? "#FF914C"
                       : "white",
                 }}
@@ -75,7 +75,7 @@ export default function UpdateSubscription() {
             <div className="mb-5">
               <label
                 htmlFor="new-price"
-                className="block text-sm font-medium text-gray-800 mb-2"
+                className="text-xl text-gray-800 mb-2 flex justify-start text-start"
               >
                 New Price ($):
               </label>
@@ -93,7 +93,7 @@ export default function UpdateSubscription() {
             {cities.map((city, index) => (
               <div key={city.id} className="space-y-1">
                 <div className="flex justify-between items-center">
-                  <label className="font-medium">
+                  <label className="text-xl text-gray-800 mb-2 flex justify-start text-start">
                     Features {String(index + 1).padStart(2, "0")}
                   </label>
                   <button

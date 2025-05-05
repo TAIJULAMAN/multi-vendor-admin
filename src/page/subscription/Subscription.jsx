@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FaCheck } from "react-icons/fa";
-import { Link } from "react-router-dom"; // Import Link from react-router-dom
+import { Link } from "react-router-dom";
 import PageHeading from "../../shared/PageHeading";
 
 export default function Subscription() {
@@ -8,12 +8,12 @@ export default function Subscription() {
 
   const plans = {
     monthly: {
-      name: "Monthly Plan",
-      price: "UM 2.99",
+      name: "Basic Plan",
+      price: "UM 0.00",
       period: "/month",
     },
     yearly: {
-      name: "Yearly Plan",
+      name: "Premium Plan",
       price: "UM 20.99",
       period: "/year",
     },
@@ -46,7 +46,7 @@ export default function Subscription() {
               }`}
               onClick={() => setPlan("monthly")}
             >
-              Monthly
+              Basic
             </button>
             <button
               className={`flex-1 py-2 px-4 rounded-full text-center transition-colors ${
@@ -54,7 +54,7 @@ export default function Subscription() {
               }`}
               onClick={() => setPlan("yearly")}
             >
-              Yearly
+              Premium
             </button>
           </div>
 
