@@ -279,9 +279,9 @@ const RecentSellerRequests = () => {
       phoneNumber: "david@example.com",
       Distribution: "Houston, USA",
       BusinessAddress: "202 Birch St, Houston, TX 77001",
-    }
+    },
   ];
-  
+
   const columns = [
     { title: "No", dataIndex: "no", key: "no" },
     {
@@ -301,6 +301,11 @@ const RecentSellerRequests = () => {
     { title: "Shop Name", dataIndex: "shopName", key: "shopName" },
     { title: "Phone Number", dataIndex: "phoneNumber", key: "phoneNumber" },
     { title: "Email", dataIndex: "email", key: "email" },
+    {
+      title: "Product Category",
+      dataIndex: "productCategory",
+      key: "productCategory",
+    },
     { title: "Distribution", dataIndex: "Distribution", key: "Distribution" },
     { title: "Location", dataIndex: "BusinessAddress", key: "BusinessAddress" },
     {
