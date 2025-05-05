@@ -8,7 +8,9 @@
 }
 
 select option {
-  background-color: #edc4c5;
+  background-color: #FF914C;
+  color: #fff;
+  padding: 10px;
 }
 
 
@@ -19,11 +21,6 @@ select option {
 .no-border-radius-modal .ant-modal {
   border-radius: 0 !important;
 }
-
-/* :where(.css-dev-only-do-not-override-49qm)[class^="ant-checkbox"] [class^="ant-checkbox"], :where(.css-dev-only-do-not-override-49qm)[class*=" ant-checkbox"] [class^="ant-checkbox"], :where(.css-dev-only-do-not-override-49qm)[class^="ant-checkbox"] [class*=" ant-checkbox"], :where(.css-dev-only-do-not-override-49qm)[class*=" ant-checkbox"] [class*=" ant-checkbox"] {
-    box-sizing: border-box;
-    background-color: #D9000A;
-} */
 
 :where(.css-dev-only-do-not-override-49qm).ant-checkbox-checked
   .ant-checkbox-inner {

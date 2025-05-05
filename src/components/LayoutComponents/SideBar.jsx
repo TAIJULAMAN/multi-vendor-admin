@@ -28,7 +28,7 @@ const AdminItems = [
     key: "subscription",
     label: "Subscription",
     icon: FaFileAlt,
-    link: "/dashboard/report",
+    link: "/dashboard/subscription",
   },
   {
     key: "categorymanagement",

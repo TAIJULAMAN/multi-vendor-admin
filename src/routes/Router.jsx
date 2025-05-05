@@ -6,7 +6,6 @@ import PrivacyPolicy from "../page/Settings/PrivacyPolicy";
 import ResetPass from "../Auth/ResetPass";
 import Notification from "../page/Notification/Notification";
 import Login from "../Auth/Login";
-import Report from "../page/Report/Report";
 import VendorDashboard from "../page/VendorDashboard/VendorDashboard";
 import AddNewBar from "../components/VendorDashboard/AddNewBar";
 import AddNewEvent from "../components/VendorDashboard/AddNewEvent";
@@ -17,6 +16,8 @@ import VerificationCode from "../auth/VerificationCode";
 import DashboardLayout from "../layout/DashboardLayout";
 import SellerManagement from "../page/sellerManagement/SellerManagement";
 import UserManagement from "../page/userManagement/UserManagement";
+import Subscription from "../page/subscription/Subscription";
+import UpdateSubscription from "../page/subscription/UpdateSubscription";
 
 export const router = createBrowserRouter([
   {
@@ -37,8 +38,12 @@ export const router = createBrowserRouter([
       },
 
       {
-        path: "/dashboard/report",
-        element: <Report />,
+        path: "/dashboard/subscription",
+        element: <Subscription />,
+      },
+      {
+        path: "/dashboard/update-subscription",
+        element: <UpdateSubscription />,
       },
       {
         path: "/vendorDashboard",
