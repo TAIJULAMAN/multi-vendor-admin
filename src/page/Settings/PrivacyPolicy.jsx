@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import PageHeading from "../../shared/PageHeading";
 
 function PrivacyPolicy() {
   const [content, setContent] = useState(
@@ -9,8 +10,7 @@ function PrivacyPolicy() {
 
   return (
     <div className="p-5 min-h-screen">
-      <h1 className="text-start text-white text-3xl font-bold mb-5">Privacy Policy</h1>
-
+      <PageHeading title="Privacy Policy" />
       <div className=" bg-white rounded shadow p-5 h-full">
         <ReactQuill
           style={{ padding: "10px" }}

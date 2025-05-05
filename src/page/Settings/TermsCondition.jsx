@@ -1,6 +1,7 @@
 import { useState } from "react";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import PageHeading from "../../shared/PageHeading";
 
 function TermsAndCondition() {
   const [content, setContent] = useState(
@@ -9,7 +10,7 @@ function TermsAndCondition() {
 
   return (
     <div className="p-5">
-      <h1 className="text-start text-white text-3xl font-bold mb-5">Terms And Condition</h1>
+      <PageHeading title="Terms And Condition" />
 
       <div className=" bg-white rounded shadow p-5 h-full">
         <ReactQuill
