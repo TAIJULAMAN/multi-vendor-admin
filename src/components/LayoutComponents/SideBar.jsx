@@ -52,7 +52,7 @@ const AdminItems = [
     key: "support",
     label: "Support",
     icon: MdManageAccounts,
-    link: "",
+    link: "/support",
   },
   {
     key: "settings",

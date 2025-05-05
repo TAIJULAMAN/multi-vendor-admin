@@ -16,6 +16,7 @@ import UpdateSubscription from "../page/subscription/UpdateSubscription";
 import PremiumSubscribers from "../page/PremiumSubscribers/PremiumSubscribers";
 import AdPromotion from "../page/AdPromotion/AdPromotion";
 import Faq from "../page/Settings/Faq";
+import Support from "../page/Support/Support";
 
 export const router = createBrowserRouter([
   {
@@ -70,6 +71,10 @@ export const router = createBrowserRouter([
       {
         path: "/faq",
         element: <Faq />,
+      },
+      {
+        path: "/support",
+        element: <Support />,
       },
     ],
   },
