@@ -75,6 +75,11 @@ const AdminItems = [
         label: "Privacy Policy",
         link: "/dashboard/Settings/PrivacyPolicy",
       },
+      {
+        key: "faq",
+        label: "Faq",
+        link: "/faq",
+      },
     ],
   },
 ];

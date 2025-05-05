@@ -6,9 +6,6 @@ import PrivacyPolicy from "../page/Settings/PrivacyPolicy";
 import ResetPass from "../Auth/ResetPass";
 import Notification from "../page/Notification/Notification";
 import Login from "../Auth/Login";
-import AddNewBar from "../components/VendorDashboard/AddNewBar";
-import ManageBar from "../components/VendorDashboard/ManageBar";
-import Transaction from "../components/VendorDashboard/Transaction";
 import ForgetPassword from "../Auth/ForgetPass";
 import VerificationCode from "../auth/VerificationCode";
 import DashboardLayout from "../layout/DashboardLayout";
@@ -18,6 +15,7 @@ import Subscription from "../page/subscription/Subscription";
 import UpdateSubscription from "../page/subscription/UpdateSubscription";
 import PremiumSubscribers from "../page/PremiumSubscribers/PremiumSubscribers";
 import AdPromotion from "../page/AdPromotion/AdPromotion";
+import Faq from "../page/Settings/Faq";
 
 export const router = createBrowserRouter([
   {
@@ -54,19 +52,6 @@ export const router = createBrowserRouter([
         element: <AdPromotion />,
       },
       {
-        path: "/vendorDashboard/AddNewBar",
-        element: <AddNewBar />,
-      },
-    
-      {
-        path: "/vendorDashboard/ManageBar",
-        element: <ManageBar />,
-      },
-      {
-        path: "/vendorDashboard/Transaction",
-        element: <Transaction />,
-      },
-      {
         path: "/dashboard/Settings/profile",
         element: <Profile />,
       },
@@ -81,6 +66,10 @@ export const router = createBrowserRouter([
       {
         path: "/dashboard/Settings/PrivacyPolicy",
         element: <PrivacyPolicy />,
+      },
+      {
+        path: "/faq",
+        element: <Faq />,
       },
     ],
   },
