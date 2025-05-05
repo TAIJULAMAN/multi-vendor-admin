@@ -7,68 +7,35 @@
   transition: max-height 0.3s ease-out;
 }
 
-
-
-
-
-
-
 select option {
-  background-color: #EDC4C5;
-
+  background-color: #edc4c5;
 }
 
-/* Pagination buttons style */
-.ant-pagination-item {
-  border-radius: 50% !important;
-  /* Make buttons circular */
-}
 
-/* Active pagination button */
-.ant-pagination-item-active {
-  background-color: #D9000A !important;
-  /* Active background color */
-  border-color: #D9000A !important;
-  /* Active border color */
-}
-
-/* Active pagination button text */
-.ant-pagination-item-active>a {
-  color: white !important;
-  /* Ensure active text color is white */
-}
 
 /* Hover effect for buttons */
-
-
 
 /* In your CSS file or inside a styled-components if you're using them */
 .no-border-radius-modal .ant-modal {
   border-radius: 0 !important;
 }
 
-
-
-
 /* :where(.css-dev-only-do-not-override-49qm)[class^="ant-checkbox"] [class^="ant-checkbox"], :where(.css-dev-only-do-not-override-49qm)[class*=" ant-checkbox"] [class^="ant-checkbox"], :where(.css-dev-only-do-not-override-49qm)[class^="ant-checkbox"] [class*=" ant-checkbox"], :where(.css-dev-only-do-not-override-49qm)[class*=" ant-checkbox"] [class*=" ant-checkbox"] {
     box-sizing: border-box;
     background-color: #D9000A;
 } */
 
-:where(.css-dev-only-do-not-override-49qm).ant-checkbox-checked .ant-checkbox-inner {
+:where(.css-dev-only-do-not-override-49qm).ant-checkbox-checked
+  .ant-checkbox-inner {
   background-color: #000000;
   border-color: #000000;
 }
 
-
-
-:where(.css-dev-only-do-not-override-49qm).ant-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+:where(.css-dev-only-do-not-override-49qm).ant-tabs
+  .ant-tabs-tab.ant-tabs-tab-active
+  .ant-tabs-tab-btn {
   color: #ff3916;
-
 }
-
-
-
 
 .custom-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
   color: red !important;
@@ -80,7 +47,6 @@ select option {
   /* Active ট্যাবের নিচের বর্ডার লাল হবে */
 }
 
-
 .custom-tabs .ant-tabs-tab:hover {
   color: inherit !important;
 }
@@ -89,7 +55,6 @@ select option {
   color: inherit !important;
   /* ট্যাবের বাটনের hover রঙ রিমুভ */
 }
-
 
 .custom-tabs .ant-tabs-tab {
   border-bottom: none !important;
