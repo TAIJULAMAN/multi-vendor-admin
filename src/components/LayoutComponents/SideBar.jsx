@@ -34,7 +34,7 @@ const AdminItems = [
     key: "categorymanagement",
     label: "Category Management",
     icon: MdManageAccounts,
-    link: "",
+    link: "/category-management",
   },
   {
     key: "premiumSubscribers",
