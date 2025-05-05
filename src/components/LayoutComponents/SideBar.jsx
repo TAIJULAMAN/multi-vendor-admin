@@ -55,6 +55,12 @@ const AdminItems = [
     link: "/support",
   },
   {
+    key: "chat",
+    label: "Chat",
+    icon: MdManageAccounts,
+    link: "/chat",
+  },
+  {
     key: "settings",
     label: "Settings",
     icon: FaCog,
