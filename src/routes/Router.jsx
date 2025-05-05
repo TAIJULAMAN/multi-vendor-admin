@@ -1,13 +1,11 @@
 import { createBrowserRouter } from "react-router-dom";
 import Dashboard from "../components/Dashboard/Dashboard";
-import UserManagement from "../page/UserManagement/UserManagement";
 import Profile from "../page/Settings/Profile";
 import TermsCondition from "../page/Settings/TermsCondition";
 import PrivacyPolicy from "../page/Settings/PrivacyPolicy";
 import ResetPass from "../Auth/ResetPass";
 import Notification from "../page/Notification/Notification";
 import Login from "../Auth/Login";
-import Management from "../page/Management/Management";
 import Report from "../page/Report/Report";
 import VendorDashboard from "../page/VendorDashboard/VendorDashboard";
 import AddNewBar from "../components/VendorDashboard/AddNewBar";
@@ -17,6 +15,8 @@ import Transaction from "../components/VendorDashboard/Transaction";
 import ForgetPassword from "../Auth/ForgetPass";
 import VerificationCode from "../auth/VerificationCode";
 import DashboardLayout from "../layout/DashboardLayout";
+import SellerManagement from "../page/sellerManagement/SellerManagement";
+import UserManagement from "../page/userManagement/UserManagement";
 
 export const router = createBrowserRouter([
   {
@@ -28,12 +28,12 @@ export const router = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: "/dashboard/UserManagement",
+        path: "/dashboard/user-management",
         element: <UserManagement />,
       },
       {
-        path: "/dashboard/management",
-        element: <Management />,
+        path: "/dashboard/seller-management",
+        element: <SellerManagement />,
       },
 
       {

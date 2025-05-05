@@ -16,13 +16,13 @@ const AdminItems = [
     key: "userManagement",
     label: "User Management",
     icon: FaUsers,
-    link: "/dashboard/userManagement",
+    link: "/dashboard/user-management",
   },
   {
     key: "sellermanagement",
     label: "Seller Management",
     icon: MdManageAccounts,
-    link: "/dashboard/management",
+    link: "/dashboard/seller-management",
   },
   {
     key: "subscription",
