@@ -1,9 +1,21 @@
-import { ConfigProvider, Table } from "antd";
+import { ConfigProvider, Modal, Table } from "antd";
 import { IoSearch } from "react-icons/io5";
 import PageHeading from "../../shared/PageHeading";
 import { FaEye, FaReply } from "react-icons/fa";
+import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const Support = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
   const dataSource = [
     {
       key: "1",
@@ -171,12 +183,17 @@ const Support = () => {
       render: () => {
         return (
           <div className="flex gap-2">
-            <button className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200">
+            <button
+              onClick={showModal}
+              className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200"
+            >
               <FaEye className="w-6 h-6 text-[#14803c]" />
             </button>
-            <button className="border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200">
-              <FaReply className="w-6 h-6 text-[#14803c]" />
-            </button>
+            <Link to="/chat">
+              <button className="border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200">
+                <FaReply className="w-6 h-6 text-[#14803c]" />
+              </button>
+            </Link>
           </div>
         );
       },
@@ -232,6 +249,35 @@ const Support = () => {
           pagination={{ pageSize: 10 }}
           scroll={{ x: "max-content" }}
         />
+        <Modal
+          open={isModalOpen}
+          centered
+          onCancel={handleCancel}
+          footer={null}
+        >
+          <div className="p-5">
+            <h1 className="text-4xl text-center text-[#0D0D0D]">
+              Are you sure you want to delete ?
+            </h1>
+
+            <div className="text-center py-5">
+              <button
+                onClick={handleOk}
+                className="bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200"
+              >
+                YES,DELETE
+              </button>
+            </div>
+            <div className="text-center pb-5">
+              <button
+                onClick={handleOk}
+                className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
+              >
+                NO,DON’T DELETE
+              </button>
+            </div>
+          </div>
+        </Modal>
       </ConfigProvider>
     </>
   );
