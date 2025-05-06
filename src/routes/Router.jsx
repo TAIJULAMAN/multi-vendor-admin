@@ -3,7 +3,6 @@ import Dashboard from "../components/Dashboard/Dashboard";
 import Profile from "../page/Settings/Profile";
 import TermsCondition from "../page/Settings/TermsCondition";
 import PrivacyPolicy from "../page/Settings/PrivacyPolicy";
-import ResetPass from "../Auth/ResetPass";
 import Notification from "../page/Notification/Notification";
 import Login from "../Auth/Login";
 import ForgetPassword from "../Auth/ForgetPass";
@@ -19,6 +18,7 @@ import Faq from "../page/Settings/Faq";
 import Support from "../page/Support/Support";
 import CategoryManagement from "../page/CategoryManagement/CategoryManagement";
 import Chat from "../page/Chat/Chat";
+import ResetPassword from "../auth/ResetPassword";
 
 export const router = createBrowserRouter([
   {
@@ -102,6 +102,6 @@ export const router = createBrowserRouter([
   },
   {
     path: "/reset-password",
-    element: <ResetPass />,
+    element: <ResetPassword />,
   },
 ]);
