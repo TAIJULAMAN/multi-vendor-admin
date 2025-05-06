@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FaCheck } from "react-icons/fa";
 import { FiMoreVertical } from "react-icons/fi";
-import { IoSearch, IoSend } from "react-icons/io5";
+import { IoSend } from "react-icons/io5";
 import { LuFileText } from "react-icons/lu";
 import PageHeading from "../../shared/PageHeading";
 function Chat() {
@@ -66,19 +66,9 @@ function Chat() {
   };
 
   return (
-    <div className="">
-      <div className="my-5 flex flex-col md:flex-row gap-5 justify-between items-center">
-        <PageHeading title="Support" />
-        <div className="relative w-full sm:w-[300px] mt-5 md:mt-0 lg:mt-0">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="border-2 border-orange-500 py-3 pl-12 pr-[65px] outline-none w-full rounded-md"
-          />
-          <span className=" text-gray-600 absolute top-0 left-0 h-full px-5 flex items-center justify-center rounded-r-md cursor-pointer">
-            <IoSearch className="text-[1.3rem]" />
-          </span>
-        </div>
+    <>
+      <div className="my-5 flex justify-start items-center">
+        <PageHeading title="Chat" />
       </div>
       <div className="flex justify-center items-center">
         <div className="flex h-screen max-w-3xl flex-col">
@@ -195,7 +185,7 @@ function Chat() {
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

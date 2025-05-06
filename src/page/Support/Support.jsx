@@ -1,7 +1,7 @@
 import { ConfigProvider, Table } from "antd";
-import { IoChatbubbleEllipsesOutline, IoSearch } from "react-icons/io5";
+import { IoSearch } from "react-icons/io5";
 import PageHeading from "../../shared/PageHeading";
-import { FaReply } from "react-icons/fa";
+import { FaEye, FaReply } from "react-icons/fa";
 
 const Support = () => {
   const dataSource = [
@@ -172,7 +172,7 @@ const Support = () => {
         return (
           <div className="flex gap-2">
             <button className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200">
-              <IoChatbubbleEllipsesOutline className="w-6 h-6 text-[#14803c]" />
+              <FaEye className="w-6 h-6 text-[#14803c]" />
             </button>
             <button className="border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200">
               <FaReply className="w-6 h-6 text-[#14803c]" />

@@ -1,10 +1,38 @@
-import { ConfigProvider, Table, Tag } from "antd";
+import { ConfigProvider, Modal, Table, Tag } from "antd";
 import { IoSearch } from "react-icons/io5";
 import PageHeading from "../../shared/PageHeading";
 import { CiEdit } from "react-icons/ci";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { useState } from "react";
+import { RxCross2 } from "react-icons/rx";
+import { GoPlus } from "react-icons/go";
 
 const CategoryManagement = () => {
+  const [categoryName, setCategoryName] = useState("Hodh El Gharbi");
+  const [addModalOpen, setAddModalOpen] = useState(false);
+  const handleCancel2 = () => {
+    setAddModalOpen(false);
+  };
+  const showModal3 = () => {
+    setAddModalOpen(true);
+  };
+
+  const [cities, setCities] = useState([
+    { id: 1, name: "", features: "" },
+    { id: 2, name: "", features: "" },
+    { id: 3, name: "", features: "" },
+  ]);
+
+  const handleAddCity = () => {
+    const newId =
+      cities.length > 0 ? Math.max(...cities.map((city) => city.id)) + 1 : 1;
+    setCities([...cities, { id: newId, name: "", features: "" }]);
+  };
+
+  const handleClearCity = (id) => {
+    setCities(cities.filter((city) => city.id !== id));
+  };
+
   const dataSource = [
     {
       key: "1",
@@ -179,7 +207,7 @@ const CategoryManagement = () => {
         return (
           <div className="flex gap-2">
             <button className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200">
-              <CiEdit className="w-6 h-6 text-[#14803c]" />
+              <CiEdit onClick={showModal3} className="w-6 h-6 text-[#14803c]" />
             </button>
             <button className="border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200">
               <RiDeleteBin6Line className="w-6 h-6 text-[#14803c]" />
@@ -239,6 +267,82 @@ const CategoryManagement = () => {
           pagination={{ pageSize: 10 }}
           scroll={{ x: "max-content" }}
         />
+        <Modal
+          open={addModalOpen}
+          centered
+          onCancel={handleCancel2}
+          footer={null}
+        >
+          <div className="p-5">
+            {/* Header */}
+            <div className="text-center mb-6">
+              <h2 className="text-2xl font-bold mb-2">Edit Category</h2>
+              <p className="text-gray-600">Edit the category details below</p>
+            </div>
+
+            {/* Category Name Input */}
+            <div className="mb-6">
+              <label className="block text-gray-800 mb-2">Catagory Name</label>
+              <input
+                type="text"
+                placeholder="Enter Name here"
+                className="w-full border border-gray-300 rounded p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+                value={categoryName}
+                onChange={(e) => setCategoryName(e.target.value)}
+              />
+            </div>
+            <div className="space-y-4">
+              {cities.map((city, index) => (
+                <div key={city.id} className="space-y-1">
+                  <div className="flex justify-between items-center">
+                    <label className="font-medium">
+                      Sub Categories {String(index + 1).padStart(2, "0")}
+                    </label>
+                    <button
+                      onClick={() => handleClearCity(city.id)}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      <RxCross2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                  <input
+                    placeholder={`Features ${String(index + 1).padStart(
+                      2,
+                      "0"
+                    )}`}
+                    className="w-full border rounded-md p-2"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="flex justify-end items-center my-4 text-white">
+              <div className="flex justify-center items-center text-center">
+                <button
+                  onClick={handleAddCity}
+                  className="rounded-full bg-green-600  text-white p-2"
+                >
+                  <GoPlus className="h-5 w-5" />
+                </button>
+              </div>
+            </div>
+            {/* buttons */}
+            <div className="grid grid-cols-2 gap-4 mt-6">
+              <button
+                onClick={handleCancel2}
+                className="py-2 px-4 rounded-lg border border-[#EF4444] bg-red-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleCancel2}
+                className="py-2 px-4 rounded-lg bg-green-600 text-white"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </Modal>
       </ConfigProvider>
     </>
   );
