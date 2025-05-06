@@ -10,9 +10,6 @@ const Support = () => {
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -256,26 +253,13 @@ const Support = () => {
           footer={null}
         >
           <div className="p-5">
-            <h1 className="text-4xl text-center text-[#0D0D0D]">
-              Are you sure you want to delete ?
-            </h1>
+            <h1 className="text-xl text-center text-[#0D0D0D]">Description</h1>
 
-            <div className="text-center py-5">
-              <button
-                onClick={handleOk}
-                className="bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200"
-              >
-                YES,DELETE
-              </button>
-            </div>
-            <div className="text-center pb-5">
-              <button
-                onClick={handleOk}
-                className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
-              >
-                NO,DON’T DELETE
-              </button>
-            </div>
+            <p className="text-center text-[#0D0D0D] mt-5">
+              Sell Products – List and manage your products seamlessly. Track
+              Orders – Get instant notifications for each new order. Access
+              Features – Utilize all system features to enhance sales.
+            </p>
           </div>
         </Modal>
       </ConfigProvider>
