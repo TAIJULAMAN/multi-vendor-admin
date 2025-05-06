@@ -8,12 +8,23 @@ import seller from "../../assets/seller.png";
 import SubscriptionGrowth from "./SubscriptionGrowth";
 import SellerGrowth from "./SellerGrowth";
 import RecentSellerRequests from "./RecentSellerRequests";
+import { Modal } from "antd";
 
 function DashboardPage() {
   const currentYear = dayjs().year();
   const startYear = 1900;
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [isOpen, setIsOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
 
   const years = Array.from(
     { length: currentYear - startYear + 1 },
@@ -164,8 +175,32 @@ function DashboardPage() {
       </div>
       <div className="mt-5">
         <h1 className="text-2xl font-bold mb-5">Recent Seller Requests</h1>
-        <RecentSellerRequests />
+        <RecentSellerRequests showModal={showModal} />
       </div>
+      <Modal open={isModalOpen} centered onCancel={handleCancel} footer={null}>
+        <div className="p-5">
+          <h1 className="text-4xl text-center text-[#0D0D0D]">
+            Are you sure you want to block ?
+          </h1>
+
+          <div className="text-center py-5">
+            <button
+              onClick={handleOk}
+              className="bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200"
+            >
+              Yes,Block
+            </button>
+          </div>
+          <div className="text-center pb-5">
+            <button
+              onClick={handleOk}
+              className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
+            >
+              No,Don’t Block
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

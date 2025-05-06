@@ -10,6 +10,16 @@ import { GoPlus } from "react-icons/go";
 const CategoryManagement = () => {
   const [categoryName, setCategoryName] = useState("Hodh El Gharbi");
   const [addModalOpen, setAddModalOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
   const handleCancel2 = () => {
     setAddModalOpen(false);
   };
@@ -209,7 +219,10 @@ const CategoryManagement = () => {
             <button className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200">
               <CiEdit onClick={showModal3} className="w-6 h-6 text-[#14803c]" />
             </button>
-            <button className="border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200">
+            <button
+              onClick={showModal}
+              className="border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200"
+            >
               <RiDeleteBin6Line className="w-6 h-6 text-[#14803c]" />
             </button>
           </div>
@@ -339,6 +352,35 @@ const CategoryManagement = () => {
                 className="py-2 px-4 rounded-lg bg-green-600 text-white"
               >
                 Save
+              </button>
+            </div>
+          </div>
+        </Modal>
+        <Modal
+          open={isModalOpen}
+          centered
+          onCancel={handleCancel}
+          footer={null}
+        >
+          <div className="p-5">
+            <h1 className="text-4xl text-center text-[#0D0D0D]">
+              Are you sure you want to block ?
+            </h1>
+
+            <div className="text-center py-5">
+              <button
+                onClick={handleOk}
+                className="bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200"
+              >
+                Yes,Block
+              </button>
+            </div>
+            <div className="text-center pb-5">
+              <button
+                onClick={handleOk}
+                className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
+              >
+                No,Don’t Block
               </button>
             </div>
           </div>

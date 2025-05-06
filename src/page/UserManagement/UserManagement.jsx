@@ -1,9 +1,20 @@
 import { IoSearch } from "react-icons/io5";
 import { MdBlockFlipped } from "react-icons/md";
 import PageHeading from "../../shared/PageHeading";
-import { ConfigProvider, Table } from "antd";
+import { ConfigProvider, Modal, Table } from "antd";
+import { useState } from "react";
 
 const UserManagement = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
   const dataSource = [
     {
       key: "1",
@@ -239,7 +250,10 @@ const UserManagement = () => {
       title: "Action",
       key: "action",
       render: () => (
-        <button className="border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200">
+        <button
+          onClick={showModal}
+          className="border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200"
+        >
           <MdBlockFlipped className="w-6 h-6 text-[#14803c]" />
         </button>
       ),
@@ -295,6 +309,36 @@ const UserManagement = () => {
           pagination={{ pageSize: 10 }}
           scroll={{ x: "max-content" }}
         />
+
+        <Modal
+          open={isModalOpen}
+          centered
+          onCancel={handleCancel}
+          footer={null}
+        >
+          <div className="p-5">
+            <h1 className="text-4xl text-center text-[#0D0D0D]">
+              Are you sure you want to block ?
+            </h1>
+
+            <div className="text-center py-5">
+              <button
+                onClick={handleOk}
+                className="bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200"
+              >
+                Yes,Block
+              </button>
+            </div>
+            <div className="text-center pb-5">
+              <button
+                onClick={handleOk}
+                className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
+              >
+                No,Don’t Block
+              </button>
+            </div>
+          </div>
+        </Modal>
       </ConfigProvider>
     </>
   );
