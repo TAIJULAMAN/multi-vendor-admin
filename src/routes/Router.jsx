@@ -7,7 +7,6 @@ import Notification from "../page/Notification/Notification";
 import VerificationCode from "../auth/VerificationCode";
 import DashboardLayout from "../layout/DashboardLayout";
 import SellerManagement from "../page/sellerManagement/SellerManagement";
-import UserManagement from "../page/userManagement/UserManagement";
 import Subscription from "../page/subscription/Subscription";
 import UpdateSubscription from "../page/subscription/UpdateSubscription";
 import PremiumSubscribers from "../page/PremiumSubscribers/PremiumSubscribers";
@@ -19,6 +18,7 @@ import Chat from "../page/Chat/Chat";
 import ResetPassword from "../auth/ResetPassword";
 import Login from "../Auth/Login";
 import ForgetPassword from "../auth/ForgetPassword";
+import Users from "../page/UserManagement/Users";
 
 export const router = createBrowserRouter([
   {
@@ -31,7 +31,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/dashboard/user-management",
-        element: <UserManagement />,
+        element: <Users />,
       },
       {
         path: "/dashboard/seller-management",

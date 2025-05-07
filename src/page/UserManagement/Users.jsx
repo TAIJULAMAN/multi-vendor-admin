@@ -1,10 +1,10 @@
+import { useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import { MdBlockFlipped } from "react-icons/md";
 import PageHeading from "../../shared/PageHeading";
 import { ConfigProvider, Modal, Table } from "antd";
-import { useState } from "react";
 
-const UserManagement = () => {
+const Users = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const handleOk = () => {
     setIsModalOpen(false);
@@ -344,4 +344,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default Users;
