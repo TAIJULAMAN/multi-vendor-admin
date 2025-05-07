@@ -16,9 +16,10 @@ import Support from "../page/Support/Support";
 import CategoryManagement from "../page/CategoryManagement/CategoryManagement";
 import Chat from "../page/Chat/Chat";
 import ResetPassword from "../auth/ResetPassword";
-import Login from "../Auth/Login";
+// import Login from "../Auth/Login";
 import ForgetPassword from "../auth/ForgetPassword";
 import Users from "../page/UserManagement/Users";
+import SignIn from "../auth/SignIn";
 
 export const router = createBrowserRouter([
   {
@@ -90,7 +91,7 @@ export const router = createBrowserRouter([
   },
   {
     path: "/login",
-    element: <Login />,
+    element: <SignIn />,
   },
   {
     path: "/forget-password",
