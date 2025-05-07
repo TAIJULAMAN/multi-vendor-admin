@@ -1,5 +1,4 @@
 import { useNavigate } from "react-router-dom";
-import "antd/dist/reset.css";
 import BrandLogo from "../shared/BrandLogo";
 
 function ForgetPassword() {

@@ -4,8 +4,6 @@ import Profile from "../page/Settings/Profile";
 import TermsCondition from "../page/Settings/TermsCondition";
 import PrivacyPolicy from "../page/Settings/PrivacyPolicy";
 import Notification from "../page/Notification/Notification";
-// import Login from "../Auth/Login";
-import ForgetPassword from "../Auth/ForgetPass";
 import VerificationCode from "../auth/VerificationCode";
 import DashboardLayout from "../layout/DashboardLayout";
 import SellerManagement from "../page/sellerManagement/SellerManagement";
@@ -20,6 +18,7 @@ import CategoryManagement from "../page/CategoryManagement/CategoryManagement";
 import Chat from "../page/Chat/Chat";
 import ResetPassword from "../auth/ResetPassword";
 import Login from "../Auth/Login";
+import ForgetPassword from "../auth/ForgetPassword";
 
 export const router = createBrowserRouter([
   {
