@@ -63,7 +63,7 @@ const Header = () => {
                     to={item.link}
                     className={`menu-item my-4 mx-5 py-3 px-3 flex items-center cursor-pointer ${selectedKey === item.key
                       ? "bg-[#0B704E] text-white rounded-md"
-                      : "bg-white rounded-md hover:bg-[#B3D3C8]"
+                      : "bg-white rounded-md"
                       }`}
                     onClick={(e) => {
                       if (item.children) {
@@ -75,7 +75,6 @@ const Header = () => {
                       }
                     }}
                   >
-                    {/* <img src={item.icon} alt={item.label} className="w-6 h-6" /> */}
                     {item?.icon()}
                     <span className="ml-3 text-base font-medium">
                       {item.label}
