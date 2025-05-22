@@ -1,11 +1,17 @@
-import { MdDashboard, MdManageAccounts } from "react-icons/md";
+import { MdDashboard, MdManageAccounts, MdOutlineCategory } from "react-icons/md";
 import { FaUsers, FaChevronRight, FaFileAlt, FaCog } from "react-icons/fa";
 import { IoIosLogIn } from "react-icons/io";
+import { IoChatboxEllipsesOutline } from "react-icons/io5";
 import logo from "../../assets/header/logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import { TbHomeDollar } from "react-icons/tb";
+import { LuBadgeCheck } from "react-icons/lu";
+import { BiCheckShield, BiCommand } from "react-icons/bi";
 
-const AdminItems = [
+
+
+export const AdminItems = [
   {
     key: "dashboard",
     label: "Dashboard",
@@ -21,19 +27,19 @@ const AdminItems = [
   {
     key: "sellermanagement",
     label: "Seller Management",
-    icon: MdManageAccounts,
+    icon: TbHomeDollar,
     link: "/dashboard/seller-management",
   },
   {
     key: "subscription",
     label: "Subscription",
-    icon: FaFileAlt,
+    icon: LuBadgeCheck,
     link: "/dashboard/subscription",
   },
   {
     key: "categorymanagement",
     label: "Category Management",
-    icon: MdManageAccounts,
+    icon: MdOutlineCategory,
     link: "/category-management",
   },
   {
@@ -45,19 +51,19 @@ const AdminItems = [
   {
     key: "adPromotion",
     label: "Ads Promotion",
-    icon: MdManageAccounts,
+    icon: BiCommand,
     link: "/ads-promotion",
   },
   {
     key: "support",
     label: "Support",
-    icon: MdManageAccounts,
+    icon: BiCheckShield,
     link: "/support",
   },
   {
     key: "chat",
     label: "Chat",
-    icon: MdManageAccounts,
+    icon: IoChatboxEllipsesOutline,
     link: "/chat",
   },
   {
@@ -90,6 +96,7 @@ const AdminItems = [
   },
 ];
 
+
 const SideBar = () => {
   const [selectedKey, setSelectedKey] = useState("dashboard");
   const [expandedKeys, setExpandedKeys] = useState([]);
@@ -117,7 +124,7 @@ const SideBar = () => {
       setSelectedKey(
         activeParent.children
           ? activeParent.children.find((child) => child.link === currentPath)
-              ?.key || activeParent.key
+            ?.key || activeParent.key
           : activeParent.key
       );
 
@@ -161,14 +168,13 @@ const SideBar = () => {
               <div key={item.key}>
                 <Link
                   to={item.link}
-                  className={`menu-item my-4 mx-5 py-3 px-3 flex items-center cursor-pointer ${
-                    selectedKey === item.key ||
-                    isSettingsActive ||
-                    isCreatorActive ||
-                    isCategoriesActive
+                  className={`menu-item my-4 mx-5 py-3 px-3 flex items-center cursor-pointer ${selectedKey === item.key ||
+                      isSettingsActive ||
+                      isCreatorActive ||
+                      isCategoriesActive
                       ? "bg-[#0B704E] text-white rounded-md"
                       : "bg-white rounded-md hover:bg-[#B3D3C8]"
-                  }`}
+                    }`}
                   onClick={(e) => {
                     if (item.children) {
                       e.preventDefault();
@@ -184,9 +190,8 @@ const SideBar = () => {
                   {/* Show dropdown arrow if children exist */}
                   {item.children && (
                     <FaChevronRight
-                      className={`ml-auto transform transition-all duration-300 ${
-                        expandedKeys.includes(item.key) ? "rotate-90" : ""
-                      }`}
+                      className={`ml-auto transform transition-all duration-300 ${expandedKeys.includes(item.key) ? "rotate-90" : ""
+                        }`}
                     />
                   )}
                 </Link>
@@ -194,9 +199,8 @@ const SideBar = () => {
                 {/* Show children menu if expanded */}
                 {item.children && (
                   <div
-                    className={`children-menu bg-white -my-2 mx-5 transition-all duration-300 ${
-                      expandedKeys.includes(item.key) ? "expanded" : ""
-                    }`}
+                    className={`children-menu bg-white -my-2 mx-5 transition-all duration-300 ${expandedKeys.includes(item.key) ? "expanded" : ""
+                      }`}
                     style={{
                       maxHeight: expandedKeys.includes(item.key)
                         ? `${contentRef.current[item.key]?.scrollHeight}px`
@@ -208,11 +212,10 @@ const SideBar = () => {
                       <Link
                         key={child.key}
                         to={child.link}
-                        className={`menu-item p-4 flex items-center cursor-pointer ${
-                          selectedKey === child.key
+                        className={`menu-item p-4 flex items-center cursor-pointer ${selectedKey === child.key
                             ? "bg-[#0B704E] text-white"
                             : "hover:bg-[#B3D3C8]"
-                        }`}
+                          }`}
                         onClick={() => {
                           setSelectedKey(child.key); // Set the selected key for children
                           setExpandedKeys([]); // Close all expanded items

@@ -8,74 +8,9 @@ import logo from "../../assets/header/logo.png";
 import { FaChevronRight } from "react-icons/fa";
 import { IoIosLogIn } from "react-icons/io";
 import { MdDashboard, MdManageAccounts } from "react-icons/md";
+import { AdminItems } from "./SideBar";
 
-const items = [
-  {
-    key: "dashboard",
-    label: "Dashboard",
-    icon: MdDashboard,
-    link: "/",
-  },
-  {
-    key: "userManagement",
-    label: "User Management",
-    icon: FaUsers,
-    link: "/dashboard/user-management",
-  },
-  {
-    key: "sellermanagement",
-    label: "Seller Management",
-    icon: MdManageAccounts,
-    link: "/dashboard/seller-management",
-  },
-  {
-    key: "subscription",
-    label: "Subscription",
-    icon: FaFileAlt,
-    link: "/dashboard/report",
-  },
-  {
-    key: "categorymanagement",
-    label: "Category Management",
-    icon: MdManageAccounts,
-    link: "",
-  },
-  {
-    key: "premiumSubscribers",
-    label: "Premium Subscribers",
-    icon: MdManageAccounts,
-    link: "",
-  },
-  {
-    key: "support",
-    label: "Support",
-    icon: MdManageAccounts,
-    link: "",
-  },
-  {
-    key: "settings",
-    label: "Settings",
-    icon: settings,
-    link: "/dashboard/Settings/profile",
-    children: [
-      {
-        key: "profile",
-        label: "Profile",
-        link: "/dashboard/Settings/profile",
-      },
-      {
-        key: "terms",
-        label: "Terms & Condition",
-        link: "/dashboard/Settings/Terms&Condition",
-      },
-      {
-        key: "privacy",
-        label: "Privacy Policy",
-        link: "/dashboard/Settings/PrivacyPolicy",
-      },
-    ],
-  },
-];
+
 
 const Header = () => {
   const [selectedKey, setSelectedKey] = useState("dashboard");
@@ -122,15 +57,14 @@ const Header = () => {
             className="custom-drawer"
           >
             <div className="menu-items">
-              {items.map((item) => (
+              {AdminItems.map((item) => (
                 <div key={item.key}>
                   <Link
                     to={item.link}
-                    className={`menu-item my-4 mx-5 py-3 px-3 flex items-center cursor-pointer ${
-                      selectedKey === item.key
+                    className={`menu-item my-4 mx-5 py-3 px-3 flex items-center cursor-pointer ${selectedKey === item.key
                         ? "bg-[#0B704E] text-white rounded-md"
                         : "bg-white rounded-md hover:bg-[#B3D3C8]"
-                    }`}
+                      }`}
                     onClick={(e) => {
                       if (item.children) {
                         e.preventDefault();
@@ -147,18 +81,16 @@ const Header = () => {
                     </span>
                     {item.children && (
                       <FaChevronRight
-                        className={`ml-auto transform transition-all duration-300 ${
-                          expandedKeys.includes(item.key) ? "rotate-90" : ""
-                        }`}
+                        className={`ml-auto transform transition-all duration-300 ${expandedKeys.includes(item.key) ? "rotate-90" : ""
+                          }`}
                       />
                     )}
                   </Link>
 
                   {item.children && (
                     <div
-                      className={`children-menu bg-white -my-2 mx-5 text-black transition-all duration-300 ${
-                        expandedKeys.includes(item.key) ? "expanded" : ""
-                      }`}
+                      className={`children-menu bg-white -my-2 mx-5 text-black transition-all duration-300 ${expandedKeys.includes(item.key) ? "expanded" : ""
+                        }`}
                       style={{
                         maxHeight: expandedKeys.includes(item.key)
                           ? `${contentRef.current[item.key]?.scrollHeight}px`
@@ -170,11 +102,10 @@ const Header = () => {
                         <Link
                           key={child.key}
                           to={child.link}
-                          className={`menu-item p-4 flex items-center cursor-pointer ${
-                            selectedKey === child.key
+                          className={`menu-item p-4 flex items-center cursor-pointer ${selectedKey === child.key
                               ? "bg-[#0B704E] text-white"
                               : "hover:bg-[#B3D3C8]"
-                          }`}
+                            }`}
                           onClick={() => {
                             setSelectedKey(child.key);
                             setExpandedKeys([]);
