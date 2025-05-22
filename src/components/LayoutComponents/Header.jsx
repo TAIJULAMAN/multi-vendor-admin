@@ -104,7 +104,7 @@ const Header = () => {
                           to={child.link}
                           className={`menu-item p-4 flex items-center cursor-pointer ${selectedKey === child.key
                             ? "bg-[#0B704E] text-white"
-                            : "hover:bg-[#B3D3C8]"
+                            : ""
                             }`}
                           onClick={() => {
                             setSelectedKey(child.key);
