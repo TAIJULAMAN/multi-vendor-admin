@@ -51,8 +51,14 @@ export const AdminItems = [
     link: "/premium-subscribers",
   },
   {
-    key: "adPromotion",
-    label: "Ads Promotion",
+    key: "englishAdPromotion",
+    label: "English Ads Promotion",
+    icon: BiCommand,
+    link: "/ads-promotion",
+  },
+   {
+    key: "arabicAdPromotion",
+    label: "Arabic Ads Promotion",
     icon: BiCommand,
     link: "/ads-promotion",
   },
@@ -158,7 +164,7 @@ const SideBar = () => {
   };
 
   return (
-    <div className="custom-sidebar min-h-[100vh] bg-[#FF914C]">
+    <div className="min-h-[100vh] bg-[#FF914C]">
       <div className="custom-sidebar-logo flex justify-center bg-gray-600">
         <img src={logo} alt="Logo" className="w-[95px]" />
       </div>

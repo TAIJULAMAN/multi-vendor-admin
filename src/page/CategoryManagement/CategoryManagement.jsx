@@ -235,15 +235,25 @@ const CategoryManagement = () => {
     <>
       <div className="my-5 md:my-10 flex flex-col md:flex-row gap-5 justify-between items-center">
         <PageHeading title="Category Management" />
-        <div className="relative w-full sm:w-[300px] mt-5 md:mt-0 lg:mt-0">
-          <input
-            type="text"
-            placeholder="Search..."
-            className="border-2 border-orange-500 py-3 pl-12 pr-[65px] outline-none w-full rounded-md"
-          />
-          <span className=" text-gray-600 absolute top-0 left-0 h-full px-5 flex items-center justify-center rounded-r-md cursor-pointer">
-            <IoSearch className="text-[1.3rem]" />
-          </span>
+        <div className="flex flex-col md:flex-row gap-5 justify-between items-center">
+          <div className="relative w-full sm:w-[300px] mt-5 md:mt-0 lg:mt-0">
+            <input
+              type="text"
+              placeholder="Search..."
+              className="border-2 border-orange-500 py-3 pl-12 pr-[65px] outline-none w-full rounded-md"
+            />
+            <span className=" text-gray-600 absolute top-0 left-0 h-full px-5 flex items-center justify-center rounded-r-md cursor-pointer">
+              <IoSearch className="text-[1.3rem]" />
+            </span>
+          </div>
+          <div>
+            <button
+              // onClick={showModal2}
+              className="bg-[#FF914C] text-white px-4 py-3 rounded-lg hover:bg-[#FF914C]/80"
+            >
+              + Add Category
+            </button>
+          </div>
         </div>
       </div>
       <ConfigProvider

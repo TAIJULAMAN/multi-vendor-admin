@@ -29,8 +29,16 @@ export default function Subscription() {
 
   return (
     <div className="min-h-screen">
-      <div className="flex items-center justify-start mb-5">
+      <div className="flex items-center justify-between mb-5">
         <PageHeading title="Subscription Management" />
+        <div>
+          <button
+            // onClick={showModal2}
+            className="bg-[#FF914C] text-white px-4 py-3 rounded-lg hover:bg-[#FF914C]/80"
+          >
+            + Add Subscription
+          </button>
+        </div>
       </div>
       <div className="flex justify-center items-center p-5">
         <div className="bg-white shadow-lg relative rounded-2xl px-5 py-20 w-full max-w-xl text-center">
