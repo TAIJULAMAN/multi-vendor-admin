@@ -29,7 +29,7 @@ const profileApi = baseApi.injectEndpoints({
         url: "user/change_password",
         method: "PATCH",
         headers: {
-          "Content-Type": "application/json",
+          // "Content-Type": "application/json",
         },
         body: data,
       }),
