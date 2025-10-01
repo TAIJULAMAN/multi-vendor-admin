@@ -1,8 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import "antd/dist/reset.css";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import BrandLogo from "../shared/BrandLogo";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { useLogInMutation } from "../Redux/api/authApi";
+import { setUser } from "../Redux/Slice/authSlice";
+import { message } from "antd";
 
 function SignIn() {
   const [formData, setFormData] = useState({
@@ -11,6 +15,22 @@ function SignIn() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const [logIn, { isLoading }] = useLogInMutation();
+
+  // Prefill from localStorage on mount
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("vendor-email");
+    const savedPass = localStorage.getItem("vendor-pass");
+    if (savedEmail || savedPass) {
+      setFormData({
+        email: savedEmail || "",
+        password: savedPass || "",
+      });
+      setIsChecked(true);
+    }
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -18,9 +38,45 @@ function SignIn() {
       ...prev,
       [name]: value,
     }));
+    // Keep storage in sync if Remember is checked
+    if (isChecked) {
+      if (name === "email") localStorage.setItem("vendor-email", value);
+      if (name === "password") localStorage.setItem("vendor-pass", value);
+    }
   };
   const handleCheckboxChange = (event) => {
-    setIsChecked(event.target.checked);
+    const checked = event.target.checked;
+    setIsChecked(checked);
+    if (checked) {
+      // Save current values
+      localStorage.setItem("vendor-email", formData.email || "");
+      localStorage.setItem("vendor-pass", formData.password || "");
+    } else {
+      // Remove saved values
+      localStorage.removeItem("vendor-email");
+      localStorage.removeItem("vendor-pass");
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await logIn(formData).unwrap();
+      // Persist to Redux
+      dispatch(setUser(res));
+      // Persist tokens for other flows that read localStorage
+      if (res?.data?.accessToken) {
+        localStorage.setItem("accessToken", res.data.accessToken);
+      }
+      if (res?.data?.refreshToken) {
+        localStorage.setItem("refreshToken", res.data.refreshToken);
+      }
+      message.success(res?.message || "Logged in successfully");
+      navigate("/");
+    } catch (err) {
+      const errMsg = err?.data?.message || "Login failed";
+      message.error(errMsg);
+    }
   };
 
   return (
@@ -30,7 +86,7 @@ function SignIn() {
           status="Login to your account"
           information="please enter your email and password to continue."
         />
-        <form className="space-y-5">
+        <form className="space-y-5" onSubmit={handleSubmit}>
           <div className="w-full">
             <label className="text-xl text-gray-800 mb-2 flex justify-start text-start">
               Email address
@@ -140,16 +196,17 @@ function SignIn() {
             </Link>
           </div>
 
-          <Link to="/">
-            <div className="flex justify-center items-center text-white">
-              <button
-                type="submit"
-                className="w-full bg-[#FF914C] font-semibold py-3 px-6 rounded-lg shadow-lg cursor-pointer mt-5"
-              >
-                Sign In
-              </button>
-            </div>
-          </Link>
+          <div className="flex justify-center items-center text-white">
+            <button
+              type="submit"
+              disabled={isLoading}
+              className={`w-full bg-[#FF914C] font-semibold py-3 px-6 rounded-lg shadow-lg cursor-pointer mt-5 ${
+                isLoading ? "opacity-70 cursor-not-allowed" : ""
+              }`}
+            >
+              {isLoading ? "Signing in..." : "Sign In"}
+            </button>
+          </div>
         </form>
       </div>
     </div>
