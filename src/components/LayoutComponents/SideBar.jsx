@@ -12,6 +12,11 @@ import { useEffect, useRef, useState } from "react";
 import { TbHomeDollar } from "react-icons/tb";
 import { LuBadgeCheck } from "react-icons/lu";
 import { BiCheckShield, BiCommand } from "react-icons/bi";
+import { Modal } from "antd";
+import { useDispatch } from "react-redux";
+import { logout } from "../../Redux/Slice/authSlice";
+import { persistor } from "../../Redux/store";
+import { baseApi } from "../../Redux/api/baseApi";
 
 export const AdminItems = [
   {
@@ -122,6 +127,7 @@ const SideBar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const contentRef = useRef({});
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const currentPath = location.pathname;
@@ -160,7 +166,24 @@ const SideBar = () => {
   };
 
   const handleLogout = () => {
-    navigate("/login");
+    Modal.confirm({
+      title: "Confirm logout",
+      content: "Are you sure you want to log out?",
+      okText: "Logout",
+      cancelText: "Cancel",
+      okButtonProps: { danger: true },
+      centered: true,
+      onOk: () => {
+        // Clear auth state and tokens
+        dispatch(logout());
+        dispatch(baseApi.util.resetApiState());
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        // Purge persisted redux state
+        persistor.purge();
+        navigate("/login");
+      },
+    });
   };
 
   return (

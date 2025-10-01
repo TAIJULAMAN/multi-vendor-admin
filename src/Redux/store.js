@@ -7,7 +7,7 @@ import { baseApi } from "./api/baseApi";
 
 
 const persistConfig = {
-  key: "BAZARYA-app",
+  key: "multi-vendor-app",
   storage,
   blacklist: ["baseApi"], 
 };

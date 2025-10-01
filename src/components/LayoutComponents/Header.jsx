@@ -1,14 +1,16 @@
+import { useRef, useState } from "react";
 import { LuBell } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
-import { FaBars, FaFileAlt, FaUsers } from "react-icons/fa";
-import { useRef, useState } from "react";
-import { Drawer } from "antd";
-import settings from "../../assets/routerImg/settings.png";
+import { FaBars } from "react-icons/fa";
+import { Drawer, Modal } from "antd";
 import logo from "../../assets/header/logo.png";
 import { FaChevronRight } from "react-icons/fa";
 import { IoIosLogIn } from "react-icons/io";
-import { MdDashboard, MdManageAccounts } from "react-icons/md";
 import { AdminItems } from "./SideBar";
+import { useDispatch } from "react-redux";
+import { logout } from "../../Redux/Slice/authSlice";
+import { persistor } from "../../Redux/store";
+import { baseApi } from "../../Redux/api/baseApi";
 
 
 
@@ -19,6 +21,7 @@ const Header = () => {
   const contentRef = useRef({});
   const [open, setOpen] = useState(false);
   const [placement] = useState("left");
+  const dispatch = useDispatch();
 
   const onParentClick = (key) => {
     setExpandedKeys((prev) =>
@@ -34,7 +37,27 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    navigate("/login");
+    Modal.confirm({
+      title: "Confirm logout",
+      content: "Are you sure you want to log out?",
+      okText: "Logout",
+      cancelText: "Cancel",
+      okButtonProps: { danger: true },
+      centered: true,
+      onOk: () => {
+        // Clear auth state and tokens
+        dispatch(logout());
+        // Reset RTK Query cache
+        dispatch(baseApi.util.resetApiState());
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
+        // Purge persisted redux state (redux-persist)
+        persistor.purge();
+        // Close drawer if open and navigate to login
+        setOpen(false);
+        navigate("/login");
+      },
+    });
   };
 
   return (
