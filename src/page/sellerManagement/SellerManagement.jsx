@@ -1,5 +1,5 @@
 import { ConfigProvider, Modal, Table } from "antd";
-import { MdBlockFlipped } from "react-icons/md";
+import { MdBlockFlipped, MdEdit } from "react-icons/md";
 import { IoChatbubbleEllipsesOutline, IoSearch } from "react-icons/io5";
 import { BsPatchCheckFill } from "react-icons/bs";
 import PageHeading from "../../shared/PageHeading";
@@ -25,7 +25,7 @@ const SellerManagement = () => {
       shopName: "Shop A",
       email: "johndoe@example.com",
       productCategory: "Electronics",
-      phoneNumber: "johndoe@example.com",
+      phoneNumber: "+1 (555) 0101",
       Distribution: "New York, USA",
       BusinessAddress: "123 Main St, New York, NY 10001",
     },
@@ -36,7 +36,7 @@ const SellerManagement = () => {
       shopName: "Shop B",
       email: "maria@example.com",
       productCategory: "Fashion",
-      phoneNumber: "maria@example.com",
+      phoneNumber: "+1 (555) 0102",
       Distribution: "Los Angeles, USA",
       BusinessAddress: "456 Oak St, Los Angeles, CA 90001",
     },
@@ -47,7 +47,7 @@ const SellerManagement = () => {
       shopName: "Shop C",
       email: "john@example.com",
       productCategory: "Home & Garden",
-      phoneNumber: "john@example.com",
+      phoneNumber: "+1 (555) 0103",
       Distribution: "Chicago, USA",
       BusinessAddress: "789 Pine St, Chicago, IL 60601",
     },
@@ -58,7 +58,7 @@ const SellerManagement = () => {
       shopName: "Shop D",
       email: "emily@example.com",
       productCategory: "Health & Beauty",
-      phoneNumber: "emily@example.com",
+      phoneNumber: "+1 (555) 0104",
       Distribution: "San Francisco, USA",
       BusinessAddress: "101 Maple St, San Francisco, CA 94101",
     },
@@ -69,7 +69,7 @@ const SellerManagement = () => {
       shopName: "Shop E",
       email: "david@example.com",
       productCategory: "Sports & Outdoors",
-      phoneNumber: "david@example.com",
+      phoneNumber: "+1 (555) 0105",
       Distribution: "Houston, USA",
       BusinessAddress: "202 Birch St, Houston, TX 77001",
     },
@@ -80,7 +80,7 @@ const SellerManagement = () => {
       shopName: "Shop F",
       email: "sophia@example.com",
       productCategory: "Health & Beauty",
-      phoneNumber: "sophia@example.com",
+      phoneNumber: "+1 (555) 0106",
       Distribution: "Phoenix, USA",
       BusinessAddress: "303 Cedar St, Phoenix, AZ 85001",
     },
@@ -91,7 +91,7 @@ const SellerManagement = () => {
       shopName: "Shop G",
       email: "james@example.com",
       productCategory: "Fashion",
-      phoneNumber: "james@example.com",
+      phoneNumber: "+1 (555) 0107",
       Distribution: "Seattle, USA",
       BusinessAddress: "404 Elm St, Seattle, WA 98101",
     },
@@ -102,7 +102,7 @@ const SellerManagement = () => {
       shopName: "Shop H",
       email: "olivia@example.com",
       productCategory: "Electronics",
-      phoneNumber: "olivia@example.com",
+      phoneNumber: "+1 (555) 0108",
       Distribution: "Miami, USA",
       BusinessAddress: "505 Willow St, Miami, FL 33101",
     },
@@ -113,7 +113,7 @@ const SellerManagement = () => {
       shopName: "Shop I",
       email: "ethan@example.com",
       productCategory: "Sports & Outdoors",
-      phoneNumber: "ethan@example.com",
+      phoneNumber: "+1 (555) 0109",
       Distribution: "Dallas, USA",
       BusinessAddress: "606 Pineapple St, Dallas, TX 75201",
     },
@@ -124,7 +124,7 @@ const SellerManagement = () => {
       shopName: "Shop J",
       email: "ava@example.com",
       productCategory: "Home & Garden",
-      phoneNumber: "ava@example.com",
+      phoneNumber: "+1 (555) 0110",
       Distribution: "Austin, USA",
       BusinessAddress: "707 Palm St, Austin, TX 73301",
     },
@@ -135,7 +135,7 @@ const SellerManagement = () => {
       shopName: "Shop K",
       email: "mason@example.com",
       productCategory: "Health & Beauty",
-      phoneNumber: "mason@example.com",
+      phoneNumber: "+1 (555) 0111",
       Distribution: "Denver, USA",
       BusinessAddress: "808 Oakwood St, Denver, CO 80201",
     },
@@ -146,7 +146,7 @@ const SellerManagement = () => {
       shopName: "Shop L",
       email: "isabella@example.com",
       productCategory: "Fashion",
-      phoneNumber: "isabella@example.com",
+      phoneNumber: "+1 (555) 0112",
       Distribution: "Boston, USA",
       BusinessAddress: "909 Birchwood St, Boston, MA 02101",
     },
@@ -157,7 +157,7 @@ const SellerManagement = () => {
       shopName: "Shop M",
       email: "liam@example.com",
       productCategory: "Electronics",
-      phoneNumber: "liam@example.com",
+      phoneNumber: "+1 (555) 0113",
       Distribution: "Atlanta, USA",
       BusinessAddress: "123 Aspen St, Atlanta, GA 30301",
     },
@@ -168,7 +168,7 @@ const SellerManagement = () => {
       shopName: "Shop N",
       email: "charlotte@example.com",
       productCategory: "Home & Garden",
-      phoneNumber: "charlotte@example.com",
+      phoneNumber: "+1 (555) 0114",
       Distribution: "Philadelphia, USA",
       BusinessAddress: "234 Chestnut St, Philadelphia, PA 19102",
     },
@@ -179,7 +179,7 @@ const SellerManagement = () => {
       shopName: "Shop O",
       email: "lucas@example.com",
       productCategory: "Sports & Outdoors",
-      phoneNumber: "lucas@example.com",
+      phoneNumber: "+1 (555) 0115",
       Distribution: "Detroit, USA",
       BusinessAddress: "345 Spruce St, Detroit, MI 48201",
     },
@@ -190,7 +190,7 @@ const SellerManagement = () => {
       shopName: "Shop P",
       email: "mila@example.com",
       productCategory: "Fashion",
-      phoneNumber: "mila@example.com",
+      phoneNumber: "+1 (555) 0116",
       Distribution: "Portland, USA",
       BusinessAddress: "456 Fir St, Portland, OR 97201",
     },
@@ -201,7 +201,7 @@ const SellerManagement = () => {
       shopName: "Shop Q",
       email: "logan@example.com",
       productCategory: "Health & Beauty",
-      phoneNumber: "logan@example.com",
+      phoneNumber: "+1 (555) 0117",
       Distribution: "Indianapolis, USA",
       BusinessAddress: "567 Pinewood St, Indianapolis, IN 46201",
     },
@@ -212,7 +212,7 @@ const SellerManagement = () => {
       shopName: "Shop R",
       email: "amelia@example.com",
       productCategory: "Home & Garden",
-      phoneNumber: "amelia@example.com",
+      phoneNumber: "+1 (555) 0118",
       Distribution: "Charlotte, USA",
       BusinessAddress: "678 Cedarwood St, Charlotte, NC 28201",
     },
@@ -223,7 +223,7 @@ const SellerManagement = () => {
       shopName: "Shop S",
       email: "henry@example.com",
       productCategory: "Electronics",
-      phoneNumber: "henry@example.com",
+      phoneNumber: "+1 (555) 0119",
       Distribution: "Minneapolis, USA",
       BusinessAddress: "789 Maplewood St, Minneapolis, MN 55101",
     },
@@ -234,7 +234,7 @@ const SellerManagement = () => {
       shopName: "Shop T",
       email: "zoe@example.com",
       productCategory: "Sports & Outdoors",
-      phoneNumber: "zoe@example.com",
+      phoneNumber: "+1 (555) 0120",
       Distribution: "San Diego, USA",
       BusinessAddress: "890 Redwood St, San Diego, CA 92101",
     },
@@ -245,7 +245,7 @@ const SellerManagement = () => {
       shopName: "Shop A",
       email: "johndoe@example.com",
       productCategory: "Electronics",
-      phoneNumber: "johndoe@example.com",
+      phoneNumber: "+1 (555) 0121",
       Distribution: "New York, USA",
       BusinessAddress: "123 Main St, New York, NY 10001",
     },
@@ -256,7 +256,7 @@ const SellerManagement = () => {
       shopName: "Shop B",
       email: "maria@example.com",
       productCategory: "Fashion",
-      phoneNumber: "maria@example.com",
+      phoneNumber: "+1 (555) 0122",
       Distribution: "Los Angeles, USA",
       BusinessAddress: "456 Oak St, Los Angeles, CA 90001",
     },
@@ -267,7 +267,7 @@ const SellerManagement = () => {
       shopName: "Shop C",
       email: "john@example.com",
       productCategory: "Home & Garden",
-      phoneNumber: "john@example.com",
+      phoneNumber: "+1 (555) 0123",
       Distribution: "Chicago, USA",
       BusinessAddress: "789 Pine St, Chicago, IL 60601",
     },
@@ -278,7 +278,7 @@ const SellerManagement = () => {
       shopName: "Shop D",
       email: "emily@example.com",
       productCategory: "Health & Beauty",
-      phoneNumber: "emily@example.com",
+      phoneNumber: "+1 (555) 0124",
       Distribution: "San Francisco, USA",
       BusinessAddress: "101 Maple St, San Francisco, CA 94101",
     },
@@ -289,17 +289,19 @@ const SellerManagement = () => {
       shopName: "Shop E",
       email: "david@example.com",
       productCategory: "Sports & Outdoors",
-      phoneNumber: "david@example.com",
+      phoneNumber: "+1 (555) 0125",
       Distribution: "Houston, USA",
       BusinessAddress: "202 Birch St, Houston, TX 77001",
     },
   ];
 
   const columns = [
-    { title: "No", dataIndex: "no", key: "no" },
+    { title: "No", dataIndex: "no", key: "no", width: 60, ellipsis: true },
     {
       title: "Seller Name",
       key: "sellerName",
+      width: 200,
+      ellipsis: true,
       render: (_, record) => (
         <div className="flex items-center gap-3">
           <img
@@ -307,28 +309,36 @@ const SellerManagement = () => {
             className="w-10 h-10 object-cover rounded-full"
             alt="User Avatar"
           />
-          <span>{record.sellerName}</span>
+          <span className="truncate max-w-[140px]" title={record.sellerName}>
+            {record.sellerName}
+          </span>
         </div>
       ),
     },
-    { title: "Shop Name", dataIndex: "shopName", key: "shopName" },
-    { title: "Phone Number", dataIndex: "phoneNumber", key: "phoneNumber" },
-    { title: "Email", dataIndex: "email", key: "email" },
+    { title: "Shop Name", dataIndex: "shopName", key: "shopName", width: 150, ellipsis: true },
+    { title: "Phone Number", dataIndex: "phoneNumber", key: "phoneNumber", width: 140, ellipsis: true },
+    { title: "Email", dataIndex: "email", key: "email", width: 220, ellipsis: true },
     {
       title: "Product Category",
       dataIndex: "productCategory",
       key: "productCategory",
+      width: 160,
+      ellipsis: true,
     },
-    { title: "Distribution", dataIndex: "Distribution", key: "Distribution" },
-    { title: "Location", dataIndex: "BusinessAddress", key: "BusinessAddress" },
+    { title: "Distribution", dataIndex: "Distribution", key: "Distribution", width: 180, ellipsis: true },
+    { title: "Location", dataIndex: "BusinessAddress", key: "BusinessAddress", width: 240, ellipsis: true },
     {
       title: "Action",
       key: "action",
+      width: 180,
       render: () => {
         return (
           <div className="flex gap-2">
             <button className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200">
               <BsPatchCheckFill className="w-6 h-6 text-[#14803c]" />
+            </button>
+            <button className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200">
+              <MdEdit className="w-6 h-6 text-[#14803c]" />
             </button>
             <Link to="/chat">
               <button className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200">
@@ -356,20 +366,20 @@ const SellerManagement = () => {
             <input
               type="text"
               placeholder="Search..."
-              className="border-2 border-orange-500 py-3 pl-12 pr-[65px] outline-none w-full rounded-md"
+              className="border-2 border-[#14803c] py-3 pl-12 pr-[65px] outline-none w-full rounded-md"
             />
             <span className=" text-gray-600 absolute top-0 left-0 h-full px-5 flex items-center justify-center rounded-r-md cursor-pointer">
               <IoSearch className="text-[1.3rem]" />
             </span>
           </div>
-          <div>
+          {/* <div>
             <button
               // onClick={showModal2}
               className="bg-[#FF914C] text-white px-4 py-3 rounded-lg hover:bg-[#FF914C]/80"
             >
               Accept All
             </button>
-          </div>
+          </div> */}
         </div>
       </div>
       <ConfigProvider
@@ -404,7 +414,8 @@ const SellerManagement = () => {
           dataSource={dataSource}
           columns={columns}
           pagination={{ pageSize: 10 }}
-          scroll={{ x: "max-content" }}
+          tableLayout="fixed"
+          scroll={{ x: true }}
         />
         <Modal
           open={isModalOpen}

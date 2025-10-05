@@ -14,6 +14,7 @@ import AdPromotion from "../page/AdPromotion/AdPromotion";
 import Faq from "../page/Settings/Faq";
 import Support from "../page/Support/Support";
 import CategoryManagement from "../page/CategoryManagement/CategoryManagement";
+import SubCategory from "../page/SubCategory/SubCategory";
 import Chat from "../page/Chat/Chat";
 import ResetPassword from "../auth/ResetPassword";
 import ForgetPassword from "../auth/ForgetPassword";
@@ -85,6 +86,10 @@ export const router = createBrowserRouter([
       {
         path: "/category-management",
         element: <CategoryManagement />,
+      },
+      {
+        path: "/category-management/:id/sub-categories",
+        element: <SubCategory />,
       },
     ],
   },

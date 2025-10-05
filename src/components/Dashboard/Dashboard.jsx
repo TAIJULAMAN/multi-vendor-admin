@@ -12,7 +12,7 @@ import { Modal } from "antd";
 
 function DashboardPage() {
   const currentYear = dayjs().year();
-  const startYear = 1900;
+  const startYear = 2023;
   const [selectedYear, setSelectedYear] = useState(currentYear);
   const [isOpen, setIsOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,8 +38,8 @@ function DashboardPage() {
 
   return (
     <div className="flex flex-col">
-      <div className="grid grid-cols-1 md:grid-cols-2 mmd:grid-cols-3 lg:grid-cols-4 gap-2">
-        <div className="flex flex-col items-center justify-center p-5 bg-white rounded-lg shadow-sm max-w-md">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="flex flex-col items-center justify-center p-5  bg-[#F2F2F2] rounded-lg shadow-sm">
           <h2 className="text-gray-700 text-lg font-medium mb-2">
             Total Users
           </h2>
@@ -54,7 +54,7 @@ function DashboardPage() {
             {new Intl.NumberFormat().format(6500)}
           </p>
         </div>
-        <div className="flex flex-col items-center justify-center p-5 bg-white rounded-lg shadow-sm max-w-md">
+        {/* <div className="flex flex-col items-center justify-center p-5 bg-[#F2F2F2] rounded-lg shadow-sm max-w-md">
           <h2 className="text-gray-700 text-lg font-medium mb-2">
             Total Subscriptions
           </h2>
@@ -69,7 +69,7 @@ function DashboardPage() {
             {new Intl.NumberFormat().format(2650)}
           </p>
         </div>
-        <div className="flex flex-col items-center justify-center p-5 bg-white rounded-lg shadow-sm max-w-md">
+        <div className="flex flex-col items-center justify-center p-5 bg-[#F2F2F2] rounded-lg shadow-sm max-w-md">
           <h2 className="text-gray-700 text-lg font-medium mb-2">
             Total Income
           </h2>
@@ -83,8 +83,8 @@ function DashboardPage() {
           <p className="text-gray-900 text-4xl font-bold">
             {new Intl.NumberFormat().format(26500)}
           </p>
-        </div>
-        <div className="flex flex-col items-center justify-center p-5 bg-white rounded-lg shadow-sm max-w-md">
+        </div> */}
+        <div className="flex flex-col items-center justify-center p-5 bg-[#F2F2F2] rounded-lg shadow-sm">
           <h2 className="text-gray-700 text-lg font-medium mb-2">
             Total Seller
           </h2>
@@ -101,15 +101,14 @@ function DashboardPage() {
         </div>
       </div>
       {/* .............. */}
-      <div className="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 gap-5 mt-5">
-        <div className="w-full p-5 bg-[#F2F2F2] rounded-lg shadow-md">
+      <div className="mt-5">
+        {/* <div className="w-full p-5 bg-[#F2F2F2] rounded-lg shadow-md">
           <div className="flex flex-col md:flex-row md:justify-between lg:justify-between items-center gap-5 my-5">
             <div>
               <h1 className="text-xl font-semibold">Subscription Growth</h1>
             </div>
 
             <div className="relative w-full md:w-32">
-              {/* Selected Year Display */}
               <button
                 onClick={() => setIsOpen(!isOpen)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md flex justify-between items-center bg-white transition"
@@ -118,7 +117,6 @@ function DashboardPage() {
                 <FaChevronDown className="text-[#0B704E] w-5 h-5 ml-5" />
               </button>
 
-              {/* Dropdown List */}
               {isOpen && (
                 <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-y-auto shadow-lg">
                   {years.map((year) => (
@@ -137,7 +135,7 @@ function DashboardPage() {
             </div>
           </div>
           <SubscriptionGrowth />
-        </div>
+        </div> */}
         <div className="w-full p-5 bg-[#F2F2F2] rounded-lg shadow-md">
           <div className="flex flex-col md:flex-row md:justify-between lg:justify-between items-center gap-5 my-5">
             <div>
