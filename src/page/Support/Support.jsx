@@ -7,11 +7,26 @@ import { Link } from "react-router-dom";
 
 const Support = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [isReplyOpen, setIsReplyOpen] = useState(false);
+  const [replyMessage, setReplyMessage] = useState("");
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-  const showModal = () => {
+  const showModal = (record) => {
+    setSelectedRecord(record);
     setIsModalOpen(true);
+  };
+  const openReply = (record) => {
+    setSelectedRecord(record);
+    setReplyMessage("");
+    setIsReplyOpen(true);
+  };
+  const closeReply = () => setIsReplyOpen(false);
+  const sendReply = () => {
+    // TODO: integrate API call here
+    // e.g., supportApi.sendMessage({ to: selectedRecord?.no, message: replyMessage })
+    setIsReplyOpen(false);
   };
   const dataSource = [
     {
@@ -177,20 +192,21 @@ const Support = () => {
     {
       title: "Action",
       key: "action",
-      render: () => {
+      render: (_, record) => {
         return (
           <div className="flex gap-2">
             <button
-              onClick={showModal}
+              onClick={() => showModal(record)}
               className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200"
             >
               <FaEye className="w-6 h-6 text-[#14803c]" />
             </button>
-            <Link to="/chat">
-              <button className="border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200">
-                <FaReply className="w-6 h-6 text-[#14803c]" />
-              </button>
-            </Link>
+            <button
+              onClick={() => openReply(record)}
+              className="border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200"
+            >
+              <FaReply className="w-6 h-6 text-[#14803c]" />
+            </button>
           </div>
         );
       },
@@ -251,15 +267,126 @@ const Support = () => {
           centered
           onCancel={handleCancel}
           footer={null}
+          width={640}
         >
-          <div className="p-5">
-            <h1 className="text-xl text-center text-[#0D0D0D]">Description</h1>
+          <div className="p-2 sm:p-5">
+            {selectedRecord && (
+              <div className="space-y-6">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={`https://avatar.iran.liara.run/public/${selectedRecord.no}`}
+                      className="w-14 h-14 sm:w-16 sm:h-16 object-cover rounded-full ring-2 ring-emerald-100"
+                      alt="User Avatar"
+                    />
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900">
+                        {selectedRecord.sellerName}
+                      </h3>
+                      <p className="text-sm text-gray-500">
+                        Ticket No: {selectedRecord.no}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center rounded-full bg-emerald-50 text-emerald-600 px-3 py-1 text-xs font-medium border border-emerald-200">
+                      Date: {selectedRecord.Date}
+                    </span>
+                  </div>
+                </div>
 
-            <p className="text-center text-[#0D0D0D] mt-5">
-              Sell Products – List and manage your products seamlessly. Track
-              Orders – Get instant notifications for each new order. Access
-              Features – Utilize all system features to enhance sales.
-            </p>
+                <div className="border-t border-gray-100" />
+
+                {/* Details Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                    <p className="text-xs uppercase tracking-wide text-gray-500">
+                      No
+                    </p>
+                    <p className="mt-1 text-base font-medium text-gray-900">
+                      {selectedRecord.no}
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                    <p className="text-xs uppercase tracking-wide text-gray-500">
+                      User Name
+                    </p>
+                    <p className="mt-1 text-base font-medium text-gray-900">
+                      {selectedRecord.sellerName}
+                    </p>
+                  </div>
+                  <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
+                    <p className="text-xs uppercase tracking-wide text-gray-500">
+                      Date
+                    </p>
+                    <p className="mt-1 text-base font-medium text-gray-900">
+                      {selectedRecord.Date}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Description */}
+                <div className="rounded-lg border border-gray-100 bg-white shadow-sm">
+                  <div className="px-4 py-2 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+                    <h4 className="text-sm font-semibold text-gray-700">
+                      Description
+                    </h4>
+                  </div>
+                  <div className="p-4">
+                    <p className="text-gray-700 leading-relaxed">
+                      {selectedRecord.Description}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </Modal>
+        <Modal
+          open={isReplyOpen}
+          centered
+          onCancel={closeReply}
+          footer={null}
+          width={560}
+        >
+          <div className="p-4 sm:p-5 space-y-5">
+            <div className="flex items-center gap-3">
+              <img
+                src={`https://avatar.iran.liara.run/public/${selectedRecord?.no ?? 1}`}
+                className="w-10 h-10 object-cover rounded-full"
+                alt="User Avatar"
+              />
+              <div>
+                <p className="text-sm text-gray-500">Message to</p>
+                <p className="text-base font-medium text-gray-900">{selectedRecord?.sellerName ?? "User"}</p>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Your Message</label>
+              <textarea
+                rows={5}
+                value={replyMessage}
+                onChange={(e) => setReplyMessage(e.target.value)}
+                placeholder="Type your message..."
+                className="w-full border border-gray-300 rounded-md p-3 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={closeReply}
+                className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={sendReply}
+                disabled={!replyMessage.trim()}
+                className="px-4 py-2 rounded-md text-white bg-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-emerald-700"
+              >
+                Send
+              </button>
+            </div>
           </div>
         </Modal>
       </ConfigProvider>

@@ -1,5 +1,5 @@
 /* eslint-disable react/prop-types */
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiMoreVertical } from "react-icons/fi";
 import img1 from "../../assets/ads.png";
 import img2 from "../../assets/ads2.png";
@@ -10,14 +10,29 @@ import { FaTrashAlt, FaUpload } from "react-icons/fa";
 
 export default function AdPromotion() {
   const [addModalOpen, setAddModalOpen] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
   const [categoryName, setCategoryName] = useState("Electronics");
+  const [uploadedImage, setUploadedImage] = useState({
+    name: "",
+    url: "",
+  });
 
   const handleCancel2 = () => {
     setAddModalOpen(false);
   };
   const showModal2 = () => {
     setAddModalOpen(true);
+  };
+  const handleImageUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedImage({
+        name: file.name,
+        url: URL.createObjectURL(file),
+      });
+    }
+  };
+  const handleRemoveImage = () => {
+    setUploadedImage({ name: "", url: "" });
   };
   const campaigns = [
     {
@@ -42,11 +57,7 @@ export default function AdPromotion() {
       endDate: "05/4/25",
     },
   ];
-  const handleImageChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      setSelectedImage(e.target.files[0]);
-    }
-  };
+  
 
   return (
     <div className="p-6 bg-neutral-100 min-h-screen">
@@ -76,40 +87,68 @@ export default function AdPromotion() {
         <div className="p-5">
           {/* Header */}
           <div className="text-center mb-6">
-            <h2 className="text-2xl font-bold mb-2">Add New Category</h2>
+            <h2 className="text-2xl font-bold mb-2">Add New Ads</h2>
             <p className="text-gray-600">
-              Fill out the details below to add a new category. This will help
+              Fill out the details below to add a new ads. This will help
               users organize their listings effectively.
             </p>
           </div>
 
-          {/* Upload Section */}
-          <div className="mb-6">
-            <label className="block text-gray-800 mb-2">
-              Upload Category Image
-            </label>
-            <label className="border border-gray-300 rounded flex items-center justify-center p-4 cursor-pointer hover:bg-gray-50">
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleImageChange}
-              />
-              <div className="flex items-center text-gray-500">
-                <FaUpload className="w-5 h-5 mr-2 text-gray-400" />
-                <span>
-                  {selectedImage ? selectedImage.name : "Upload Picture"}
-                </span>
-              </div>
-            </label>
-            {selectedImage && (
-              <img
-                src={URL.createObjectURL(selectedImage)}
-                alt="Preview"
-                className="mt-2 max-h-40 object-contain rounded"
-              />
+          {/* Upload Section - same behavior as Update Ads */}
+        <div className="mb-6">
+          <label className="block text-gray-700 font-medium mb-2">
+            Upload Post Image
+          </label>
+          <div className="border border-gray-300 rounded-md p-4 flex items-center justify-between">
+            {uploadedImage.name ? (
+              <>
+                <div className="flex items-center gap-3">
+                  <div className="h-12 w-12 rounded overflow-hidden bg-gray-100">
+                    <img
+                      src={uploadedImage.url || img2}
+                      alt="Preview"
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <span className="text-gray-500">{uploadedImage.name}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleRemoveImage}
+                    className="p-2 text-red-500 hover:text-red-700"
+                  >
+                    <FaTrashAlt size={18} className="text-red-500" />
+                  </button>
+                  <label className="cursor-pointer text-blue-600">
+                    <div className="flex items-center gap-2">
+                      <FaUpload className="h-5 w-5" />
+                      <span>Change</span>
+                    </div>
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleImageUpload}
+                    />
+                  </label>
+                </div>
+              </>
+            ) : (
+              <label className="cursor-pointer text-gray-500 w-full flex items-center justify-center">
+                <div className="flex items-center gap-2">
+                  <FaUpload className="h-5 w-5 text-gray-400" />
+                  <span className="text-gray-400">Upload Picture</span>
+                </div>
+                <input
+                  type="file"
+                  className="hidden"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                />
+              </label>
             )}
           </div>
+        </div>
 
           {/* Category Name Input */}
           <div className="mb-6">
@@ -186,15 +225,33 @@ function AdCard({ campaign }) {
     setUpdateModalOpen(true);
   };
   const [uploadedImage, setUploadedImage] = useState({
-    name: "Category Image.Png",
-    url: "/placeholder.svg",
+    name: "",
+    url: "",
   });
+
+  // Initialize with existing campaign image when opening edit
+  useEffect(() => {
+    if (campaign?.image) {
+      setUploadedImage({
+        name: campaign.title || "Current Image",
+        url: campaign.image,
+      });
+    }
+  }, [campaign]);
+  useEffect(() => {
+    if (updateModalOpen && campaign?.image) {
+      setUploadedImage({
+        name: campaign.title || "Current Image",
+        url: campaign.image,
+      });
+    }
+  }, [updateModalOpen, campaign]);
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       setUploadedImage({
         name: file.name,
-        url: "/placeholder.svg",
+        url: URL.createObjectURL(file),
       });
     }
   };
@@ -294,56 +351,68 @@ function AdCard({ campaign }) {
         <div className="p-5">
           {/* Header */}
           <h2 className="text-2xl font-bold text-center mb-2">
-            Update Category
+            Update Ads
           </h2>
           <p className="text-center text-gray-600 mb-6">
-            Edit the category information as needed. Your changes will reflect
+            Edit the ads information as needed. Your changes will reflect
             across all associated listings.
           </p>
 
-          {/* Upload section */}
+          {/* Upload section with inline preview */}
           <div className="mb-6">
             <label className="block text-gray-700 font-medium mb-2">
               Upload Post Image
             </label>
-            <div className="border border-gray-300 rounded-md p-4 flex items-center justify-center">
-              <label className="cursor-pointer text-gray-400">
-                <div className="flex items-center gap-2 text-blue-500">
-                  <FaUpload className="h-5 w-5 text-gray-400" />
-                  <span className="text-gray-400">Upload Picture</span>
-                </div>
-                <input
-                  type="file"
-                  className="hidden"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                />
-              </label>
+            <div className="border border-gray-300 rounded-md p-4 flex items-center justify-between">
+              {uploadedImage.name ? (
+                <>
+                  <div className="flex items-center gap-3">
+                    <div className="h-12 w-12 rounded overflow-hidden bg-gray-100">
+                      <img
+                        src={uploadedImage.url || img2}
+                        alt="Preview"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <span className="text-gray-500">{uploadedImage.name}</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleRemoveImage}
+                      className="p-2 text-red-500 hover:text-red-700"
+                    >
+                      <FaTrashAlt size={18} className="text-red-500" />
+                    </button>
+                    <label className="cursor-pointer text-blue-600">
+                      <div className="flex items-center gap-2">
+                        <FaUpload className="h-5 w-5" />
+                        <span>Change</span>
+                      </div>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                      />
+                    </label>
+                  </div>
+                </>
+              ) : (
+                <label className="cursor-pointer text-gray-500 w-full flex items-center justify-center">
+                  <div className="flex items-center gap-2">
+                    <FaUpload className="h-5 w-5 text-gray-400" />
+                    <span className="text-gray-400">Upload Picture</span>
+                  </div>
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                  />
+                </label>
+              )}
             </div>
           </div>
-
-          {/* Image preview */}
-          {uploadedImage.name && (
-            <div className="border border-gray-300 rounded-md p-2 mb-6 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="h-12 w-12 rounded overflow-hidden bg-gray-100">
-                  <img
-                    src={img2}
-                    alt="Category"
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <span className="text-gray-400">{uploadedImage.name}</span>
-              </div>
-
-              <button
-                onClick={handleRemoveImage}
-                className="p-2 text-red-500 hover:text-red-700"
-              >
-                <FaTrashAlt size={18} className="text-red-500" />
-              </button>
-            </div>
-          )}
 
           {/* Category name input */}
           <div className="mb-6">
