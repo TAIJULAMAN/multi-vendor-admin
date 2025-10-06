@@ -17,7 +17,7 @@ const Users = () => {
       return;
     }
     try {
-      await blockUser({ id: selectedUser.id, isBlocked: selectedUser.isBlocked }).unwrap();
+      await blockUser({ id: selectedUser.id, isBlocked: !selectedUser.isBlocked }).unwrap();
     } catch (_) {
       // optionally handle error UI here
     } finally {

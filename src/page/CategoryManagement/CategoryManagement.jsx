@@ -6,281 +6,69 @@ import { AiOutlineEye } from "react-icons/ai";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { RxCross2 } from "react-icons/rx";
-import { GoPlus } from "react-icons/go";
+
+import { useGetAllCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation } from "../../Redux/api/category/categoryApi";
 
 const CategoryManagement = () => {
   const navigate = useNavigate();
   const [categoryName, setCategoryName] = useState("");
+  const [categoryDescription, setCategoryDescription] = useState("");
   const [addModalOpen, setAddModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState("add"); // 'add' | 'edit'
+  const [modalMode, setModalMode] = useState("add");
   const [editingRecord, setEditingRecord] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleOk = () => {
-    setIsModalOpen(false);
+  const [deletingRecord, setDeletingRecord] = useState(null);
+  const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
+  const [blockMessage, setBlockMessage] = useState("");
+
+  const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
+
+  const handleOk = async () => {
+    if (!deletingRecord?.id) {
+      setIsModalOpen(false);
+      return;
+    }
+    try {
+      await deleteCategory(deletingRecord.id).unwrap();
+    } catch (_) {
+      // optionally handle error UI
+    } finally {
+      setIsModalOpen(false);
+      setDeletingRecord(null);
+    }
   };
   const handleCancel = () => {
     setIsModalOpen(false);
   };
-  const showModal = () => {
+  const showModal = (record) => {
+    if ((record?.subCategories ?? record?.totalSubCategories ?? 0) > 0) {
+      setBlockMessage("Please delete all associated subcategories first.");
+      setIsBlockModalOpen(true);
+      return;
+    }
+    setDeletingRecord(record);
     setIsModalOpen(true);
   };
   const handleCancel2 = () => {
     setAddModalOpen(false);
   };
-  const showModal3 = () => {
-    setAddModalOpen(true);
-  };
 
-  const [cities, setCities] = useState([{ id: 1, name: "", features: "" }]);
+  const { data: categoriesData } = useGetAllCategoriesQuery();
+  console.log("categories from CategoryManagement", categoriesData);
+  const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
+  const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
 
-  const handleAddCity = () => {
-    const newId =
-      cities.length > 0 ? Math.max(...cities.map((city) => city.id)) + 1 : 1;
-    setCities([...cities, { id: newId, name: "", features: "" }]);
-  };
-
-  const handleClearCity = (id) => {
-    setCities(cities.filter((city) => city.id !== id));
-  };
-
-  // Open modals
-  const openAdd = () => {
-    setModalMode("add");
-    setEditingRecord(null);
-    setCategoryName("");
-    setCities([{ id: 1, name: "", features: "" }]);
-    setAddModalOpen(true);
-  };
-
-  const openEdit = (record) => {
-    setModalMode("edit");
-    setEditingRecord(record);
-    setCategoryName(record.categoryName || "");
-    const subs = parseSubCategories(record.subCategoriesName || "");
-    const mapped = subs.length
-      ? subs.map((s, idx) => ({ id: idx + 1, name: "", features: s }))
-      : [{ id: 1, name: "", features: "" }];
-    setCities(mapped);
-    setAddModalOpen(true);
-  };
-
-  const handleSaveCategory = () => {
-    const subNames = cities.map((c) => c.features.trim()).filter(Boolean);
-    const total = String(subNames.length);
-    const subCSV = subNames.join(", ");
-
-    if (modalMode === "edit" && editingRecord) {
-      setCategories((prev) =>
-        prev.map((item) =>
-          item.no === editingRecord.no
-            ? {
-                ...item,
-                categoryName,
-                subCategoriesName: subCSV,
-                totalSubCategories: total,
-              }
-            : item
-        )
-      );
-    } else {
-      setCategories((prev) => {
-        const nextNo = String(
-          prev.length > 0 ? Math.max(...prev.map((p) => Number(p.no))) + 1 : 1
-        );
-        const nextKey = nextNo;
-        return [
-          ...prev,
-          {
-            key: nextKey,
-            no: nextNo,
-            categoryName,
-            totalSubCategories: total,
-            subCategoriesName: subCSV,
-          },
-        ];
-      });
-    }
-
-    setAddModalOpen(false);
-  };
-
-  const [categories, setCategories] = useState([
-    {
-      key: "1",
-      no: "1",
-      categoryName: "Women",
-      totalSubCategories: "7",
-
-      subCategoriesName:
-        "Clothing, Dresses, Top Brand, Pants & Jeans, Shoes & Accessories, Beauty, Accessories",
-    },
-    {
-      key: "2",
-      no: "2",
-      categoryName: "Men",
-      totalSubCategories: "7",
-      subCategoriesName:
-        "Clothing, Suits & Blazers, Jeans, Shoes, Accessories, Watches, Sportswear",
-    },
-    {
-      key: "3",
-      no: "3",
-      categoryName: "Kids",
-      totalSubCategories: "7",
-      subCategoriesName:
-        "Tops, Bottoms, Dresses, Shoes, Accessories, Outerwear, Toys & Games",
-    },
-    {
-      key: "4",
-      no: "4",
-      categoryName: "Home",
-      totalSubCategories: "7",
-      subCategoriesName:
-        "Furniture, Kitchen, Bedding, Decor, Lighting, Appliances, Storage",
-    },
-    {
-      key: "5",
-      no: "5",
-      categoryName: "Electronics",
-      totalSubCategories: "7",
-      subCategoriesName:
-        "Smartphones, Laptops, Tablets, Accessories, Wearables, Audio, Cameras",
-    },
-    {
-      key: "6",
-      no: "6",
-      categoryName: "Beauty",
-      totalSubCategories: "7",
-      subCategoriesName:
-        "Skincare, Makeup, Haircare, Fragrances, Tools & Brushes, Health & Wellness",
-    },
-    {
-      key: "7",
-      no: "7",
-      categoryName: "Sports",
-      totalSubCategories: "7",
-      subCategoriesName:
-        "Clothing, Footwear, Accessories, Equipment, Outdoor, Fitness Gear",
-    },
-    {
-      key: "8",
-      no: "8",
-      categoryName: "Toys & Games",
-      totalSubCategories: "7",
-      subCategoriesName:
-        "Board Games, Action Figures, Dolls, Building Blocks, Educational Toys",
-    },
-    {
-      key: "9",
-      no: "9",
-      categoryName: "Books",
-      totalSubCategories: "7",
-      subCategoriesName:
-        "Fiction, Non-Fiction, Children's Books, Textbooks, E-books, Audiobooks",
-    },
-    {
-      key: "10",
-      no: "10",
-      categoryName: "Food & Drink",
-      totalSubCategories: "7",
-      subCategoriesName:
-        "Snacks, Beverages, Groceries, Organic, Gourmet, Health Foods",
-    },
-    {
-      key: "11",
-      no: "11",
-      categoryName: "Health",
-      totalSubCategories: "7",
-      subCategoriesName:
-        "Supplements, Wellness, Medical Equipment, Personal Care, Fitness",
-    },
-    {
-      key: "12",
-      no: "12",
-      categoryName: "Automotive",
-      totalSubCategories: "7",
-      subCategoriesName:
-        "Parts, Accessories, Tires, Tools, Car Electronics, Maintenance",
-    },
-    {
-      key: "13",
-      no: "13",
-      categoryName: "Books",
-      totalSubCategories: "7",
-      subCategoriesName:
-        "Cookbooks, Self-Help, Fiction, History, Science, Graphic Novels",
-    },
-    {
-      key: "14",
-      no: "14",
-      categoryName: "Garden",
-      totalSubCategories: "7",
-      subCategoriesName:
-        "Plants, Furniture, Outdoor Decor, Tools, Outdoor Lighting, Planters",
-    },
-    {
-      key: "15",
-      no: "15",
-      categoryName: "Pets",
-      totalSubCategories: "7",
-      subCategoriesName:
-        "Food, Accessories, Toys, Health, Bedding, Training, Grooming",
-    },
-    {
-      key: "16",
-      no: "16",
-      categoryName: "Office Supplies",
-      totalSubCategories: "6",
-      subCategoriesName:
-        "Furniture, Stationery, Printers, Organizers, Technology, Office Decor",
-    },
-    {
-      key: "17",
-      no: "17",
-      categoryName: "Music",
-      totalSubCategories: "5",
-      subCategoriesName:
-        "Instruments, Audio Equipment, Vinyl Records, Music Gear, Sheet Music",
-    },
-    {
-      key: "18",
-      no: "18",
-      categoryName: "Travel",
-      totalSubCategories: "5",
-      subCategoriesName:
-        "Luggage, Travel Accessories, Outdoor Gear, Maps, Vacation Packages",
-    },
-    {
-      key: "19",
-      no: "19",
-      categoryName: "Art & Crafts",
-      totalSubCategories: "6",
-      subCategoriesName:
-        "Painting, Drawing, DIY Kits, Sculpture, Craft Supplies, Fabric & Sewing",
-    },
-    {
-      key: "20",
-      no: "20",
-      categoryName: "Technology",
-      totalSubCategories: "6",
-      subCategoriesName:
-        "Computers, Smartphones, Gadgets, VR, Smart Home, 3D Printing",
-    },
-  ]);
-
-  // Helpers
-  const parseSubCategories = (csv) =>
-    (csv || "")
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-
-  const handleCityChange = (id, value) => {
-    setCities((prev) =>
-      prev.map((c) => (c.id === id ? { ...c, features: value } : c))
-    );
-  };
+  const dataSource = categoriesData?.data?.categories?.map((item, index) => ({
+    key: index,
+    no: index + 1,
+    id: item?._id || item?.id,
+    categoryName: item?.name,
+    totalSubCategories: item?.subCategories?.length,
+    description: item?.description,
+    createdAt: item?.createdAt,
+    updatedAt: item?.updatedAt,
+    subCategories: item?.subCategories?.length,
+  }));
 
   const columns = [
     {
@@ -303,6 +91,35 @@ const CategoryManagement = () => {
           {text}
         </span>
       ),
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+      width: 500,
+      align: "center",
+      ellipsis: true,
+    },
+    {
+      title: "Date",
+      dataIndex: "createdAt",
+      key: "createdAt",
+      width: 500,
+      align: "center",
+      ellipsis: true,
+      render: (value) => {
+        if (!value) return "-";
+        try {
+          const d = new Date(value);
+          return d.toLocaleString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "2-digit",
+          });
+        } catch {
+          return String(value);
+        }
+      },
     },
     {
       title: "Total Sub Categories",
@@ -340,7 +157,7 @@ const CategoryManagement = () => {
               <CiEdit className="w-6 h-6 text-[#14803c]" />
             </button>
             <button
-              onClick={showModal}
+              onClick={() => showModal(record)}
               className="border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200"
             >
               <RiDeleteBin6Line className="w-6 h-6 text-[#14803c]" />
@@ -350,6 +167,45 @@ const CategoryManagement = () => {
       },
     },
   ];
+
+
+  // Open modals
+  const openAdd = () => {
+    setModalMode("add");
+    setEditingRecord(null);
+    setCategoryName("");
+    setCategoryDescription("");
+    setAddModalOpen(true);
+  };
+
+  const openEdit = (record) => {
+    setModalMode("edit");
+    setEditingRecord(record);
+    setCategoryName(record.categoryName || "");
+    setCategoryDescription(record.description || "");
+    setAddModalOpen(true);
+  };
+
+  const handleSaveCategory = async () => {
+    if (!categoryName?.trim()) {
+      return; // optionally show validation message
+    }
+    try {
+      if (modalMode === "edit" && editingRecord?.id) {
+        await updateCategory({
+          id: editingRecord.id,
+          body: { name: categoryName.trim(), description: categoryDescription?.trim() || "" },
+        }).unwrap();
+      } else {
+        await createCategory({ name: categoryName.trim(), description: categoryDescription?.trim() || "" }).unwrap();
+      }
+      setAddModalOpen(false);
+      setCategoryName("");
+      setCategoryDescription("");
+    } catch (e) {
+      // optionally handle error UI
+    }
+  };
 
   return (
     <>
@@ -369,7 +225,7 @@ const CategoryManagement = () => {
           <div>
             <button
               onClick={openAdd}
-             className="bg-[#14803c] text-white px-4 py-3 rounded-lg hover:bg-[#14803c]/80"
+              className="bg-[#14803c] text-white px-4 py-3 rounded-lg hover:bg-[#14803c]/80"
             >
               + Add Category
             </button>
@@ -405,7 +261,7 @@ const CategoryManagement = () => {
         }}
       >
         <Table
-          dataSource={categories}
+          dataSource={dataSource}
           columns={columns}
           pagination={{ pageSize: 10 }}
           tableLayout="fixed"
@@ -441,41 +297,15 @@ const CategoryManagement = () => {
                 onChange={(e) => setCategoryName(e.target.value)}
               />
             </div>
-            <div className="space-y-4">
-              {cities.map((city, index) => (
-                <div key={city.id} className="space-y-1">
-                  <div className="flex justify-between items-center">
-                    <label className="font-medium">
-                      Sub Categories {String(index + 1).padStart(2, "0")}
-                    </label>
-                    <button
-                      onClick={() => handleClearCity(city.id)}
-                      className="text-gray-400 hover:text-gray-600"
-                    >
-                      <RxCross2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                  <input
-                    placeholder={`Features ${String(index + 1).padStart(
-                      2,
-                      "0"
-                    )}`}
-                    className="w-full border rounded-md p-2"
-                    value={city.features}
-                    onChange={(e) => handleCityChange(city.id, e.target.value)}
-                  />
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-end items-center my-4 text-white">
-              <div className="flex justify-center items-center text-center">
-                <button
-                  onClick={handleAddCity}
-                  className="rounded-full bg-green-600  text-white p-2"
-                >
-                  <GoPlus className="h-5 w-5" />
-                </button>
-              </div>
+            <div className="mb-6">
+              <label className="block text-gray-800 mb-2">Description</label>
+              <textarea
+                rows={4}
+                placeholder="Enter Description here"
+                className="w-full border border-gray-300 rounded p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
+                value={categoryDescription}
+                onChange={(e) => setCategoryDescription(e.target.value)}
+              />
             </div>
             {/* buttons */}
             <div className="grid grid-cols-2 gap-4 mt-6">
@@ -488,9 +318,32 @@ const CategoryManagement = () => {
 
               <button
                 onClick={handleSaveCategory}
-                className="py-2 px-4 rounded-lg bg-green-600 text-white"
+                disabled={isCreating || isUpdating}
+                className={`py-2 px-4 rounded-lg bg-green-600 text-white ${
+                  isCreating || isUpdating ? "opacity-60 cursor-not-allowed" : ""
+                }`}
               >
-                Save
+                {isCreating || isUpdating ? "Saving..." : "Save"}
+              </button>
+            </div>
+          </div>
+        </Modal>
+        <Modal
+          open={isBlockModalOpen}
+          centered
+          onCancel={() => setIsBlockModalOpen(false)}
+          footer={null}
+        >
+          <div className="p-5">
+            <h1 className="text-4xl text-center text-[#0D0D0D]">
+              {blockMessage || "Please delete all associated subcategories first."}
+            </h1>
+            <div className="text-center py-5">
+              <button
+                onClick={() => setIsBlockModalOpen(false)}
+                className="bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200"
+              >
+                Close
               </button>
             </div>
           </div>
@@ -509,14 +362,15 @@ const CategoryManagement = () => {
             <div className="text-center py-5">
               <button
                 onClick={handleOk}
-                className="bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200"
+                disabled={isDeleting}
+                className={`bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200 ${isDeleting ? "opacity-60 cursor-not-allowed" : ""}`}
               >
-                Yes,Delete
+                {isDeleting ? "Deleting..." : "Yes, Delete"}
               </button>
             </div>
             <div className="text-center pb-5">
               <button
-                onClick={handleOk}
+                onClick={handleCancel}
                 className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
               >
                 No,Don’t Delete
