@@ -10,7 +10,6 @@ export default function VerificationCode() {
   const [verifyEmail] = useVerifyEmailMutation();
 
   const email = searchParams.get("email");
-  console.log("email", email);
   const navigate = useNavigate();
 
   const handleChange = (value, index) => {
@@ -34,9 +33,7 @@ export default function VerificationCode() {
       await verifyEmail(otpData)
         .unwrap()
         .then((response) => {
-          console.log("response from verify email", response);
           const resetToken = response?.data?.resetToken;
-          console.log("resetToken from VerificationCode", resetToken);
           Swal.fire({
             icon: "success",
             title: "Verification successful!",
@@ -45,7 +42,6 @@ export default function VerificationCode() {
           navigate("/reset-password", { state: { resetToken } });
         })
         .catch((err) => {
-          console.error("Verification error:", err);
           const errorMessage =
             err?.data?.message ||
             err.message ||
@@ -95,10 +91,6 @@ export default function VerificationCode() {
             >
               Continue
             </button>
-            {/* <p className="text-gray-600 text-center mt-10">
-              You have not received the email?{" "}
-              <span className="text-[#FF914C]"> Resend</span>
-            </p> */}
           </div>
         </form>
       </div>

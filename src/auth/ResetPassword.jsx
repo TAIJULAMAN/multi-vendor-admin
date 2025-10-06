@@ -11,7 +11,6 @@ import { useResetPasswordMutation } from "../Redux/api/auth/authApi";
 const ResetPassword = () => {
   const location = useLocation();
   const resetToken = location.state?.resetToken;
-  console.log("resetToken from ResetPassword", resetToken);
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showNewPassword, setShowNewPassword] = useState(false);
