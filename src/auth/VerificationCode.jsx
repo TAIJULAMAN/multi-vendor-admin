@@ -1,9 +1,16 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import BrandLogo from "../shared/BrandLogo";
+import { useVerifyEmailMutation } from "../Redux/api/authApi";
+import Swal from "sweetalert2";
 
-function VerificationCode() {
-  const [code, setCode] = useState(new Array(5).fill(""));
+export default function VerificationCode() {
+  const [code, setCode] = useState(new Array(6).fill(""));
+  const [searchParams] = useSearchParams();
+  const [verifyEmail] = useVerifyEmailMutation();
+
+  const email = searchParams.get("email");
+  console.log("email", email);
   const navigate = useNavigate();
 
   const handleChange = (value, index) => {
@@ -11,14 +18,52 @@ function VerificationCode() {
       const newCode = [...code];
       newCode[index] = value;
       setCode(newCode);
-      if (value && index < 5) {
+      if (value && index < 6) {
         document.getElementById(`code-${index + 1}`).focus();
       }
     }
   };
+  const enteredCode = code.join("");
+  const otpData = {
+    email,
+    code: enteredCode,
+  };
 
   const handleVerifyCode = async () => {
-    navigate("/reset-password");
+    if (enteredCode.length === 6) {
+      await verifyEmail(otpData)
+        .unwrap()
+        .then((response) => {
+          console.log("response from verify email", response);
+          const resetToken = response?.data?.resetToken;
+          console.log("resetToken from VerificationCode", resetToken);
+          Swal.fire({
+            icon: "success",
+            title: "Verification successful!",
+            text: "Your email has been successfully verified.",
+          });
+          // navigate(`/reset-password?email=${email}`);
+          navigate("/reset-password", { state: { resetToken } });
+        })
+        .catch((err) => {
+          console.error("Verification error:", err);
+          const errorMessage =
+            err?.data?.message ||
+            err.message ||
+            "Invalid code. Please try again.";
+          Swal.fire({
+            icon: "error",
+            title: "Verification Failed",
+            text: errorMessage,
+          });
+        });
+    } else {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Please enter a valid 6-digit code.",
+      });
+    }
   };
 
   return (
@@ -51,15 +96,13 @@ function VerificationCode() {
             >
               Continue
             </button>
-            <p className="text-gray-600 text-center mt-10">
+            {/* <p className="text-gray-600 text-center mt-10">
               You have not received the email?{" "}
               <span className="text-[#FF914C]"> Resend</span>
-            </p>
+            </p> */}
           </div>
         </form>
       </div>
     </div>
   );
 }
-
-export default VerificationCode;

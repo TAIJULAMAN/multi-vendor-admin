@@ -1,81 +1,47 @@
-import { useEffect, useState } from "react";
 import "antd/dist/reset.css";
+import { message } from "antd";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import BrandLogo from "../shared/BrandLogo";
 import { Link, useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useState } from "react";
 import { useLogInMutation } from "../Redux/api/authApi";
 import { setUser } from "../Redux/Slice/authSlice";
-import { message } from "antd";
+import { useDispatch } from "react-redux";
 
-function SignIn() {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+export default function SignIn() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isChecked, setIsChecked] = useState(false);
-  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [logIn, { isLoading }] = useLogInMutation();
+  const dispatch = useDispatch();
 
-  // Prefill from localStorage on mount
-  useEffect(() => {
-    const savedEmail = localStorage.getItem("vendor-email");
-    const savedPass = localStorage.getItem("vendor-pass");
-    if (savedEmail || savedPass) {
-      setFormData({
-        email: savedEmail || "",
-        password: savedPass || "",
-      });
-      setIsChecked(true);
-    }
-  }, []);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-    // Keep storage in sync if Remember is checked
-    if (isChecked) {
-      if (name === "email") localStorage.setItem("vendor-email", value);
-      if (name === "password") localStorage.setItem("vendor-pass", value);
-    }
-  };
-  const handleCheckboxChange = (event) => {
-    const checked = event.target.checked;
-    setIsChecked(checked);
-    if (checked) {
-      // Save current values
-      localStorage.setItem("vendor-email", formData.email || "");
-      localStorage.setItem("vendor-pass", formData.password || "");
-    } else {
-      // Remove saved values
-      localStorage.removeItem("vendor-email");
-      localStorage.removeItem("vendor-pass");
-    }
-  };
-
-  const handleSubmit = async (e) => {
+  const handleSignIn = async (e) => {
     e.preventDefault();
+    if (!email || !password) {
+      message.error(!email ? "Email is required" : "Password is required");
+      return;
+    }
+    const loginData = { email, password };
+    console.log("loginData of log in", loginData);
+
     try {
-      const res = await logIn(formData).unwrap();
-      // Persist to Redux
-      dispatch(setUser(res));
-      // Persist tokens for other flows that read localStorage
-      if (res?.data?.accessToken) {
-        localStorage.setItem("accessToken", res.data.accessToken);
+      const response = await logIn(loginData).unwrap();
+      console.log("response of log in", response);
+
+      if (response?.data?.accessToken) {
+        dispatch(
+          setUser({
+            user: response?.data?.user || {},
+            token: response?.data?.accessToken,
+          })
+        );
       }
-      if (res?.data?.refreshToken) {
-        localStorage.setItem("refreshToken", res.data.refreshToken);
-      }
-      message.success(res?.message || "Logged in successfully");
+
+      message.success(response?.message || "Logged in successfully");
       navigate("/");
-    } catch (err) {
-      const errMsg = err?.data?.message || "Login failed";
-      message.error(errMsg);
+    } catch (error) {
+      message.error(error?.data?.message || "Login failed");
     }
   };
 
@@ -86,7 +52,7 @@ function SignIn() {
           status="Login to your account"
           information="please enter your email and password to continue."
         />
-        <form className="space-y-5" onSubmit={handleSubmit}>
+        <form className="space-y-5" onSubmit={handleSignIn}>
           <div className="w-full">
             <label className="text-xl text-gray-800 mb-2 flex justify-start text-start">
               Email address
@@ -94,8 +60,8 @@ function SignIn() {
             <input
               type="email"
               name="email"
-              value={formData.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
               className="w-full px-5 py-3 bg-white text-gray-600 border-2 border-[#FF914C] rounded-lg outline-none mt-5 placeholder:text-gray-600"
               required
@@ -109,8 +75,8 @@ function SignIn() {
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
-                value={formData.password}
-                onChange={handleChange}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="**********"
                 className="w-full px-5 py-3 bg-white text-gray-600 border-2 border-[#FF914C] rounded-lg outline-none mt-5 placeholder:text-gray-600"
                 required
@@ -129,15 +95,15 @@ function SignIn() {
             </div>
           </div>
 
-          <div className="flex justify-between items-center text-sm my-5">
-            <label className="flex items-center gap-[10px] cursor-pointer">
+          <div className="flex justify-end items-center text-xs my-5">
+            {/* <label className="flex items-center gap-[10px] cursor-pointer">
               <input
                 type="checkbox"
                 className="hidden"
-                checked={isChecked}
-                onChange={handleCheckboxChange}
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
               />
-              {isChecked ? (
+              {rememberMe ? (
                 <svg
                   width="21"
                   height="21"
@@ -187,10 +153,10 @@ function SignIn() {
               )}
 
               <span className="text-xl text-gray-600">Remember Password</span>
-            </label>
+            </label> */}
             <Link
               to="/forget-password"
-              className="text-[#FF914C] text-xl hover:text-[#FF914C]/80"
+              className="text-[#FF914C] text-sm hover:text-[#FF914C]/80"
             >
               Forgot Password?
             </Link>
@@ -212,5 +178,3 @@ function SignIn() {
     </div>
   );
 }
-
-export default SignIn;
