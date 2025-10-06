@@ -6,7 +6,7 @@ import BrandLogo from "../shared/BrandLogo";
 import { useLocation } from "react-router-dom";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Swal from "sweetalert2";
-import { useResetPasswordMutation } from "../Redux/api/authApi";
+import { useResetPasswordMutation } from "../Redux/api/auth/authApi";
 
 const ResetPassword = () => {
   const location = useLocation();
@@ -41,14 +41,6 @@ const ResetPassword = () => {
       });
       return;
     }
-    // if (newPassword.length < 6) {
-    //   Swal.fire({
-    //     icon: "error",
-    //     title: "Weak Password",
-    //     text: "Password should be at least 6 characters.",
-    //   });
-    //   return;
-    // }
     try {
       await resetPassword({
         resetToken,

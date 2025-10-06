@@ -1,12 +1,12 @@
 import "antd/dist/reset.css";
-import { message } from "antd";
+import Swal from "sweetalert2";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import BrandLogo from "../shared/BrandLogo";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { useLogInMutation } from "../Redux/api/authApi";
 import { setUser } from "../Redux/Slice/authSlice";
 import { useDispatch } from "react-redux";
+import { useLogInMutation } from "../Redux/api/auth/authApi";
 
 export default function SignIn() {
   const [email, setEmail] = useState("");
@@ -19,7 +19,11 @@ export default function SignIn() {
   const handleSignIn = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-      message.error(!email ? "Email is required" : "Password is required");
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: !email ? "Email is required" : "Password is required",
+      });
       return;
     }
     const loginData = { email, password };
@@ -38,10 +42,20 @@ export default function SignIn() {
         );
       }
 
-      message.success(response?.message || "Logged in successfully");
+      Swal.fire({
+        icon: "success",
+        title: "Login successful",
+        text: response?.message || "You are now logged in.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
       navigate("/");
     } catch (error) {
-      message.error(error?.data?.message || "Login failed");
+      Swal.fire({
+        icon: "error",
+        title: "Login failed",
+        text: error?.data?.message || "Something went wrong!",
+      });
     }
   };
 

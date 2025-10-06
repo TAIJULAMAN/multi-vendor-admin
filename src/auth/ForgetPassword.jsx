@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import BrandLogo from "../shared/BrandLogo";
-import { useForgotPasswordMutation } from "../Redux/api/authApi";
+import { useForgotPasswordMutation } from "../Redux/api/auth/authApi";
 import Swal from "sweetalert2";
 import { useState } from "react";
 

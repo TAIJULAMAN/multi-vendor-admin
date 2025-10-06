@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import BrandLogo from "../shared/BrandLogo";
-import { useVerifyEmailMutation } from "../Redux/api/authApi";
+import { useVerifyEmailMutation } from "../Redux/api/auth/authApi";
 import Swal from "sweetalert2";
 
 export default function VerificationCode() {
@@ -42,7 +42,6 @@ export default function VerificationCode() {
             title: "Verification successful!",
             text: "Your email has been successfully verified.",
           });
-          // navigate(`/reset-password?email=${email}`);
           navigate("/reset-password", { state: { resetToken } });
         })
         .catch((err) => {
