@@ -25,14 +25,12 @@ const profileApi = baseApi.injectEndpoints({
       invalidatesTags: ["auth"],
     }),
     changeAdminPassword: builder.mutation({
-      query: (data) => ({
-        url: "user/change_password",
-        method: "PATCH",
-        headers: {
-          // "Content-Type": "application/json",
-        },
-        body: data,
+      query: ({ currentPassword, newPassword }) => ({
+        url: "auth/change-password",
+        method: "PUT",
+        body: { currentPassword, newPassword },
       }),
+      invalidatesTags: ["auth"],
     }),
   }),
 });
