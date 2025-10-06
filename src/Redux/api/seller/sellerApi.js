@@ -1,25 +1,25 @@
 import { baseApi } from "../baseApi";
 
-export const userApi = baseApi.injectEndpoints({
+export const sellerApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllUsers: builder.query({
+    getAllSellers: builder.query({
       query: (params) => ({
-        url: "user/admin/users",
+        url: "user/sellers/all",
         method: "GET",
         params, // e.g., { page: 1, limit: 10 }
       }),
-      
-      providesTags: ["user"],
+
+      providesTags: ["seller"],
     }),
-    blockUser: builder.mutation({
+    blockSeller: builder.mutation({
       query: ({ id, isBlocked }) => ({
         url: `user/admin/users/${id}/block`,
         method: "PATCH",
         body: { isBlocked },
       }),
-      invalidatesTags: ["user"],
+      invalidatesTags: ["seller"],
     }),
   }),
 });
 
-export const { useGetAllUsersQuery, useBlockUserMutation } = userApi;
+export const { useGetAllSellersQuery, useBlockSellerMutation } = sellerApi;

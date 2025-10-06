@@ -8,6 +8,7 @@ import { useGetAllUsersQuery, useBlockUserMutation } from "../../Redux/api/user/
 const Users = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  console.log("selectedUser", selectedUser);
   const [blockUser, { isLoading: isBlocking }] = useBlockUserMutation();
 
   const handleOk = async () => {
@@ -16,7 +17,7 @@ const Users = () => {
       return;
     }
     try {
-      await blockUser({ id: selectedUser.id, isBlocked: !selectedUser.isBlocked }).unwrap();
+      await blockUser({ id: selectedUser.id, isBlocked: selectedUser.isBlocked }).unwrap();
     } catch (_) {
       // optionally handle error UI here
     } finally {
@@ -28,15 +29,19 @@ const Users = () => {
     setIsModalOpen(false);
     setSelectedUser(null);
   };
-  const showModal = (record) => {
-    setSelectedUser(record);
-    setIsModalOpen(true);
-  };
+  
 
-  const { data: users } = useGetAllUsersQuery();
+  // Request only customers from API if supported
+  const { data: users } = useGetAllUsersQuery({ role: "customer" });
   console.log("users from user page", users);
 
-  const dataSource = users?.data?.users?.map((user, index) => ({
+  // Fallback client-side filter to customers if API returns mixed roles
+  const customerList = users?.data?.users?.filter((u) => {
+    const role = (u?.role || u?.userRole || u?.type || "").toString().toLowerCase();
+    return role === "customer";
+  }) || users?.data?.users;
+
+  const dataSource = customerList?.map((user, index) => ({
     key: index + 1,
     no: index + 1,
     id: user?.id || user?._id,
@@ -55,19 +60,20 @@ const Users = () => {
       key: "name",
       render: (_, record) => (
         <div className="flex items-center gap-3">
-          <img
+          {/* <img
             src={`https://avatar.iran.liara.run/public/${record.no}`}
             className="w-10 h-10 object-cover rounded-full"
             alt="User Avatar"
-          />
+          /> */}
           <span>{record.name}</span>
         </div>
       ),
     },
     { title: "Phone Number", dataIndex: "phone", key: "phone" },
+    { title: "Email", dataIndex: "email", key: "email" },
     { title: "Country", dataIndex: "country", key: "country" },
     { title: "Currency", dataIndex: "currency", key: "currency" },
-    { title: "Is Blocked", dataIndex: "isBlocked", key: "isBlocked" },
+    { title: "Status", dataIndex: "isBlocked", key: "isBlocked", render: (v) => (v ? "Blocked" : "Active") },
     {
       title: "Action",
       key: "action",
@@ -75,7 +81,7 @@ const Users = () => {
         <button
           onClick={() => showModal(record)}
           disabled={isBlocking}
-          className={`border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200 ${
+          className={`border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] transition duration-200 ${
             isBlocking ? "opacity-60 cursor-not-allowed" : ""
           }`}
         >
@@ -89,6 +95,11 @@ const Users = () => {
     setSelectedUser(record);
     setIsModalOpen(true);
   };
+
+  return (
+    <>
+      <div className="my-5 md:my-10 flex flex-col md:flex-row gap-5 justify-between items-center">
+        <PageHeading title="User Management" />
         <div className="relative w-full sm:w-[300px] mt-5 md:mt-0 lg:mt-0">
           <input
             type="text"
@@ -159,7 +170,7 @@ const Users = () => {
             </div>
             <div className="text-center pb-5">
               <button
-                onClick={handleOk}
+                onClick={handleCancel}
                 className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
               >
                 Cancel
