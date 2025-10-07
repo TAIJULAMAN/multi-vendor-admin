@@ -29,6 +29,7 @@ export default function SignIn() {
     const loginData = { email, password };
     try {
       const response = await logIn(loginData).unwrap();
+      console.log(response);
       if (response?.data?.accessToken) {
         dispatch(
           setUser({

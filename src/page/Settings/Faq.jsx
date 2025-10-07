@@ -1,58 +1,42 @@
-import { Modal } from "antd";
-import { useState } from "react";
+import { Modal, message, Spin } from "antd";
+import { useState, useMemo } from "react";
 import { FaRegQuestionCircle } from "react-icons/fa";
 import { FaChevronDown } from "react-icons/fa6";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { CiEdit } from "react-icons/ci";
 import PageHeading from "../../shared/PageHeading";
+import {
+  useGetAllFaqQuery,
+  useCreateFaqMutation,
+  useUpdateFaqMutation,
+  useDeleteFaqMutation,
+} from "../../Redux/api/faqApi";
 
 const Faq = () => {
   const [isAccordionOpen, setIsAccordionOpen] = useState(0);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [selectedId, setSelectedId] = useState(null);
 
-  // Accordion data
-  const AccordionData = [
-    {
-      title: "What is HTML, and why is it important in web development?",
-      description:
-        "HTML (HyperText Markup Language) is the standard markup language used to create web pages. It provides the structure of a website and is essential for displaying content on the web.",
-    },
-    {
-      title: "What is CSS, and how does it enhance web design?",
-      description:
-        "CSS (Cascading Style Sheets) is a stylesheet language that allows developers to style and layout web pages. It controls the design, including colors, fonts, and layouts, making the site visually appealing.",
-    },
-    {
-      title: "What is JavaScript, and how is it used in web development?",
-      description:
-        "JavaScript is a scripting language that enables interactivity on web pages. It is widely used for tasks such as form validation, animations, and dynamic content updates, enhancing user experience.",
-    },
-    {
-      title: "Explain the concept of responsive web design.",
-      description:
-        "Responsive web design ensures that a website looks and functions well on various screen sizes, from desktops to mobile devices, by using flexible layouts, images, and CSS media queries.",
-    },
-    {
-      title:
-        "What are the differences between frontend and backend development?",
-      description:
-        "Frontend development focuses on the client side, including the layout and design that users interact with. Backend development involves server-side functionality, including databases, application logic, and APIs.",
-    },
-  ];
+  // API hooks
+  const { data: listRes, isLoading: listLoading } = useGetAllFaqQuery({});
+  const [createFaq, { isLoading: createLoading }] = useCreateFaqMutation();
+  const [updateFaq, { isLoading: updateLoading }] = useUpdateFaqMutation();
+  const [deleteFaq, { isLoading: deleteLoading }] = useDeleteFaqMutation();
+
+  const faqs = useMemo(() => listRes?.data?.faqs || [], [listRes]);
 
   const handleClick = (index) => {
     setIsAccordionOpen((prevIndex) => (prevIndex === index ? null : index));
   };
-  const showModal = () => {
-    setIsModalOpen(true);
+  const openDeleteModal = (id) => {
+    setSelectedId(id);
+    setDeleteModalOpen(true);
   };
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-  const handleCancel = () => {
-    setIsModalOpen(false);
+  const closeDeleteModal = () => {
+    setSelectedId(null);
+    setDeleteModalOpen(false);
   };
   const handleCancel2 = () => {
     setAddModalOpen(false);
@@ -61,14 +45,62 @@ const Faq = () => {
     setUpdateModalOpen(false);
   };
   const showModal2 = () => {
+    setQuestion("");
+    setAnswer("");
     setAddModalOpen(true);
   };
-  const showModal3 = () => {
+  const showModal3 = (faq) => {
+    setSelectedId(faq?._id);
+    setQuestion(faq?.question || "");
+    setAnswer(faq?.answer || "");
     setUpdateModalOpen(true);
   };
 
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
+
+  const handleCreate = async () => {
+    try {
+      if (!question?.trim() || !answer?.trim()) {
+        message.warning("Please provide both question and answer");
+        return;
+      }
+      const res = await createFaq({ question, answer }).unwrap();
+      if (res?.success) message.success(res?.message || "FAQ created successfully");
+      setAddModalOpen(false);
+      setQuestion("");
+      setAnswer("");
+    } catch (e) {
+      message.error(e?.data?.message || "Failed to create FAQ");
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      if (!selectedId) return;
+      if (!question?.trim() || !answer?.trim()) {
+        message.warning("Please provide both question and answer");
+        return;
+      }
+      const res = await updateFaq({ _id: selectedId, data: { question, answer } }).unwrap();
+      if (res?.success) message.success(res?.message || "FAQ updated successfully");
+      setUpdateModalOpen(false);
+      setSelectedId(null);
+    } catch (e) {
+      message.error(e?.data?.message || "Failed to update FAQ");
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      if (!selectedId) return;
+      const res = await deleteFaq(selectedId).unwrap();
+      if (res?.success) message.success(res?.message || "FAQ deleted successfully");
+      closeDeleteModal();
+    } catch (e) {
+      message.error(e?.data?.message || "Failed to delete FAQ");
+    }
+  };
 
   return (
     <div className="relative p-5 z-0">
@@ -85,7 +117,14 @@ const Faq = () => {
       </div>
 
       <div className="flex gap-2 flex-col w-full mt-5 bg-white p-5">
-        {AccordionData?.map((accordion, index) => (
+        {listLoading ? (
+          <div className="flex items-center justify-center py-10">
+            <Spin />
+          </div>
+        ) : faqs?.length === 0 ? (
+          <p className="text-center text-gray-500">No FAQs found.</p>
+        ) : (
+          faqs?.map((faq, index) => (
           <section
             key={index}
             className="border-b border-[#e5eaf2] rounded py-3"
@@ -96,7 +135,7 @@ const Faq = () => {
             >
               <h2 className="text-base font-normal md:font-bold md:text-2xl flex gap-2 items-center">
                 <FaRegQuestionCircle className="w-5 h-5 hidden md:flex" />
-                {accordion.title}
+                {faq?.question}
               </h2>
               <div className="flex gap-2 md:gap-4 items-center">
                 <FaChevronDown
@@ -106,12 +145,12 @@ const Faq = () => {
                   }`}
                 />
                 <div className="border-2 px-1.5 py-1 rounded border-[#14803c] bg-[#f0fcf4]">
-                  <button className="" onClick={showModal3}>
+                  <button className="" onClick={(e) => { e.stopPropagation(); showModal3(faq); }}>
                     <CiEdit className="text-2xl cursor-pointer text-[#14803c] font-bold transition-all" />
                   </button>
                 </div>
                 <div className="border-2 px-1.5 py-1 rounded border-[#14803c] bg-[#f0fcf4]">
-                  <button className="" onClick={showModal}>
+                  <button className="" onClick={(e) => { e.stopPropagation(); openDeleteModal(faq?._id); }}>
                     <RiDeleteBin6Line className="text-2xl cursor-pointer text-red-500 transition-all" />
                   </button>
                 </div>
@@ -125,14 +164,15 @@ const Faq = () => {
               }`}
             >
               <p className="text-[#424242] text-[0.9rem] overflow-hidden">
-                {accordion.description}
+                {faq?.answer}
               </p>
             </div>
           </section>
-        ))}
+          ))
+        )}
       </div>
 
-      <Modal open={isModalOpen} centered onCancel={handleCancel} footer={null}>
+      <Modal open={deleteModalOpen} centered onCancel={closeDeleteModal} footer={null}>
         <div className="p-5">
           <h1 className="text-4xl text-center text-[#0D0D0D]">
             Are you sure you want to delete ?
@@ -140,15 +180,16 @@ const Faq = () => {
 
           <div className="text-center py-5">
             <button
-              onClick={handleOk}
-              className="bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200"
+              onClick={handleDelete}
+              className="bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200 disabled:opacity-60"
+              disabled={deleteLoading}
             >
-              YES,DELETE
+              {deleteLoading ? "Deleting..." : "YES, DELETE"}
             </button>
           </div>
           <div className="text-center pb-5">
             <button
-              onClick={handleOk}
+              onClick={closeDeleteModal}
               className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
             >
               NO,DON’T DELETE
@@ -214,10 +255,11 @@ const Faq = () => {
             </button>
 
             <button
-              onClick={handleCancel2}
-              className="py-2 px-4 rounded-lg bg-green-600 text-white"
+              onClick={handleCreate}
+              className="py-2 px-4 rounded-lg bg-green-600 text-white disabled:opacity-60"
+              disabled={createLoading}
             >
-              Save
+              {createLoading ? "Saving..." : "Save"}
             </button>
           </div>
         </div>
@@ -280,10 +322,11 @@ const Faq = () => {
             </button>
 
             <button
-              onClick={handleCancel3}
-              className="py-2 px-4 rounded-lg bg-green-600 text-white"
+              onClick={handleUpdate}
+              className="py-2 px-4 rounded-lg bg-green-600 text-white disabled:opacity-60"
+              disabled={updateLoading}
             >
-              Save
+              {updateLoading ? "Saving..." : "Save"}
             </button>
           </div>
         </div>
