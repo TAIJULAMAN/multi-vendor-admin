@@ -1,31 +1,48 @@
 import { Table, ConfigProvider, Tag, Modal } from "antd";
 import PageHeading from "../../shared/PageHeading";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import { CiEdit } from "react-icons/ci";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { useState } from "react";
+import {
+  useGetAllSubCategoriesQuery,
+  useCreateSubCategoryMutation,
+  useUpdateSubCategoryMutation,
+  useDeleteSubCategoryMutation,
+} from "../../Redux/api/subcategory/subcategoryApi";
 
 const SubCategory = () => {
-  const navigate = useNavigate();
   const { state } = useLocation();
   const { id } = useParams();
+  console.log("state", state);
 
   const categoryId = state?.categoryId || id;
-  const categoryName = state?.categoryName || "Category";
-  const subCategoriesName = state?.subCategoriesName || "";
 
-  const initialSubCategories = subCategoriesName
-    ? subCategoriesName.split(",").map((s) => s.trim()).filter(Boolean)
-    : [];
-
-  const [subCategories, setSubCategories] = useState(initialSubCategories);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add"); // 'add' | 'edit'
   const [currentValue, setCurrentValue] = useState("");
   const [editingIndex, setEditingIndex] = useState(null);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-  const [pendingDeleteIndex, setPendingDeleteIndex] = useState(null);
 
+  // Fetch subcategories from API for the given categoryId
+  const { data, isLoading, isError, error } = useGetAllSubCategoriesQuery(
+    { categoryId: categoryId || state?.categoryId || id },
+    { skip: !categoryId && !state?.categoryId && !id }
+  );
+  console.log("subCategories of sub category", data);
+
+  // Mutations
+  const [createSubCategory, { isLoading: isCreating }] =
+    useCreateSubCategoryMutation();
+  const [updateSubCategory, { isLoading: isUpdating }] =
+    useUpdateSubCategoryMutation();
+  const [deleteSubCategory, { isLoading: isDeleting }] =
+    useDeleteSubCategoryMutation();
+
+  // const apiListRaw = data?.data?.subcategories ?? [];
+
+
+  // Modal helpers
   const openAdd = () => {
     setModalMode("add");
     setCurrentValue("");
@@ -33,62 +50,74 @@ const SubCategory = () => {
     setIsModalOpen(true);
   };
 
-  const openEdit = (index, value) => {
+  const openEdit = (index, value, id) => {
     setModalMode("edit");
     setCurrentValue(value);
-    setEditingIndex(index);
+    setEditingIndex(id ?? index);
     setIsModalOpen(true);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const value = currentValue.trim();
-    if (!value) {
+    if (!value || !categoryId) {
       setIsModalOpen(false);
       return;
     }
-    if (modalMode === "edit" && editingIndex !== null) {
-      setSubCategories((prev) => prev.map((v, i) => (i === editingIndex ? value : v)));
-    } else {
-      setSubCategories((prev) => [...prev, value]);
+    try {
+      if (modalMode === "edit" && editingIndex) {
+        await updateSubCategory({
+          id: editingIndex,
+          body: { name: value },
+        }).unwrap();
+      } else {
+        await createSubCategory({ name: value, parent: categoryId }).unwrap();
+      }
+    } catch (_) {
+      // optionally handle error UI
+    } finally {
+      setIsModalOpen(false);
+      setCurrentValue("");
+      setEditingIndex(null);
     }
-    setIsModalOpen(false);
   };
 
-  const handleDelete = (index) => {
-    setSubCategories((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  const openDelete = (index) => {
-    setPendingDeleteIndex(index);
+  // Delete flow
+  const [pendingDeleteId, setPendingDeleteId] = useState(null);
+  const openDelete = (id) => {
+    setPendingDeleteId(id);
     setIsDeleteOpen(true);
   };
-
-  const handleConfirmDelete = () => {
-    if (pendingDeleteIndex !== null) {
-      handleDelete(pendingDeleteIndex);
+  const handleConfirmDelete = async () => {
+    try {
+      if (pendingDeleteId) {
+        await deleteSubCategory(pendingDeleteId).unwrap();
+      }
+    } catch (_) {
+      // optionally handle error UI
+    } finally {
+      setIsDeleteOpen(false);
+      setPendingDeleteId(null);
     }
-    setIsDeleteOpen(false);
-    setPendingDeleteIndex(null);
   };
-
   const handleCancelDelete = () => {
     setIsDeleteOpen(false);
-    setPendingDeleteIndex(null);
+    setPendingDeleteId(null);
   };
 
-  const dataSource = subCategories.map((name, index) => ({
-    key: String(index + 1),
+  // Build table data from API
+  const dataSource = data?.data?.subcategories?.map((item, index) => ({
+    key: String(item?.id || item?._id || index + 1),
     no: String(index + 1),
-    subCategory: name,
-    index,
+    id: item?.id,
+    subCategoryName: item?.name || "",
   }));
 
   const columns = [
     { title: "No", dataIndex: "no", key: "no", width: 80 },
     {
       title: "Sub Category",
-      dataIndex: "subCategory",
-      key: "subCategory",
+      dataIndex: "subCategoryName",
+      key: "subCategoryName",
       render: (text) => <Tag color="green">{text}</Tag>,
     },
     {
@@ -98,14 +127,20 @@ const SubCategory = () => {
       render: (_, record) => (
         <div className="flex gap-2">
           <button
-            onClick={() => openEdit(record.index, record.subCategory)}
-            className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200"
+            // onClick={() => openEdit(null, record.subCategoryName, record.id)}
+            disabled={isUpdating}
+            className={`border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200 ${
+              isUpdating ? "opacity-60 cursor-not-allowed" : ""
+            }`}
           >
             <CiEdit className="w-6 h-6 text-[#14803c]" />
           </button>
           <button
-            onClick={() => openDelete(record.index)}
-            className="border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200"
+            onClick={() => openDelete(record.id)}
+            disabled={isDeleting}
+            className={`border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200 ${
+              isDeleting ? "opacity-60 cursor-not-allowed" : ""
+            }`}
           >
             <RiDeleteBin6Line className="w-6 h-6 text-[#14803c]" />
           </button>
@@ -117,11 +152,14 @@ const SubCategory = () => {
   return (
     <>
       <div className="my-5 md:my-10 flex flex-col md:flex-row gap-5 justify-between items-center">
-        <PageHeading title={`Sub Categories - ${categoryName}`} />
+        <PageHeading title={`Sub Categories`} />
         <div className="flex items-center gap-3">
           <button
             onClick={openAdd}
-            className="bg-[#14803c] text-white px-4 py-3 rounded-lg hover:bg-[#14803c]/80"
+            disabled={isCreating || isUpdating}
+            className={`bg-[#14803c] text-white px-4 py-3 rounded-lg hover:bg-[#14803c]/80 ${
+              isCreating || isUpdating ? "opacity-60 cursor-not-allowed" : ""
+            }`}
           >
             + Add Sub Category
           </button>
@@ -143,6 +181,7 @@ const SubCategory = () => {
         <Table
           dataSource={dataSource}
           columns={columns}
+          loading={isLoading}
           pagination={{ pageSize: 10 }}
           locale={{ emptyText: "No sub categories found" }}
         />
@@ -155,11 +194,21 @@ const SubCategory = () => {
         >
           <div className="p-5">
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold mb-2">{modalMode === 'edit' ? 'Edit Sub Category' : 'Add Sub Category'}</h2>
-              <p className="text-gray-600">{modalMode === 'edit' ? 'Update the sub category name' : 'Enter a new sub category name'}</p>
+              <h2 className="text-2xl font-bold mb-2">
+                {modalMode === "edit"
+                  ? "Edit Sub Category"
+                  : "Add Sub Category"}
+              </h2>
+              <p className="text-gray-600">
+                {modalMode === "edit"
+                  ? "Update the sub category name"
+                  : "Enter a new sub category name"}
+              </p>
             </div>
             <div className="mb-6">
-              <label className="block text-gray-800 mb-2">Sub Category Name</label>
+              <label className="block text-gray-800 mb-2">
+                Sub Category Name
+              </label>
               <input
                 type="text"
                 placeholder="e.g., Smartphones"

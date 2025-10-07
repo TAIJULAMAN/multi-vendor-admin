@@ -73,7 +73,14 @@ const Users = () => {
     { title: "Email", dataIndex: "email", key: "email" },
     { title: "Country", dataIndex: "country", key: "country" },
     { title: "Currency", dataIndex: "currency", key: "currency" },
-    { title: "Status", dataIndex: "isBlocked", key: "isBlocked", render: (v) => (v ? "Blocked" : "Active") },
+    {
+      title: "Status",
+      dataIndex: "isBlocked",
+      key: "isBlocked",
+      render: (v) => (
+        <span className={v ? "text-red-600" : ""}>{v ? "Blocked" : "Active"}</span>
+      ),
+    },
     {
       title: "Action",
       key: "action",
@@ -81,14 +88,14 @@ const Users = () => {
         <button
           onClick={() => showModal(record)}
           disabled={isBlocking}
-          className={`border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] transition duration-200 ${
+          className={` rounded-lg p-2 bg-[#d3e8e6] transition duration-200 ${
             isBlocking ? "opacity-60 cursor-not-allowed" : ""
           }`}
         >
-          <MdBlockFlipped className="w-6 h-6 text-[#14803c]" />
+          <MdBlockFlipped className={`w-6 h-6 ${record?.isBlocked ? "text-red-600 " : "text-[#14803c]"}`} />
         </button>
       ),
-    }
+    },
   ];
 
   const showModal = (record) => {

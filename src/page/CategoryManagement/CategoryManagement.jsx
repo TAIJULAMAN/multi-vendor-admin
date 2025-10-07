@@ -7,7 +7,12 @@ import { RiDeleteBin6Line } from "react-icons/ri";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-import { useGetAllCategoriesQuery, useCreateCategoryMutation, useUpdateCategoryMutation, useDeleteCategoryMutation } from "../../Redux/api/category/categoryApi";
+import {
+  useGetAllCategoriesQuery,
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+  useDeleteCategoryMutation,
+} from "../../Redux/api/category/categoryApi";
 
 const CategoryManagement = () => {
   const navigate = useNavigate();
@@ -21,7 +26,8 @@ const CategoryManagement = () => {
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const [blockMessage, setBlockMessage] = useState("");
 
-  const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
+  const [deleteCategory, { isLoading: isDeleting }] =
+    useDeleteCategoryMutation();
 
   const handleOk = async () => {
     if (!deletingRecord?.id) {
@@ -55,8 +61,10 @@ const CategoryManagement = () => {
 
   const { data: categoriesData } = useGetAllCategoriesQuery();
   console.log("categories from CategoryManagement", categoriesData);
-  const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
-  const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
+  const [createCategory, { isLoading: isCreating }] =
+    useCreateCategoryMutation();
+  const [updateCategory, { isLoading: isUpdating }] =
+    useUpdateCategoryMutation();
 
   const dataSource = categoriesData?.data?.categories?.map((item, index) => ({
     key: index,
@@ -69,6 +77,7 @@ const CategoryManagement = () => {
     updatedAt: item?.updatedAt,
     subCategories: item?.subCategories?.length,
   }));
+  console.log("dataSource of CategoryManagement", dataSource);
 
   const columns = [
     {
@@ -138,11 +147,9 @@ const CategoryManagement = () => {
           <div className="flex gap-2">
             <button
               onClick={() =>
-                navigate(`/category-management/${record.no}/sub-categories`, {
+                navigate(`/category-management/${record.id}/sub-categories`, {
                   state: {
-                    categoryId: record.no,
-                    categoryName: record.categoryName,
-                    subCategoriesName: record.subCategoriesName,
+                    categoryId: record.id
                   },
                 })
               }
@@ -167,7 +174,6 @@ const CategoryManagement = () => {
       },
     },
   ];
-
 
   // Open modals
   const openAdd = () => {
@@ -194,10 +200,16 @@ const CategoryManagement = () => {
       if (modalMode === "edit" && editingRecord?.id) {
         await updateCategory({
           id: editingRecord.id,
-          body: { name: categoryName.trim(), description: categoryDescription?.trim() || "" },
+          body: {
+            name: categoryName.trim(),
+            description: categoryDescription?.trim() || "",
+          },
         }).unwrap();
       } else {
-        await createCategory({ name: categoryName.trim(), description: categoryDescription?.trim() || "" }).unwrap();
+        await createCategory({
+          name: categoryName.trim(),
+          description: categoryDescription?.trim() || "",
+        }).unwrap();
       }
       setAddModalOpen(false);
       setCategoryName("");
@@ -320,7 +332,9 @@ const CategoryManagement = () => {
                 onClick={handleSaveCategory}
                 disabled={isCreating || isUpdating}
                 className={`py-2 px-4 rounded-lg bg-green-600 text-white ${
-                  isCreating || isUpdating ? "opacity-60 cursor-not-allowed" : ""
+                  isCreating || isUpdating
+                    ? "opacity-60 cursor-not-allowed"
+                    : ""
                 }`}
               >
                 {isCreating || isUpdating ? "Saving..." : "Save"}
@@ -336,7 +350,8 @@ const CategoryManagement = () => {
         >
           <div className="p-5">
             <h1 className="text-4xl text-center text-[#0D0D0D]">
-              {blockMessage || "Please delete all associated subcategories first."}
+              {blockMessage ||
+                "Please delete all associated subcategories first."}
             </h1>
             <div className="text-center py-5">
               <button
@@ -363,7 +378,9 @@ const CategoryManagement = () => {
               <button
                 onClick={handleOk}
                 disabled={isDeleting}
-                className={`bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200 ${isDeleting ? "opacity-60 cursor-not-allowed" : ""}`}
+                className={`bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200 ${
+                  isDeleting ? "opacity-60 cursor-not-allowed" : ""
+                }`}
               >
                 {isDeleting ? "Deleting..." : "Yes, Delete"}
               </button>
