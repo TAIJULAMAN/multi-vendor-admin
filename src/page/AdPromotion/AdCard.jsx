@@ -1,36 +1,26 @@
-import { Modal } from "antd";
 import { useEffect, useState } from "react";
-import { FaTrashAlt, FaUpload } from "react-icons/fa";
 import { FiMoreVertical } from "react-icons/fi";
 import {
   useDeleteAdsMutation,
   useUpdateAdsMutation,
 } from "../../Redux/api/ads/adsApi";
+import DeleteAdModal from "./DeleteAdModal";
+import EditAdModal from "./EditAdModal";
+import formatDate from "../../utils/formatDate";
+import useImageUpload from "../../hooks/useImageUpload";
 
 export function AdCard({ campaign }) {
   // console.log(campaign)
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
-  const [categoryName, setCategoryName] = useState("Electronics");
   const [imageError, setImageError] = useState(false);
   const [deleteAds, { isLoading: isDeleting }] = useDeleteAdsMutation();
   const [updateAds, { isLoading: isUpdating }] = useUpdateAdsMutation();
   const [editTitle, setEditTitle] = useState("");
   const [editStartDate, setEditStartDate] = useState("");
   const [editEndDate, setEditEndDate] = useState("");
-
-  // date formatter
-  const formatDate = (value) => {
-    if (!value) return "";
-    const d = new Date(value);
-    if (isNaN(d)) return String(value);
-    return d.toLocaleDateString(undefined, {
-      year: "numeric",
-      month: "short",
-      day: "2-digit",
-    });
-  };
+  
   const handleOk = async () => {
     try {
       if (!campaign?.id) return;
@@ -41,7 +31,7 @@ export function AdCard({ campaign }) {
     }
   };
 
-  const [uploadedImage, setUploadedImage] = useState({
+  const { uploadedImage, setUploadedImage, handleImageUpload, handleRemoveImage } = useImageUpload({
     name: "",
     url: "",
     file: null,
@@ -60,7 +50,6 @@ export function AdCard({ campaign }) {
         file: null,
       });
     }
-    // reset error when campaign changes
     setImageError(false);
   }, [campaign]);
 
@@ -79,20 +68,6 @@ export function AdCard({ campaign }) {
     }
   }, [updateModalOpen, campaign]);
 
-  const handleImageUpload = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setUploadedImage({
-        name: file.name,
-        url: URL.createObjectURL(file),
-        file,
-      });
-    }
-  };
-
-  const handleRemoveImage = () => {
-    setUploadedImage({ name: "", url: "", file: null });
-  };
 
   return (
     <div className="bg-amber-200 rounded-lg overflow-hidden shadow-md">
@@ -136,7 +111,7 @@ export function AdCard({ campaign }) {
           <img
             src={campaign.image}
             alt={campaign.title}
-            className="w-full h-48 md:h-56 object-cover rounded-lg"
+            className="w-full h-48 md:h-56 rounded-lg"
             onError={() => setImageError(true)}
           />
         ) : (
@@ -164,203 +139,45 @@ export function AdCard({ campaign }) {
           </span>
         </div>
       </div>
-      <Modal
+
+      <DeleteAdModal
         open={isModalOpen}
-        centered
-        onCancel={() => {
-          setIsModalOpen(false);
-        }}
-        footer={null}
-      >
-        <div className="p-5">
-          <h1 className="text-4xl text-center text-[#0D0D0D]">
-            Are you sure you want to delete ?
-          </h1>
-
-          <div className="text-center py-5">
-            <button
-              onClick={handleOk}
-              disabled={isDeleting}
-              className={`bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200 ${
-                isDeleting ? "opacity-60 cursor-not-allowed" : ""
-              }`}
-            >
-              {isDeleting ? "Deleting..." : "YES,DELETE"}
-            </button>
-          </div>
-          <div className="text-center pb-5">
-            <button
-              onClick={() => {
-                setIsModalOpen(false);
-              }}
-              disabled={isDeleting}
-              className={`text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200 ${
-                isDeleting ? "opacity-60 cursor-not-allowed" : ""
-              }`}
-            >
-              NO,DON’T DELETE
-            </button>
-          </div>
-        </div>
-      </Modal>
-      <Modal
+        onCancel={() => setIsModalOpen(false)}
+        onConfirm={handleOk}
+        loading={isDeleting}
+      />
+      <EditAdModal
         open={updateModalOpen}
-        centered
-        onCancel={() => {
-          setUpdateModalOpen(false);
+        onCancel={() => setUpdateModalOpen(false)}
+        title={editTitle}
+        setTitle={setEditTitle}
+        startDate={editStartDate}
+        setStartDate={setEditStartDate}
+        endDate={editEndDate}
+        setEndDate={setEditEndDate}
+        uploadedImage={uploadedImage}
+        onImageUpload={handleImageUpload}
+        onRemoveImage={handleRemoveImage}
+        onSave={async () => {
+          try {
+            if (!campaign?.id) return;
+            const formData = new FormData();
+            if (editTitle) formData.append("title", editTitle);
+            if (editStartDate)
+              formData.append(
+                "startDate",
+                new Date(editStartDate).toISOString()
+              );
+            if (editEndDate)
+              formData.append("endDate", new Date(editEndDate).toISOString());
+            if (uploadedImage.file)
+              formData.append("image", uploadedImage.file);
+            await updateAds({ id: campaign.id, formData }).unwrap();
+            setUpdateModalOpen(false);
+          } catch (_) {}
         }}
-        footer={null}
-      >
-        <div className="p-5">
-          {/* Header */}
-          <h2 className="text-2xl font-bold text-center mb-2">Update Ads</h2>
-          <p className="text-center text-gray-600 mb-6">
-            Edit the ads information as needed. Your changes will reflect across
-            all associated listings.
-          </p>
-
-          {/* Upload section with inline preview */}
-          <div className="mb-6">
-            <label className="block text-gray-700 font-medium mb-2">
-              Upload Post Image
-            </label>
-            <div className="border border-gray-300 rounded-md p-4 flex items-center justify-between">
-              {uploadedImage.name ? (
-                <>
-                  <div className="flex items-center gap-3">
-                    <div className="h-12 w-12 rounded overflow-hidden bg-gray-100 flex items-center justify-center text-gray-500 text-[10px]">
-                      {uploadedImage.url ? (
-                        <img
-                          src={uploadedImage.url}
-                          alt="Preview"
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <span>No image</span>
-                      )}
-                    </div>
-                    <span className="text-gray-500">{uploadedImage.name}</span>
-                  </div>
-                  <div className="flex items-center gap-3">
-                    <button
-                      onClick={handleRemoveImage}
-                      className="p-2 text-red-500 hover:text-red-700"
-                    >
-                      <FaTrashAlt size={18} className="text-red-500" />
-                    </button>
-                    <label className="cursor-pointer text-blue-600">
-                      <div className="flex items-center gap-2">
-                        <FaUpload className="h-5 w-5" />
-                        <span>Change</span>
-                      </div>
-                      <input
-                        type="file"
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                      />
-                    </label>
-                  </div>
-                </>
-              ) : (
-                <label className="cursor-pointer text-gray-500 w-full flex items-center justify-center">
-                  <div className="flex items-center gap-2">
-                    <FaUpload className="h-5 w-5 text-gray-400" />
-                    <span className="text-gray-400">Upload Picture</span>
-                  </div>
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                  />
-                </label>
-              )}
-            </div>
-          </div>
-
-          {/* Title input */}
-          <div className="mb-6">
-            <label className="block text-gray-700 font-medium mb-2">
-              Advertisement Name
-            </label>
-            <input
-              type="text"
-              value={editTitle}
-              onChange={(e) => setEditTitle(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-            />
-          </div>
-
-          {/* Start and end date */}
-          <div className="grid grid-cols-2 gap-4 mb-6">
-            <div className="flex flex-col">
-              <label className="block text-gray-700 font-medium mb-2">
-                Start Date
-              </label>
-              <input
-                type="date"
-                value={editStartDate}
-                onChange={(e) => setEditStartDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="block text-gray-700 font-medium mb-2">
-                End Date
-              </label>
-              <input
-                type="date"
-                placeholder="02/02/2023"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
-          </div>
-
-          {/* Action buttons */}
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              onClick={() => {
-                setUpdateModalOpen(false);
-              }}
-              className="px-4 py-2 border border-red-200 bg-red-50 text-red-500 rounded-md hover:bg-red-100 transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={async () => {
-                try {
-                  if (!campaign?.id) return;
-                  const formData = new FormData();
-                  if (editTitle) formData.append("title", editTitle);
-                  if (editStartDate)
-                    formData.append(
-                      "startDate",
-                      new Date(editStartDate).toISOString()
-                    );
-                  if (editEndDate)
-                    formData.append(
-                      "endDate",
-                      new Date(editEndDate).toISOString()
-                    );
-                  if (uploadedImage.file)
-                    formData.append("image", uploadedImage.file);
-                  await updateAds({ id: campaign.id, formData }).unwrap();
-                  setUpdateModalOpen(false);
-                } catch (_) {
-                  // optionally toast
-                }
-              }}
-              disabled={isUpdating}
-              className={`px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors ${
-                isUpdating ? "opacity-60 cursor-not-allowed" : ""
-              }`}
-            >
-              {isUpdating ? "Saving..." : "Save"}
-            </button>
-          </div>
-        </div>
-      </Modal>
+        loading={isUpdating}
+      />
     </div>
   );
 }
