@@ -10,6 +10,7 @@ export const dashboardApi = baseApi.injectEndpoints({
       }),
       providesTags: ["dashboard"],
     }),
+    
   }),
 });
 

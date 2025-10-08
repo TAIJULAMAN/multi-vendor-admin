@@ -1,59 +1,35 @@
-import { Table, ConfigProvider, Tag, Modal } from "antd";
+import { Table, ConfigProvider, Modal } from "antd";
 import PageHeading from "../../shared/PageHeading";
-import { useLocation, useParams } from "react-router-dom";
-import { CiEdit } from "react-icons/ci";
-import { RiDeleteBin6Line } from "react-icons/ri";
+import { useLocation } from "react-router-dom";
 import { useState } from "react";
 import {
   useGetAllSubCategoriesQuery,
   useCreateSubCategoryMutation,
-  useUpdateSubCategoryMutation,
-  useDeleteSubCategoryMutation,
 } from "../../Redux/api/subcategory/subcategoryApi";
+import { CiEdit } from "react-icons/ci";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 const SubCategory = () => {
   const { state } = useLocation();
-  const { id } = useParams();
-  console.log("state", state);
+  // console.log("state", state);
 
-  const categoryId = state?.categoryId || id;
+  const categoryId = state?.categoryId;
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalMode, setModalMode] = useState("add"); // 'add' | 'edit'
   const [currentValue, setCurrentValue] = useState("");
-  const [editingIndex, setEditingIndex] = useState(null);
-  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   // Fetch subcategories from API for the given categoryId
-  const { data, isLoading, isError, error } = useGetAllSubCategoriesQuery(
-    { categoryId: categoryId || state?.categoryId || id },
-    { skip: !categoryId && !state?.categoryId && !id }
-  );
-  console.log("subCategories of sub category", data);
+  const { data, isLoading } = useGetAllSubCategoriesQuery({
+    categoryId: categoryId,
+  });
+  // console.log("subCategories of sub category", data);
 
-  // Mutations
   const [createSubCategory, { isLoading: isCreating }] =
     useCreateSubCategoryMutation();
-  const [updateSubCategory, { isLoading: isUpdating }] =
-    useUpdateSubCategoryMutation();
-  const [deleteSubCategory, { isLoading: isDeleting }] =
-    useDeleteSubCategoryMutation();
-
-  // const apiListRaw = data?.data?.subcategories ?? [];
-
 
   // Modal helpers
   const openAdd = () => {
-    setModalMode("add");
     setCurrentValue("");
-    setEditingIndex(null);
-    setIsModalOpen(true);
-  };
-
-  const openEdit = (index, value, id) => {
-    setModalMode("edit");
-    setCurrentValue(value);
-    setEditingIndex(id ?? index);
     setIsModalOpen(true);
   };
 
@@ -64,53 +40,24 @@ const SubCategory = () => {
       return;
     }
     try {
-      if (modalMode === "edit" && editingIndex) {
-        await updateSubCategory({
-          id: editingIndex,
-          body: { name: value },
-        }).unwrap();
-      } else {
-        await createSubCategory({ name: value, parent: categoryId }).unwrap();
-      }
+      await createSubCategory({ name: value, parent: categoryId }).unwrap();
     } catch (_) {
       // optionally handle error UI
     } finally {
       setIsModalOpen(false);
       setCurrentValue("");
-      setEditingIndex(null);
     }
-  };
-
-  // Delete flow
-  const [pendingDeleteId, setPendingDeleteId] = useState(null);
-  const openDelete = (id) => {
-    setPendingDeleteId(id);
-    setIsDeleteOpen(true);
-  };
-  const handleConfirmDelete = async () => {
-    try {
-      if (pendingDeleteId) {
-        await deleteSubCategory(pendingDeleteId).unwrap();
-      }
-    } catch (_) {
-      // optionally handle error UI
-    } finally {
-      setIsDeleteOpen(false);
-      setPendingDeleteId(null);
-    }
-  };
-  const handleCancelDelete = () => {
-    setIsDeleteOpen(false);
-    setPendingDeleteId(null);
   };
 
   // Build table data from API
-  const dataSource = data?.data?.subcategories?.map((item, index) => ({
-    key: String(item?.id || item?._id || index + 1),
-    no: String(index + 1),
-    id: item?.id,
-    subCategoryName: item?.name || "",
-  }));
+  const dataSource =
+    data?.data?.subCategories?.map((item, index) => ({
+      key: index,
+      no: index + 1,
+      subCategoryName: item?.name || "No Name",
+      id: item?._id,
+      categoryId: item?._id,
+    })) || [];
 
   const columns = [
     { title: "No", dataIndex: "no", key: "no", width: 80 },
@@ -118,7 +65,6 @@ const SubCategory = () => {
       title: "Sub Category",
       dataIndex: "subCategoryName",
       key: "subCategoryName",
-      render: (text) => <Tag color="green">{text}</Tag>,
     },
     {
       title: "Action",
@@ -128,19 +74,15 @@ const SubCategory = () => {
         <div className="flex gap-2">
           <button
             // onClick={() => openEdit(null, record.subCategoryName, record.id)}
-            disabled={isUpdating}
-            className={`border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200 ${
-              isUpdating ? "opacity-60 cursor-not-allowed" : ""
-            }`}
+            // disabled={isUpdating}
+            className={`border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200 `}
           >
             <CiEdit className="w-6 h-6 text-[#14803c]" />
           </button>
           <button
             onClick={() => openDelete(record.id)}
-            disabled={isDeleting}
-            className={`border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200 ${
-              isDeleting ? "opacity-60 cursor-not-allowed" : ""
-            }`}
+            // disabled={isDeleting}
+            className={`border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200 `}
           >
             <RiDeleteBin6Line className="w-6 h-6 text-[#14803c]" />
           </button>
@@ -156,12 +98,12 @@ const SubCategory = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={openAdd}
-            disabled={isCreating || isUpdating}
+            disabled={isCreating}
             className={`bg-[#14803c] text-white px-4 py-3 rounded-lg hover:bg-[#14803c]/80 ${
-              isCreating || isUpdating ? "opacity-60 cursor-not-allowed" : ""
+              isCreating ? "opacity-60 cursor-not-allowed" : ""
             }`}
           >
-            + Add Sub Category
+            {isCreating ? "Adding..." : "+ Add Sub Category"}
           </button>
         </div>
       </div>
@@ -185,7 +127,7 @@ const SubCategory = () => {
           pagination={{ pageSize: 10 }}
           locale={{ emptyText: "No sub categories found" }}
         />
-        {/* Add/Edit Modal */}
+        {/* Add Modal */}
         <Modal
           open={isModalOpen}
           centered
@@ -194,16 +136,8 @@ const SubCategory = () => {
         >
           <div className="p-5">
             <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold mb-2">
-                {modalMode === "edit"
-                  ? "Edit Sub Category"
-                  : "Add Sub Category"}
-              </h2>
-              <p className="text-gray-600">
-                {modalMode === "edit"
-                  ? "Update the sub category name"
-                  : "Enter a new sub category name"}
-              </p>
+              <h2 className="text-2xl font-bold mb-2">Add Sub Category</h2>
+              <p className="text-gray-600">Enter a new sub category name</p>
             </div>
             <div className="mb-6">
               <label className="block text-gray-800 mb-2">
@@ -229,36 +163,6 @@ const SubCategory = () => {
                 className="py-2 px-4 rounded-lg bg-green-600 text-white"
               >
                 Save
-              </button>
-            </div>
-          </div>
-        </Modal>
-        {/* Delete Confirm Modal - match CategoryManagement style */}
-        <Modal
-          open={isDeleteOpen}
-          centered
-          onCancel={handleCancelDelete}
-          footer={null}
-        >
-          <div className="p-5">
-            <h1 className="text-4xl text-center text-[#0D0D0D]">
-              Are you sure you want to Delete ?
-            </h1>
-
-            <div className="text-center py-5">
-              <button
-                onClick={handleConfirmDelete}
-                className="bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200"
-              >
-                Yes,Delete
-              </button>
-            </div>
-            <div className="text-center pb-5">
-              <button
-                onClick={handleCancelDelete}
-                className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
-              >
-                No,Don’t Delete
               </button>
             </div>
           </div>

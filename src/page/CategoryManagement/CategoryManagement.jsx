@@ -37,7 +37,6 @@ const CategoryManagement = () => {
     try {
       await deleteCategory(deletingRecord.id).unwrap();
     } catch (_) {
-      // optionally handle error UI
     } finally {
       setIsModalOpen(false);
       setDeletingRecord(null);
@@ -60,7 +59,6 @@ const CategoryManagement = () => {
   };
 
   const { data: categoriesData } = useGetAllCategoriesQuery();
-  console.log("categories from CategoryManagement", categoriesData);
   const [createCategory, { isLoading: isCreating }] =
     useCreateCategoryMutation();
   const [updateCategory, { isLoading: isUpdating }] =
@@ -76,8 +74,9 @@ const CategoryManagement = () => {
     createdAt: item?.createdAt,
     updatedAt: item?.updatedAt,
     subCategories: item?.subCategories?.length,
+    categoryId: item?.categoryId,
+    
   }));
-  console.log("dataSource of CategoryManagement", dataSource);
 
   const columns = [
     {
@@ -149,7 +148,7 @@ const CategoryManagement = () => {
               onClick={() =>
                 navigate(`/category-management/${record.id}/sub-categories`, {
                   state: {
-                    categoryId: record.id
+                    categoryId: record.id,
                   },
                 })
               }
@@ -175,7 +174,6 @@ const CategoryManagement = () => {
     },
   ];
 
-  // Open modals
   const openAdd = () => {
     setModalMode("add");
     setEditingRecord(null);
@@ -194,7 +192,7 @@ const CategoryManagement = () => {
 
   const handleSaveCategory = async () => {
     if (!categoryName?.trim()) {
-      return; // optionally show validation message
+      return; 
     }
     try {
       if (modalMode === "edit" && editingRecord?.id) {
@@ -215,7 +213,6 @@ const CategoryManagement = () => {
       setCategoryName("");
       setCategoryDescription("");
     } catch (e) {
-      // optionally handle error UI
     }
   };
 

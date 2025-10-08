@@ -14,7 +14,7 @@ export const subcategoryApi = baseApi.injectEndpoints({
       query: (body) => ({
         url: "category/subcategories",
         method: "POST",
-        body, // expects { name, parent }
+        body, // expects { name, parentID }
       }),
       invalidatesTags: ["subCategory", "category"],
     }),
