@@ -8,7 +8,7 @@ import { useGetAllUsersQuery, useBlockUserMutation } from "../../Redux/api/user/
 const Users = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  console.log("selectedUser", selectedUser);
+  // console.log("selectedUser", selectedUser);
   const [blockUser, { isLoading: isBlocking }] = useBlockUserMutation();
 
   const handleOk = async () => {
@@ -33,7 +33,7 @@ const Users = () => {
 
   // Request only customers from API if supported
   const { data: users } = useGetAllUsersQuery({ role: "customer" });
-  console.log("users from user page", users);
+  // console.log("users from user page", users);
 
   // Fallback client-side filter to customers if API returns mixed roles
   const customerList = users?.data?.users?.filter((u) => {

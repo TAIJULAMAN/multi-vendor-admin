@@ -1,8 +1,3 @@
-import { FaChevronDown } from "react-icons/fa";
-import { useState } from "react";
-import dayjs from "dayjs";
-import { Modal } from "antd";
-
 import user from "../../assets/user.png";
 import seller from "../../assets/seller.png";
 import SellerGrowth from "./SellerGrowth";
@@ -10,34 +5,9 @@ import SellerGrowth from "./SellerGrowth";
 import RecentSellerRequests from "./RecentSellerRequests";
 import { useGetAllDashboardQuery } from "../../Redux/api/dashboard/dashboardApi";
 
-function DashboardPage() {
-  const currentYear = dayjs().year();
-  const startYear = 2023;
-  const [selectedYear, setSelectedYear] = useState(currentYear);
-  const [isOpen, setIsOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-
-  const years = Array.from(
-    { length: currentYear - startYear + 1 },
-    (_, index) => startYear + index
-  );
-
-  const handleSelect = (year) => {
-    setSelectedYear(year);
-    setIsOpen(false);
-  };
-
+export default function DashboardPage() {
   const { data: dashboardData } = useGetAllDashboardQuery();
-  console.log(dashboardData, "from dashboard page");
+  // console.log(dashboardData, "from dashboard page");
 
   return (
     <div className="flex flex-col">
@@ -76,70 +46,14 @@ function DashboardPage() {
 
       <div className="mt-5">
         <div className="w-full p-5 bg-[#F2F2F2] rounded-lg shadow-md">
-          <div className="flex flex-col md:flex-row md:justify-between lg:justify-between items-center gap-5 my-5">
-            <div>
-              <h1 className="text-xl font-semibold">Seller Growth</h1>
-            </div>
-            <div className="relative w-full md:w-32">
-              <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md flex justify-between items-center bg-white transition"
-              >
-                <span className="text-[#0B704E]">{selectedYear}</span>
-                <FaChevronDown className="text-[#0B704E] w-5 h-5 ml-5" />
-              </button>
-              {isOpen && (
-                <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-y-auto shadow-lg text-lg">
-                  {years.map((year) => (
-                    <div
-                      key={year}
-                      onClick={() => handleSelect(year)}
-                      className={`p-2 cursor-pointer hover:bg-gray-100 transition ${
-                        year === selectedYear ? "bg-gray-200" : ""
-                      }`}
-                    >
-                      {year}
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
           <SellerGrowth />
         </div>
       </div>
 
       <div className="mt-5">
         <h1 className="text-2xl font-bold mb-5">Recent Seller Requests</h1>
-        <RecentSellerRequests showModal={showModal} />
+        <RecentSellerRequests />
       </div>
-
-      <Modal open={isModalOpen} centered onCancel={handleCancel} footer={null}>
-        <div className="p-5">
-          <h1 className="text-4xl text-center text-[#0D0D0D]">
-            Are you sure you want to block ?
-          </h1>
-
-          <div className="text-center py-5">
-            <button
-              onClick={handleOk}
-              className="bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200"
-            >
-              Yes,Block
-            </button>
-          </div>
-          <div className="text-center pb-5">
-            <button
-              onClick={handleOk}
-              className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
-            >
-              No,Don’t Block
-            </button>
-          </div>
-        </div>
-      </Modal>
     </div>
   );
 }
-
-export default DashboardPage;

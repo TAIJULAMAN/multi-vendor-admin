@@ -1,4 +1,7 @@
 /* eslint-disable react/prop-types */
+import { FaChevronDown } from "react-icons/fa";
+import { useState } from "react";
+import dayjs from "dayjs";
 import {
   BarChart,
   Bar,
@@ -8,31 +11,57 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { useGetSalesOverviewQuery } from "../../Redux/api/dashboard/dashboardApi";
 
 const SellerGrowth = () => {
-  const userData = [
-    { month: "Jan", appUsers: 1200, activeUsers: 900 },
-    { month: "Feb", appUsers: 1500, activeUsers: 1100 },
-    { month: "Mar", appUsers: 800, activeUsers: 600 },
-    { month: "Apr", appUsers: 1600, activeUsers: 1300 },
-    { month: "May", appUsers: 2000, activeUsers: 1600 },
-    { month: "Jun", appUsers: 1700, activeUsers: 1400 },
-    { month: "Jul", appUsers: 2200, activeUsers: 1900 },
-    { month: "Aug", appUsers: 1900, activeUsers: 1700 },
-    { month: "Sept", appUsers: 2100, activeUsers: 1800 },
-    { month: "Oct", appUsers: 2300, activeUsers: 2000 },
-    { month: "Nov", appUsers: 2500, activeUsers: 2200 },
-    { month: "Dec", appUsers: 2800, activeUsers: 2500 },
-  ];
+  const currentYear = dayjs().year();
+  const startYear = 2023;
+  const [selectedYear, setSelectedYear] = useState(currentYear);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const years = Array.from(
+    { length: currentYear - startYear + 1 },
+    (_, index) => startYear + index
+  );
+
+  const handleSelect = (year) => {
+    setSelectedYear(year);
+    setIsOpen(false);
+  };
+
+
+
+  // Fetch sales overview by selected year (running year by default)
+  const { data: salesData, isLoading } = useGetSalesOverviewQuery({
+    year: selectedYear,
+  });
+  console.log("salesData", salesData);
+
+  // Normalize API response into chart data structure (no fallback data)
+  const apiMonths = Array.isArray(salesData?.data?.overview)
+    ? salesData.data.overview
+    : [];
+  console.log("apiMonths", apiMonths);
+
+  const chartData = apiMonths.map((m) => {
+    const month = m?.month || m?.name || m?.label || "";
+    // Try multiple possible keys from backend
+    const normalSale =
+      m?.normalSale ?? m?.normal_sales ?? m?.normal ?? m?.salesNormal ?? 0;
+    const totalAmount =
+      m?.totalAmount ?? m?.totalSale ?? m?.total_sales ?? m?.total ?? 0;
+    return { month, normalSale, totalAmount };
+  });
+  console.log("chartData", chartData);
 
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
-      const { month, appUsers, activeUsers } = payload[0].payload;
+      const { month, normalSale, totalAmount } = payload[0].payload;
       return (
         <div className="bg-white py-2 px-3 rounded shadow border">
           <p className="text-black font-semibold">{`Month: ${month}`}</p>
-          <p className="text-[#FF914C]">{`App Users: ${appUsers}`}</p>
-          <p className="text-[#083E24]">{`Active Users: ${activeUsers}`}</p>
+          <p className="text-[#FF914C]">{`Normal Sale: ${normalSale}`}</p>
+          <p className="text-[#083E24]">{`Total Sale: ${totalAmount}`}</p>
         </div>
       );
     }
@@ -40,35 +69,66 @@ const SellerGrowth = () => {
   };
 
   return (
-    <div className="w-full h-[300px]">
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={userData}
-          margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
-          barGap={100}
-          barCategoryGap={40}
-        >
-          <XAxis tickLine={false} dataKey="month" />
-          <YAxis tickLine={false} />
-          <Tooltip content={<CustomTooltip />} />
-          <Legend />
-          <Bar
-            dataKey="appUsers"
-            fill="#FF914C"
-            barSize={30}
-            radius={[5, 5, 0, 0]}
-            name="App Users"
-          />
-          <Bar
-            dataKey="activeUsers"
-            fill="#083E24"
-            barSize={30}
-            radius={[5, 5, 0, 0]}
-            name="Active Users"
-          />
-        </BarChart>
-      </ResponsiveContainer>
-    </div>
+    <>
+      <div className="flex flex-col md:flex-row md:justify-between lg:justify-between items-center gap-5 my-5">
+        <div>
+          <h1 className="text-xl font-semibold">Seller Growth</h1>
+        </div>
+        <div className="relative w-full md:w-32">
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md flex justify-between items-center bg-white transition"
+          >
+            <span className="text-[#0B704E]">{selectedYear}</span>
+            <FaChevronDown className="text-[#0B704E] w-5 h-5 ml-5" />
+          </button>
+          {isOpen && (
+            <div className="absolute z-10 w-full bg-white border border-gray-300 rounded-md mt-1 max-h-60 overflow-y-auto shadow-lg text-lg">
+              {years.map((year) => (
+                <div
+                  key={year}
+                  onClick={() => handleSelect(year)}
+                  className={`p-2 cursor-pointer hover:bg-gray-100 transition ${
+                    year === selectedYear ? "bg-gray-200" : ""
+                  }`}
+                >
+                  {year}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="w-full h-[300px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={chartData}
+            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+            barGap={100}
+            barCategoryGap={40}
+          >
+            <XAxis tickLine={false} dataKey="month" />
+            <YAxis tickLine={false} />
+            <Tooltip content={<CustomTooltip />} />
+            <Legend />
+            <Bar
+              dataKey="normalSale"
+              fill="#FF914C"
+              barSize={30}
+              radius={[5, 5, 0, 0]}
+              name="Normal Sale"
+            />
+            <Bar
+              dataKey="totalAmount"
+              fill="#083E24"
+              barSize={30}
+              radius={[5, 5, 0, 0]}
+              name="Total Sale"
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    </>
   );
 };
 

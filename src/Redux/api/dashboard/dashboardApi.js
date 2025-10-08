@@ -10,10 +10,19 @@ export const dashboardApi = baseApi.injectEndpoints({
       }),
       providesTags: ["dashboard"],
     }),
+    getSalesOverview: builder.query({
+      query: ({ year } = {}) => ({
+        url: "dashboard/sales-overview",
+        method: "GET",
+        params: { year },
+      }),
+      providesTags: ["dashboard"],
+    }),
     
   }),
 });
 
 export const {
   useGetAllDashboardQuery,
+  useGetSalesOverviewQuery,
 } = dashboardApi;
