@@ -5,7 +5,7 @@ import "react-quill/dist/quill.snow.css";
 import PageHeading from "../../shared/PageHeading";
 import { useGetPrivacyQuery, useCreatePrivacyMutation } from "../../Redux/api/privacyApi";
 
-function PrivacyPolicy() {
+export default function PrivacyPolicy() {
   const [content, setContent] = useState("");
   const { data: privacyData, isFetching } = useGetPrivacyQuery();
 
@@ -53,4 +53,3 @@ function PrivacyPolicy() {
   );
 }
 
-export default PrivacyPolicy;

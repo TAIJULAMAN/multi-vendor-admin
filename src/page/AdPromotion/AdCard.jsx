@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FiMoreVertical } from "react-icons/fi";
 import {
   useDeleteAdsMutation,
@@ -20,7 +20,8 @@ export function AdCard({ campaign }) {
   const [editTitle, setEditTitle] = useState("");
   const [editStartDate, setEditStartDate] = useState("");
   const [editEndDate, setEditEndDate] = useState("");
-  
+  const menuRef = useRef(null);
+
   const handleOk = async () => {
     try {
       if (!campaign?.id) return;
@@ -31,7 +32,12 @@ export function AdCard({ campaign }) {
     }
   };
 
-  const { uploadedImage, setUploadedImage, handleImageUpload, handleRemoveImage } = useImageUpload({
+  const {
+    uploadedImage,
+    setUploadedImage,
+    handleImageUpload,
+    handleRemoveImage,
+  } = useImageUpload({
     name: "",
     url: "",
     file: null,
@@ -68,6 +74,22 @@ export function AdCard({ campaign }) {
     }
   }, [updateModalOpen, campaign]);
 
+  useEffect(() => {
+    function onDocClick(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setIsMenuOpen(false);
+      }
+    }
+    function onKeyDown(e) {
+      if (e.key === "Escape") setIsMenuOpen(false);
+    }
+    document.addEventListener("mousedown", onDocClick);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onDocClick);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, []);
 
   return (
     <div className="bg-amber-200 rounded-lg overflow-hidden shadow-md">
@@ -76,7 +98,7 @@ export function AdCard({ campaign }) {
           <h2 className="font-bold text-lg">{campaign.title}</h2>
 
           {/* Dropdown Menu */}
-          <div className="relative">
+          <div className="relative" ref={menuRef}>
             <button
               className="p-1 rounded-full hover:bg-black/10 transition-colors"
               onClick={() => setIsMenuOpen((prev) => !prev)}
@@ -88,6 +110,7 @@ export function AdCard({ campaign }) {
               <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg">
                 <button
                   onClick={() => {
+                    setIsMenuOpen(false);
                     setUpdateModalOpen(true);
                   }}
                   className="block px-4 py-2 text-sm text-gray-700"
@@ -96,6 +119,7 @@ export function AdCard({ campaign }) {
                 </button>
                 <button
                   onClick={() => {
+                    setIsMenuOpen(false);
                     setIsModalOpen(true);
                   }}
                   className="block px-4 py-2 text-sm text-red-500"

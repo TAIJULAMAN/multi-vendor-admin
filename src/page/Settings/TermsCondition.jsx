@@ -3,9 +3,12 @@ import Swal from "sweetalert2";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import PageHeading from "../../shared/PageHeading";
-import { useCreateTermsMutation, useGetTermsAndConditionsQuery } from "../../Redux/api/termsApi";
+import {
+  useCreateTermsMutation,
+  useGetTermsAndConditionsQuery,
+} from "../../Redux/api/termsApi";
 
-function TermsAndCondition() {
+export default function TermsAndCondition() {
   const [content, setContent] = useState("");
   const { data: termsData, isFetching } = useGetTermsAndConditionsQuery();
   const [createTerms, { isLoading: isSaving }] = useCreateTermsMutation();
@@ -18,9 +21,19 @@ function TermsAndCondition() {
   const handleSave = async () => {
     try {
       await createTerms({ content }).unwrap();
-      Swal.fire({ icon: "success", title: "Saved", text: "Terms and Conditions saved successfully.", timer: 1500, showConfirmButton: false });
+      Swal.fire({
+        icon: "success",
+        title: "Saved",
+        text: "Terms and Conditions saved successfully.",
+        timer: 1500,
+        showConfirmButton: false,
+      });
     } catch (_) {
-      Swal.fire({ icon: "error", title: "Save failed", text: "Could not save Terms and Conditions." });
+      Swal.fire({
+        icon: "error",
+        title: "Save failed",
+        text: "Could not save Terms and Conditions.",
+      });
     }
   };
 
@@ -50,5 +63,3 @@ function TermsAndCondition() {
     </div>
   );
 }
-
-export default TermsAndCondition;

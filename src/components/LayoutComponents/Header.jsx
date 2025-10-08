@@ -7,7 +7,7 @@ import Swal from "sweetalert2";
 import logo from "../../assets/header/logo.png";
 import { FaChevronRight } from "react-icons/fa";
 import { IoIosLogIn } from "react-icons/io";
-import { AdminItems } from "./SideBar";
+import { AdminItems } from "../../utils/menuItems";
 import { useDispatch } from "react-redux";
 import { logout } from "../../Redux/Slice/authSlice";
 import { persistor } from "../../Redux/store";
@@ -102,7 +102,7 @@ export default function Header() {
                       }
                     }}
                   >
-                    {item?.icon()}
+                    <item.icon className="w-5 h-5" />
                     <span className="ml-3 text-base font-medium">
                       {item.label}
                     </span>

@@ -8,7 +8,7 @@ import { FaEye, FaEyeSlash } from "react-icons/fa";
 import Swal from "sweetalert2";
 import { useResetPasswordMutation } from "../Redux/api/auth/authApi";
 
-const ResetPassword = () => {
+export default function ResetPassword() {
   const location = useLocation();
   const resetToken = location.state?.resetToken;
   const [newPassword, setNewPassword] = useState("");
@@ -17,9 +17,7 @@ const ResetPassword = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const [resetPassword, { isLoading }] = useResetPasswordMutation();
-
   const navigate = useNavigate();
-
   const handleUpdatePassword = async (e) => {
     e.preventDefault();
 
@@ -133,6 +131,4 @@ const ResetPassword = () => {
       </div>
     </div>
   );
-};
-
-export default ResetPassword;
+}

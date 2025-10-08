@@ -3,7 +3,7 @@ import Swal from "sweetalert2";
 import { IoEyeOffOutline, IoEyeOutline } from "react-icons/io5";
 import { useChangeAdminPasswordMutation } from "../../Redux/api/profileApi";
 
-function ChangePass() {
+export default function ChangePass() {
   const [showPassword, setShowPassword] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -13,21 +13,38 @@ function ChangePass() {
   const onSubmit = async (e) => {
     e.preventDefault();
     if (!currentPassword || !newPassword || !confirmPassword) {
-      Swal.fire({ icon: "error", title: "Validation error", text: "All fields are required" });
+      Swal.fire({
+        icon: "error",
+        title: "Validation error",
+        text: "All fields are required",
+      });
       return;
     }
     if (newPassword !== confirmPassword) {
-      Swal.fire({ icon: "error", title: "Password mismatch", text: "New password and confirm password do not match" });
+      Swal.fire({
+        icon: "error",
+        title: "Password mismatch",
+        text: "New password and confirm password do not match",
+      });
       return;
     }
     try {
       await changePassword({ currentPassword, newPassword }).unwrap();
-      Swal.fire({ icon: "success", title: "Password changed", timer: 1500, showConfirmButton: false });
+      Swal.fire({
+        icon: "success",
+        title: "Password changed",
+        timer: 1500,
+        showConfirmButton: false,
+      });
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err) {
-      Swal.fire({ icon: "error", title: "Failed to change password", text: err?.data?.message || "Something went wrong" });
+      Swal.fire({
+        icon: "error",
+        title: "Failed to change password",
+        text: err?.data?.message || "Something went wrong",
+      });
     }
   };
 
@@ -128,7 +145,12 @@ function ChangePass() {
           </div>
         </div>
         <div className="text-center py-5">
-          <button disabled={isLoading} className={`bg-[#0B704E] text-white font-semibold w-full py-3 rounded-md ${isLoading ? "opacity-60 cursor-not-allowed" : ""}`}>
+          <button
+            disabled={isLoading}
+            className={`bg-[#0B704E] text-white font-semibold w-full py-3 rounded-md ${
+              isLoading ? "opacity-60 cursor-not-allowed" : ""
+            }`}
+          >
             {isLoading ? "Saving..." : "Save & Change"}
           </button>
         </div>
@@ -136,5 +158,3 @@ function ChangePass() {
     </div>
   );
 }
-
-export default ChangePass;

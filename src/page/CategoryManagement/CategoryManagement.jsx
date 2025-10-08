@@ -1,4 +1,4 @@
-import { ConfigProvider, Modal, Table, Tag } from "antd";
+import { ConfigProvider, Table } from "antd";
 import { IoSearch } from "react-icons/io5";
 import PageHeading from "../../shared/PageHeading";
 import { CiEdit } from "react-icons/ci";
@@ -6,6 +6,9 @@ import { AiOutlineEye } from "react-icons/ai";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AddEditCategoryModal from "./CategoryModals/AddEditCategoryModal";
+import BlockInfoModal from "./CategoryModals/BlockInfoModal";
+import DeleteCategoryModal from "./CategoryModals/DeleteCategoryModal";
 
 import {
   useGetAllCategoriesQuery,
@@ -14,7 +17,7 @@ import {
   useDeleteCategoryMutation,
 } from "../../Redux/api/category/categoryApi";
 
-const CategoryManagement = () => {
+export default function CategoryManagement() {
   const navigate = useNavigate();
   const [categoryName, setCategoryName] = useState("");
   const [categoryDescription, setCategoryDescription] = useState("");
@@ -42,9 +45,7 @@ const CategoryManagement = () => {
       setDeletingRecord(null);
     }
   };
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
+
   const showModal = (record) => {
     if ((record?.subCategories ?? record?.totalSubCategories ?? 0) > 0) {
       setBlockMessage("Please delete all associated subcategories first.");
@@ -53,9 +54,6 @@ const CategoryManagement = () => {
     }
     setDeletingRecord(record);
     setIsModalOpen(true);
-  };
-  const handleCancel2 = () => {
-    setAddModalOpen(false);
   };
 
   const { data: categoriesData } = useGetAllCategoriesQuery();
@@ -75,7 +73,6 @@ const CategoryManagement = () => {
     updatedAt: item?.updatedAt,
     subCategories: item?.subCategories?.length,
     categoryId: item?.categoryId,
-    
   }));
 
   const columns = [
@@ -192,7 +189,7 @@ const CategoryManagement = () => {
 
   const handleSaveCategory = async () => {
     if (!categoryName?.trim()) {
-      return; 
+      return;
     }
     try {
       if (modalMode === "edit" && editingRecord?.id) {
@@ -212,8 +209,7 @@ const CategoryManagement = () => {
       setAddModalOpen(false);
       setCategoryName("");
       setCategoryDescription("");
-    } catch (e) {
-    }
+    } catch (e) {}
   };
 
   return (
@@ -276,125 +272,29 @@ const CategoryManagement = () => {
           tableLayout="fixed"
           scroll={{ x: true }}
         />
-        <Modal
+        <AddEditCategoryModal
           open={addModalOpen}
-          centered
-          onCancel={handleCancel2}
-          footer={null}
-        >
-          <div className="p-5">
-            {/* Header */}
-            <div className="text-center mb-6">
-              <h2 className="text-2xl font-bold mb-2">
-                {modalMode === "edit" ? "Edit Category" : "Add Category"}
-              </h2>
-              <p className="text-gray-600">
-                {modalMode === "edit"
-                  ? "Edit the category details below"
-                  : "Add a new category below"}
-              </p>
-            </div>
-
-            {/* Category Name Input */}
-            <div className="mb-6">
-              <label className="block text-gray-800 mb-2">Catagory Name</label>
-              <input
-                type="text"
-                placeholder="Enter Name here"
-                className="w-full border border-gray-300 rounded p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
-                value={categoryName}
-                onChange={(e) => setCategoryName(e.target.value)}
-              />
-            </div>
-            <div className="mb-6">
-              <label className="block text-gray-800 mb-2">Description</label>
-              <textarea
-                rows={4}
-                placeholder="Enter Description here"
-                className="w-full border border-gray-300 rounded p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
-                value={categoryDescription}
-                onChange={(e) => setCategoryDescription(e.target.value)}
-              />
-            </div>
-            {/* buttons */}
-            <div className="grid grid-cols-2 gap-4 mt-6">
-              <button
-                onClick={handleCancel2}
-                className="py-2 px-4 rounded-lg border border-[#EF4444] bg-red-50"
-              >
-                Cancel
-              </button>
-
-              <button
-                onClick={handleSaveCategory}
-                disabled={isCreating || isUpdating}
-                className={`py-2 px-4 rounded-lg bg-green-600 text-white ${
-                  isCreating || isUpdating
-                    ? "opacity-60 cursor-not-allowed"
-                    : ""
-                }`}
-              >
-                {isCreating || isUpdating ? "Saving..." : "Save"}
-              </button>
-            </div>
-          </div>
-        </Modal>
-        <Modal
+          mode={modalMode}
+          categoryName={categoryName}
+          setCategoryName={setCategoryName}
+          categoryDescription={categoryDescription}
+          setCategoryDescription={setCategoryDescription}
+          onCancel={() => setAddModalOpen(false)}
+          onSave={handleSaveCategory}
+          loading={isCreating || isUpdating}
+        />
+        <BlockInfoModal
           open={isBlockModalOpen}
-          centered
-          onCancel={() => setIsBlockModalOpen(false)}
-          footer={null}
-        >
-          <div className="p-5">
-            <h1 className="text-4xl text-center text-[#0D0D0D]">
-              {blockMessage ||
-                "Please delete all associated subcategories first."}
-            </h1>
-            <div className="text-center py-5">
-              <button
-                onClick={() => setIsBlockModalOpen(false)}
-                className="bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </Modal>
-        <Modal
+          onClose={() => setIsBlockModalOpen(false)}
+          message={blockMessage}
+        />
+        <DeleteCategoryModal
           open={isModalOpen}
-          centered
-          onCancel={handleCancel}
-          footer={null}
-        >
-          <div className="p-5">
-            <h1 className="text-4xl text-center text-[#0D0D0D]">
-              Are you sure you want to Delete ?
-            </h1>
-
-            <div className="text-center py-5">
-              <button
-                onClick={handleOk}
-                disabled={isDeleting}
-                className={`bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200 ${
-                  isDeleting ? "opacity-60 cursor-not-allowed" : ""
-                }`}
-              >
-                {isDeleting ? "Deleting..." : "Yes, Delete"}
-              </button>
-            </div>
-            <div className="text-center pb-5">
-              <button
-                onClick={handleCancel}
-                className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
-              >
-                No,Don’t Delete
-              </button>
-            </div>
-          </div>
-        </Modal>
+          onCancel={() => setIsModalOpen(false)}
+          onConfirm={handleOk}
+          loading={isDeleting}
+        />
       </ConfigProvider>
     </>
   );
-};
-
-export default CategoryManagement;
+}

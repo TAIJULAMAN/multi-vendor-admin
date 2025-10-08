@@ -1,137 +1,19 @@
-import {
-  MdDashboard,
-  MdManageAccounts,
-  MdOutlineCategory,
-} from "react-icons/md";
-import { FaUsers, FaChevronRight, FaCog } from "react-icons/fa";
-import { IoIosLogIn } from "react-icons/io";
-import { IoChatboxEllipsesOutline } from "react-icons/io5";
+import { FaChevronRight } from "react-icons/fa";
 import logo from "../../assets/header/logo.png";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
-import { TbHomeDollar } from "react-icons/tb";
-import { LuBadgeCheck } from "react-icons/lu";
-import { BiCheckShield, BiCommand } from "react-icons/bi";
-import { Modal } from "antd";
-import { useDispatch } from "react-redux";
-import { logout } from "../../Redux/Slice/authSlice";
-import { persistor } from "../../Redux/store";
-import { baseApi } from "../../Redux/api/baseApi";
 
-export const AdminItems = [
-  {
-    key: "dashboard",
-    label: "Dashboard",
-    icon: MdDashboard,
-    link: "/",
-  },
-  {
-    key: "userManagement",
-    label: "User Management",
-    icon: FaUsers,
-    link: "/dashboard/user-management",
-  },
-  {
-    key: "sellermanagement",
-    label: "Seller Management",
-    icon: TbHomeDollar,
-    link: "/dashboard/seller-management",
-  },
-  // {
-  //   key: "subscription",
-  //   label: "Subscription",
-  //   icon: LuBadgeCheck,
-  //   link: "/dashboard/subscription",
-  // },
-  {
-    key: "categorymanagement",
-    label: "Category Management",
-    icon: MdOutlineCategory,
-    link: "/category-management",
-  },
-  // {
-  //   key: "premiumSubscribers",
-  //   label: "Premium Subscribers",
-  //   icon: MdManageAccounts,
-  //   link: "/premium-subscribers",
-  // },
-  {
-    key: "englishAdPromotion",
-    label: "Ads Promotion",
-    icon: BiCommand,
-    link: "/ads-promotion",
-  },
-  //  {
-  //   key: "arabicAdPromotion",
-  //   label: "Arabic Ads Promotion",
-  //   icon: BiCommand,
-  //   link: "/ads-promotion",
-  // },
-  {
-    key: "customerSupport",
-    label: "Customer Support",
-    icon: BiCheckShield,
-    link: "/support",
-  },
-  // {
-  //   key: "vendorSupport",
-  //   label: "Vendor Support",
-  //   icon: BiCheckShield,
-  //   link: "/support",
-  // },
-  // {
-  //   key: "customerChat",
-  //   label: "Customer Chat",
-  //   icon: IoChatboxEllipsesOutline,
-  //   link: "/chat",
-  // },
-  {
-    key: "vendorChat",
-    label: "Vendor Chat",
-    icon: IoChatboxEllipsesOutline,
-    link: "/chat",
-  },
-  {
-    key: "settings",
-    label: "Settings",
-    icon: FaCog,
-    link: "/dashboard/Settings/profile",
-    children: [
-      {
-        key: "profile",
-        label: "Profile",
-        link: "/dashboard/Settings/profile",
-      },
-      {
-        key: "terms",
-        label: "Terms & Condition",
-        link: "/dashboard/Settings/Terms&Condition",
-      },
-      {
-        key: "privacy",
-        label: "Privacy Policy",
-        link: "/dashboard/Settings/PrivacyPolicy",
-      },
-      {
-        key: "faq",
-        label: "Faq",
-        link: "/faq",
-      },
-    ],
-  },
-];
+import { AdminItems } from "../../utils/menuItems";
+import LogoutButton from "./LogoutButton";
 
-const SideBar = () => {
+export default function SideBar() {
   const [selectedKey, setSelectedKey] = useState("dashboard");
   const [expandedKeys, setExpandedKeys] = useState([]);
   const location = useLocation();
-  const navigate = useNavigate();
   const contentRef = useRef({});
-  const dispatch = useDispatch();
 
   useEffect(() => {
     const currentPath = location.pathname;
-
     let activeParent = null;
 
     AdminItems.forEach((item) => {
@@ -164,28 +46,6 @@ const SideBar = () => {
       prev.includes(key) ? prev.filter((item) => item !== key) : [...prev, key]
     );
   };
-
-  const handleLogout = () => {
-    Modal.confirm({
-      title: "Confirm logout",
-      content: "Are you sure you want to log out?",
-      okText: "Logout",
-      cancelText: "Cancel",
-      okButtonProps: { danger: true },
-      centered: true,
-      onOk: () => {
-        // Clear auth state and tokens
-        dispatch(logout());
-        dispatch(baseApi.util.resetApiState());
-        localStorage.removeItem("accessToken");
-        localStorage.removeItem("refreshToken");
-        // Purge persisted redux state
-        persistor.purge();
-        navigate("/login");
-      },
-    });
-  };
-
   return (
     <div className="min-h-[100vh] bg-[#FF914C]">
       <div className="custom-sidebar-logo flex justify-center bg-gray-600">
@@ -279,19 +139,7 @@ const SideBar = () => {
       </div>
 
       {/* Logout Button */}
-      <div className="  w-full p-4 px-5">
-        <button
-          onClick={handleLogout}
-          className="w-full flex bg-[#0B704E] text-white text-start rounded-md p-3 mt-10"
-        >
-          <span className="text-2xl">
-            <IoIosLogIn />
-          </span>
-          <span className="ml-3">Log Out</span>
-        </button>
-      </div>
+      <LogoutButton />
     </div>
   );
-};
-
-export default SideBar;
+}
