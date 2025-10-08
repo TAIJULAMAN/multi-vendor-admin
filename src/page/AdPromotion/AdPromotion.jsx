@@ -5,7 +5,7 @@ import PageHeading from "../../shared/PageHeading";
 import { Modal } from "antd";
 import { FaTrashAlt, FaUpload } from "react-icons/fa";
 import { AdCard } from "./AdCard";
-import { useGetAllAdsQuery } from "../../Redux/api/ads/adsApi";
+import { useGetAllAdsQuery, useCreateAdsMutation } from "../../Redux/api/ads/adsApi";
 
 export default function AdPromotion() {
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -13,10 +13,14 @@ export default function AdPromotion() {
   const [uploadedImage, setUploadedImage] = useState({
     name: "",
     url: "",
+    file: null,
   });
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
 
   // Fetch ads from API
   const { data: adsData, isLoading, error, isFetching } = useGetAllAdsQuery();
+  const [createAds, { isLoading: isCreating }] = useCreateAdsMutation();
   console.log("ads data from ads promotion", adsData);
 
   const handleCancel2 = () => {
@@ -31,11 +35,12 @@ export default function AdPromotion() {
       setUploadedImage({
         name: file.name,
         url: URL.createObjectURL(file),
+        file,
       });
     }
   };
   const handleRemoveImage = () => {
-    setUploadedImage({ name: "", url: "" });
+    setUploadedImage({ name: "", url: "", file: null });
   };
   // Normalize possible API response shapes
   const rawAds =
@@ -74,7 +79,6 @@ export default function AdPromotion() {
       <Modal
         open={addModalOpen}
         centered
-        onCancel={handleCancel2}
         footer={null}
       >
         <div className="p-5">
@@ -162,6 +166,8 @@ export default function AdPromotion() {
               <label className="block text-gray-800 mb-2">Start Date</label>
               <input
                 type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
                 className="w-full border border-gray-300 rounded p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
@@ -169,6 +175,8 @@ export default function AdPromotion() {
               <label className="block text-gray-800 mb-2">End Date</label>
               <input
                 type="date"
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
                 className="w-full border border-gray-300 rounded p-3 focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
@@ -184,10 +192,29 @@ export default function AdPromotion() {
             </button>
 
             <button
-              onClick={handleCancel2}
-              className="py-2 px-4 rounded-lg bg-green-600 text-white"
+              onClick={async () => {
+                try {
+                  if (!categoryName || !startDate || !endDate || !uploadedImage.file) return;
+                  const formData = new FormData();
+                  formData.append("title", categoryName);
+                  formData.append("startDate", new Date(startDate).toISOString());
+                  formData.append("endDate", new Date(endDate).toISOString());
+                  formData.append("image", uploadedImage.file);
+                  await createAds(formData).unwrap();
+                  // reset and close
+                  setAddModalOpen(false);
+                  setCategoryName("");
+                  setStartDate("");
+                  setEndDate("");
+                  setUploadedImage({ name: "", url: "", file: null });
+                } catch (_) {
+                  // optionally toast
+                }
+              }}
+              disabled={isCreating}
+              className={`py-2 px-4 rounded-lg bg-green-600 text-white ${isCreating ? 'opacity-60 cursor-not-allowed' : ''}`}
             >
-              Save
+              {isCreating ? 'Saving...' : 'Save'}
             </button>
           </div>
         </div>

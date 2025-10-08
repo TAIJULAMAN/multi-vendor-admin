@@ -2,14 +2,23 @@ import { Modal } from "antd";
 import { useEffect, useState } from "react";
 import { FaTrashAlt, FaUpload } from "react-icons/fa";
 import { FiMoreVertical } from "react-icons/fi";
-import defaultAd from "../../assets/ads2.png";
+import {
+  useDeleteAdsMutation,
+  useUpdateAdsMutation,
+} from "../../Redux/api/ads/adsApi";
 
 export function AdCard({ campaign }) {
+  // console.log(campaign)
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [categoryName, setCategoryName] = useState("Electronics");
   const [imageError, setImageError] = useState(false);
+  const [deleteAds, { isLoading: isDeleting }] = useDeleteAdsMutation();
+  const [updateAds, { isLoading: isUpdating }] = useUpdateAdsMutation();
+  const [editTitle, setEditTitle] = useState("");
+  const [editStartDate, setEditStartDate] = useState("");
+  const [editEndDate, setEditEndDate] = useState("");
 
   // date formatter
   const formatDate = (value) => {
@@ -22,59 +31,69 @@ export function AdCard({ campaign }) {
       day: "2-digit",
     });
   };
+  const handleOk = async () => {
+    try {
+      if (!campaign?.id) return;
+      await deleteAds(campaign.id).unwrap();
+    } catch (_) {
+    } finally {
+      setIsModalOpen(false);
+    }
+  };
 
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
-  const handleCancel3 = () => {
-    setUpdateModalOpen(false);
-  };
-  const showModal3 = () => {
-    setUpdateModalOpen(true);
-  };
   const [uploadedImage, setUploadedImage] = useState({
     name: "",
     url: "",
+    file: null,
   });
 
-  // Initialize with existing campaign image when opening edit
   useEffect(() => {
-    if (campaign?.image) {
+    if (campaign) {
+      setEditTitle(campaign.title || "");
+      setEditStartDate(
+        campaign.startDate ? campaign.startDate.substring(0, 10) : ""
+      );
+      setEditEndDate(campaign.endDate ? campaign.endDate.substring(0, 10) : "");
       setUploadedImage({
-        name: campaign.title || "Current Image",
-        url: campaign.image,
+        name: campaign.title || "",
+        url: campaign.image || "",
+        file: null,
       });
     }
     // reset error when campaign changes
     setImageError(false);
   }, [campaign]);
+
   useEffect(() => {
-    if (updateModalOpen && campaign?.image) {
+    if (updateModalOpen && campaign) {
+      setEditTitle(campaign.title || "");
+      setEditStartDate(
+        campaign.startDate ? campaign.startDate.substring(0, 10) : ""
+      );
+      setEditEndDate(campaign.endDate ? campaign.endDate.substring(0, 10) : "");
       setUploadedImage({
-        name: campaign.title || "Current Image",
-        url: campaign.image,
+        name: campaign.title || "",
+        url: campaign.image || "",
+        file: null,
       });
     }
   }, [updateModalOpen, campaign]);
+
   const handleImageUpload = (e) => {
     const file = e.target.files?.[0];
     if (file) {
       setUploadedImage({
         name: file.name,
         url: URL.createObjectURL(file),
+        file,
       });
     }
   };
 
   const handleRemoveImage = () => {
-    setUploadedImage({ name: "", url: "" });
+    setUploadedImage({ name: "", url: "", file: null });
   };
+
   return (
     <div className="bg-amber-200 rounded-lg overflow-hidden shadow-md">
       <div className="p-4 pb-0">
@@ -93,13 +112,17 @@ export function AdCard({ campaign }) {
             {isMenuOpen && (
               <div className="absolute right-0 mt-2 w-40 bg-white shadow-lg rounded-lg">
                 <button
-                  onClick={showModal3}
+                  onClick={() => {
+                    setUpdateModalOpen(true);
+                  }}
                   className="block px-4 py-2 text-sm text-gray-700"
                 >
                   Edit
                 </button>
                 <button
-                  onClick={showModal}
+                  onClick={() => {
+                    setIsModalOpen(true);
+                  }}
                   className="block px-4 py-2 text-sm text-red-500"
                 >
                   Delete
@@ -141,7 +164,14 @@ export function AdCard({ campaign }) {
           </span>
         </div>
       </div>
-      <Modal open={isModalOpen} centered onCancel={handleCancel} footer={null}>
+      <Modal
+        open={isModalOpen}
+        centered
+        onCancel={() => {
+          setIsModalOpen(false);
+        }}
+        footer={null}
+      >
         <div className="p-5">
           <h1 className="text-4xl text-center text-[#0D0D0D]">
             Are you sure you want to delete ?
@@ -150,15 +180,23 @@ export function AdCard({ campaign }) {
           <div className="text-center py-5">
             <button
               onClick={handleOk}
-              className="bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200"
+              disabled={isDeleting}
+              className={`bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200 ${
+                isDeleting ? "opacity-60 cursor-not-allowed" : ""
+              }`}
             >
-              YES,DELETE
+              {isDeleting ? "Deleting..." : "YES,DELETE"}
             </button>
           </div>
           <div className="text-center pb-5">
             <button
-              onClick={handleOk}
-              className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
+              onClick={() => {
+                setIsModalOpen(false);
+              }}
+              disabled={isDeleting}
+              className={`text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200 ${
+                isDeleting ? "opacity-60 cursor-not-allowed" : ""
+              }`}
             >
               NO,DON’T DELETE
             </button>
@@ -168,7 +206,9 @@ export function AdCard({ campaign }) {
       <Modal
         open={updateModalOpen}
         centered
-        onCancel={handleCancel3}
+        onCancel={() => {
+          setUpdateModalOpen(false);
+        }}
         footer={null}
       >
         <div className="p-5">
@@ -239,15 +279,15 @@ export function AdCard({ campaign }) {
             </div>
           </div>
 
-          {/* Category name input */}
+          {/* Title input */}
           <div className="mb-6">
             <label className="block text-gray-700 font-medium mb-2">
               Advertisement Name
             </label>
             <input
               type="text"
-              value={categoryName}
-              onChange={(e) => setCategoryName(e.target.value)}
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
@@ -260,7 +300,8 @@ export function AdCard({ campaign }) {
               </label>
               <input
                 type="date"
-                placeholder="02/02/2023"
+                value={editStartDate}
+                onChange={(e) => setEditStartDate(e.target.value)}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
               />
             </div>
@@ -279,16 +320,43 @@ export function AdCard({ campaign }) {
           {/* Action buttons */}
           <div className="grid grid-cols-2 gap-4">
             <button
-              onClick={handleCancel3}
+              onClick={() => {
+                setUpdateModalOpen(false);
+              }}
               className="px-4 py-2 border border-red-200 bg-red-50 text-red-500 rounded-md hover:bg-red-100 transition-colors"
             >
               Cancel
             </button>
             <button
-              onClick={handleCancel3}
-              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+              onClick={async () => {
+                try {
+                  if (!campaign?.id) return;
+                  const formData = new FormData();
+                  if (editTitle) formData.append("title", editTitle);
+                  if (editStartDate)
+                    formData.append(
+                      "startDate",
+                      new Date(editStartDate).toISOString()
+                    );
+                  if (editEndDate)
+                    formData.append(
+                      "endDate",
+                      new Date(editEndDate).toISOString()
+                    );
+                  if (uploadedImage.file)
+                    formData.append("image", uploadedImage.file);
+                  await updateAds({ id: campaign.id, formData }).unwrap();
+                  setUpdateModalOpen(false);
+                } catch (_) {
+                  // optionally toast
+                }
+              }}
+              disabled={isUpdating}
+              className={`px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors ${
+                isUpdating ? "opacity-60 cursor-not-allowed" : ""
+              }`}
             >
-              Save
+              {isUpdating ? "Saving..." : "Save"}
             </button>
           </div>
         </div>
