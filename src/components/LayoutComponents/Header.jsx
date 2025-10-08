@@ -2,7 +2,8 @@ import { useRef, useState } from "react";
 import { LuBell } from "react-icons/lu";
 import { Link, useNavigate } from "react-router-dom";
 import { FaBars } from "react-icons/fa";
-import { Drawer, Modal } from "antd";
+import { Drawer } from "antd";
+import Swal from "sweetalert2";
 import logo from "../../assets/header/logo.png";
 import { FaChevronRight } from "react-icons/fa";
 import { IoIosLogIn } from "react-icons/io";
@@ -14,7 +15,7 @@ import { baseApi } from "../../Redux/api/baseApi";
 
 
 
-const Header = () => {
+export default function Header() {
   const [selectedKey, setSelectedKey] = useState("dashboard");
   const [expandedKeys, setExpandedKeys] = useState([]);
   const navigate = useNavigate();
@@ -37,14 +38,17 @@ const Header = () => {
   };
 
   const handleLogout = () => {
-    Modal.confirm({
+    Swal.fire({
       title: "Confirm logout",
-      content: "Are you sure you want to log out?",
-      okText: "Logout",
-      cancelText: "Cancel",
-      okButtonProps: { danger: true },
-      centered: true,
-      onOk: () => {
+      text: "Are you sure you want to log out?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Logout",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#d33",
+      reverseButtons: true,
+    }).then((result) => {
+      if (result.isConfirmed) {
         // Clear auth state and tokens
         dispatch(logout());
         // Reset RTK Query cache
@@ -56,7 +60,7 @@ const Header = () => {
         // Close drawer if open and navigate to login
         setOpen(false);
         navigate("/login");
-      },
+      }
     });
   };
 
@@ -189,5 +193,3 @@ const Header = () => {
     </div>
   );
 };
-
-export default Header;

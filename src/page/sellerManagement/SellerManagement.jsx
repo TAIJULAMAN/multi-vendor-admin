@@ -1,25 +1,105 @@
 import { ConfigProvider, Modal, Table } from "antd";
-import { MdBlockFlipped, MdEdit } from "react-icons/md";
-import { IoChatbubbleEllipsesOutline, IoSearch } from "react-icons/io5";
 import { BsPatchCheckFill } from "react-icons/bs";
+import { MdBlockFlipped, MdEdit } from "react-icons/md";
 import PageHeading from "../../shared/PageHeading";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useGetAllSellersQuery } from "../../Redux/api/seller/sellerApi";
+import {
+  useGetAllSellersQuery,
+  useApproveSellerMutation,
+  useBlockSellerMutation,
+  useUpdateSellerProfileMutation,
+} from "../../Redux/api/seller/sellerApi";
+import { IoSearch, IoChatbubbleEllipsesOutline } from "react-icons/io5";
 
 const SellerManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const handleOk = () => {
-    setIsModalOpen(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editForm, setEditForm] = useState({
+    shopName: "",
+    businessType: "",
+    distribution: "",
+    description: "",
+    country: "",
+  });
+
+  const { data: sellers, isLoading } = useGetAllSellersQuery();
+  console.log("sellers of sellerManagement",sellers );
+
+  const [approveSeller, { isLoading: isApproving }] =
+    useApproveSellerMutation();
+  const [blockSeller, { isLoading: isBlocking }] = useBlockSellerMutation();
+  const [updateSellerProfile, { isLoading: isUpdating }] =
+    useUpdateSellerProfileMutation();
+
+  // Approve handler
+  const handleApprove = async (userId) => {
+    try {
+      if (!userId) return;
+      await approveSeller(userId).unwrap();
+    } catch (_) {
+      // optionally toast
+    }
   };
-  const handleCancel = () => {
-    setIsModalOpen(false);
+
+  // Block modal handlers
+  const handleOk = async () => {
+    try {
+      if (!selectedUser) return;
+      await blockSeller({
+        id: selectedUser.id,
+        isBlocked: !selectedUser.isBlocked,
+      }).unwrap();
+    } catch (_) {
+      // optionally toast
+    } finally {
+      setIsModalOpen(false);
+      setSelectedUser(null);
+    }
   };
-  const showModal = () => {
+
+  const showModal = (user) => {
+    setSelectedUser(user);
     setIsModalOpen(true);
   };
-  const { data: sellers, isLoading } = useGetAllSellersQuery();
-  console.log("seller list of seller management", sellers);
+
+  // Edit seller
+  const openEdit = (record) => {
+    setSelectedUser(record);
+    setEditForm({
+      shopName: record?.shopName || "",
+      businessType: record?.businessType || "",
+      distribution: record?.distribution || "",
+      description: record?.description || "",
+      country: record?.country || "",
+    });
+    setIsEditOpen(true);
+  };
+
+  const closeEdit = () => {
+    setIsEditOpen(false);
+    setSelectedUser(null);
+  };
+
+  const handleEditSave = async () => {
+    try {
+      if (!selectedUser?.userId) return;
+      const payload = {
+        userId: selectedUser.userId,
+        shopName: editForm.shopName,
+        businessType: editForm.businessType,
+        distributionType: editForm.distribution,
+        description: editForm.description,
+        country: editForm.country,
+      };
+      await updateSellerProfile(payload).unwrap();
+      setIsEditOpen(false);
+      setSelectedUser(null);
+    } catch (_) {
+      // optionally toast
+    }
+  };
 
   const dataSource = sellers?.data?.sellers?.map((seller, index) => ({
     key: index + 1,
@@ -35,6 +115,8 @@ const SellerManagement = () => {
     email: seller?.user?.email,
     userImage: seller?.user?.image,
     userName: seller?.user?.name,
+    userId: seller?.user?.id || seller?.user?._id,
+    isBlocked: seller?.isBlocked,
   }));
 
   const columns = [
@@ -46,11 +128,6 @@ const SellerManagement = () => {
       ellipsis: true,
       render: (_, record) => (
         <div className="flex items-center gap-3">
-          {/* <img
-            src={` record?.userImage || https://avatar.iran.liara.run/public/${record.no}`}
-            className="w-10 h-10 object-cover rounded-full"
-            alt="User Avatar"
-          /> */}
           <span className="truncate max-w-[140px]" title={record.userName}>
             {record.userName}
           </span>
@@ -86,16 +163,40 @@ const SellerManagement = () => {
       ellipsis: true,
     },
     {
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
+      width: 120,
+      ellipsis: true,
+    },
+    {
       title: "Action",
       key: "action",
       width: 180,
-      render: () => {
+      render: (_, record) => {
         return (
           <div className="flex gap-2">
-            <button className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200">
-              <BsPatchCheckFill className="w-6 h-6 text-[#14803c]" />
+            <button
+              onClick={() => handleApprove(record.userId)}
+              disabled={isApproving}
+              className={`rounded-lg p-2 transition duration-200 ${
+                record.status === "approved"
+                  ? "border border-[#14803c] bg-[#d3e8e6] text-[#14803c]"
+                  : "border border-[#EF4444] bg-[#EF4444] text-[#EF4444]"
+              }`}
+            >
+              <BsPatchCheckFill
+                className={`w-6 h-6 ${
+                  record.status === "approved"
+                    ? "text-[#14803c]"
+                    : "text-[#EF4444]"
+                }`}
+              />
             </button>
-            <button className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200">
+            <button
+              onClick={() => openEdit(record)}
+              className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200"
+            >
               <MdEdit className="w-6 h-6 text-[#14803c]" />
             </button>
             <Link to="/chat">
@@ -104,8 +205,11 @@ const SellerManagement = () => {
               </button>
             </Link>
             <button
-              onClick={showModal}
-              className="border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200"
+              onClick={() => showModal(record)}
+              disabled={isBlocking}
+              className={`border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200 ${
+                isBlocking ? "opacity-60 cursor-not-allowed" : ""
+              }`}
             >
               <MdBlockFlipped className="w-6 h-6 text-[#14803c]" />
             </button>
@@ -130,14 +234,6 @@ const SellerManagement = () => {
               <IoSearch className="text-[1.3rem]" />
             </span>
           </div>
-          {/* <div>
-            <button
-              // onClick={showModal2}
-              className="bg-[#FF914C] text-white px-4 py-3 rounded-lg hover:bg-[#FF914C]/80"
-            >
-              Accept All
-            </button>
-          </div> */}
         </div>
       </div>
       <ConfigProvider
@@ -171,6 +267,7 @@ const SellerManagement = () => {
         <Table
           dataSource={dataSource}
           columns={columns}
+          loading={isLoading || isApproving || isBlocking || isUpdating}
           pagination={{ pageSize: 10 }}
           tableLayout="fixed"
           scroll={{ x: true }}
@@ -178,7 +275,10 @@ const SellerManagement = () => {
         <Modal
           open={isModalOpen}
           centered
-          onCancel={handleCancel}
+          onCancel={() => {
+            setIsModalOpen(false);
+            setSelectedUser(null);
+          }}
           footer={null}
         >
           <div className="p-5">
@@ -196,10 +296,93 @@ const SellerManagement = () => {
             </div>
             <div className="text-center pb-5">
               <button
-                onClick={handleOk}
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setSelectedUser(null);
+                }}
                 className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
               >
                 No,Don’t Block
+              </button>
+            </div>
+          </div>
+        </Modal>
+        {/* Edit Modal */}
+        <Modal open={isEditOpen} centered onCancel={closeEdit} footer={null}>
+          <div className="p-5">
+            <h2 className="text-2xl font-bold mb-4">Edit Seller Profile</h2>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-sm mb-1">Shop Name</label>
+                <input
+                  type="text"
+                  className="w-full border rounded p-2"
+                  value={editForm.shopName}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, shopName: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Business Type</label>
+                <input
+                  type="text"
+                  className="w-full border rounded p-2"
+                  value={editForm.businessType}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, businessType: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Distribution Type</label>
+                <input
+                  type="text"
+                  className="w-full border rounded p-2"
+                  value={editForm.distribution}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, distribution: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Location</label>
+                <input
+                  type="text"
+                  className="w-full border rounded p-2"
+                  value={editForm.country}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, country: e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Description</label>
+                <textarea
+                  className="w-full border rounded p-2"
+                  rows={4}
+                  value={editForm.description}
+                  onChange={(e) =>
+                    setEditForm({ ...editForm, description: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4 mt-6">
+              <button
+                onClick={closeEdit}
+                className="py-2 px-4 rounded-lg border border-[#EF4444] bg-red-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEditSave}
+                disabled={isUpdating}
+                className={`py-2 px-4 rounded-lg bg-green-600 text-white ${
+                  isUpdating ? "opacity-60 cursor-not-allowed" : ""
+                }`}
+              >
+                Save
               </button>
             </div>
           </div>

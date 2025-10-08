@@ -1,7 +1,8 @@
 import { ConfigProvider, Table } from "antd";
 import { useGetAllUsersQuery } from "../../Redux/api/user/userApi";
 
-const RecentSellerRequests = () => {
+export default function RecentSellerRequests() {
+
   const { data: users } = useGetAllUsersQuery();
 
   const dataSource = users?.data?.users?.slice(0, 5)?.map((user, index) => ({
@@ -13,7 +14,7 @@ const RecentSellerRequests = () => {
     name: user?.name,
     phone: user?.phone,
   }));
-
+  
   const columns = [
     { title: "No", dataIndex: "no", key: "no" },
     {
@@ -61,5 +62,3 @@ const RecentSellerRequests = () => {
     </ConfigProvider>
   );
 };
-
-export default RecentSellerRequests;

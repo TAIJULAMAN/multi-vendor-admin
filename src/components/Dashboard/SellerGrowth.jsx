@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import { useGetSalesOverviewQuery } from "../../Redux/api/dashboard/dashboardApi";
 
-const SellerGrowth = () => {
+export default function SellerGrowth() {
   const currentYear = dayjs().year();
   const startYear = 2023;
   const [selectedYear, setSelectedYear] = useState(currentYear);
@@ -29,31 +29,20 @@ const SellerGrowth = () => {
     setIsOpen(false);
   };
 
-
-
-  // Fetch sales overview by selected year (running year by default)
   const { data: salesData, isLoading } = useGetSalesOverviewQuery({
     year: selectedYear,
   });
-  console.log("salesData", salesData);
-
-  // Normalize API response into chart data structure (no fallback data)
   const apiMonths = Array.isArray(salesData?.data?.overview)
     ? salesData.data.overview
     : [];
-  console.log("apiMonths", apiMonths);
-
   const chartData = apiMonths.map((m) => {
     const month = m?.month || m?.name || m?.label || "";
-    // Try multiple possible keys from backend
     const normalSale =
       m?.normalSale ?? m?.normal_sales ?? m?.normal ?? m?.salesNormal ?? 0;
     const totalAmount =
       m?.totalAmount ?? m?.totalSale ?? m?.total_sales ?? m?.total ?? 0;
     return { month, normalSale, totalAmount };
   });
-  console.log("chartData", chartData);
-
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const { month, normalSale, totalAmount } = payload[0].payload;
@@ -130,6 +119,4 @@ const SellerGrowth = () => {
       </div>
     </>
   );
-};
-
-export default SellerGrowth;
+}
