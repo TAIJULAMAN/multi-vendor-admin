@@ -8,7 +8,7 @@ const supportApi = baseApi.injectEndpoints({
         method: "GET",
         params,
       }),
-      providesTags: ["faq"],
+      providesTags: ["support"],
     }),
     sendReplyOfHelpRequest: builder.mutation({
       query: ({ id, message }) => ({
@@ -16,7 +16,7 @@ const supportApi = baseApi.injectEndpoints({
         method: "PATCH",
         body: { message },
       }),
-      invalidatesTags: ["faq"],
+      invalidatesTags: ["support"],
     }),
   }),
 });
