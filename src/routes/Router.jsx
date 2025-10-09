@@ -1,112 +1,121 @@
 import { createBrowserRouter } from "react-router-dom";
-import Dashboard from "../components/Dashboard/Dashboard";
-import Profile from "../page/Settings/Profile";
-import TermsCondition from "../page/Settings/TermsCondition";
-import PrivacyPolicy from "../page/Settings/PrivacyPolicy";
-import Notification from "../page/Notification/Notification";
-import VerificationCode from "../auth/VerificationCode";
-import DashboardLayout from "../layout/DashboardLayout";
-import SellerManagement from "../page/sellerManagement/SellerManagement";
-import Subscription from "../page/subscription/Subscription";
-import UpdateSubscription from "../page/subscription/UpdateSubscription";
-import PremiumSubscribers from "../page/PremiumSubscribers/PremiumSubscribers";
-import AdPromotion from "../page/AdPromotion/AdPromotion";
-import Faq from "../page/Settings/Faq";
-import Support from "../page/Support/Support";
-import CategoryManagement from "../page/CategoryManagement/CategoryManagement";
-import SubCategory from "../page/SubCategory/SubCategory";
-import Chat from "../page/Chat/Chat";
-import ResetPassword from "../auth/ResetPassword";
-import ForgetPassword from "../auth/ForgetPassword";
-import Users from "../page/UserManagement/Users";
-import SignIn from "../auth/SignIn";
+import { lazy, Suspense } from "react";
+import Loader from "../components/common/Loader";
+
+const Dashboard = lazy(() => import("../components/Dashboard/Dashboard"));
+const Profile = lazy(() => import("../page/Settings/Profile"));
+const TermsCondition = lazy(() => import("../page/Settings/TermsCondition"));
+const PrivacyPolicy = lazy(() => import("../page/Settings/PrivacyPolicy"));
+const Notification = lazy(() => import("../page/Notification/Notification"));
+const VerificationCode = lazy(() => import("../auth/VerificationCode"));
+const DashboardLayout = lazy(() => import("../layout/DashboardLayout"));
+const SellerManagement = lazy(() => import("../page/sellerManagement/SellerManagement"));
+const Subscription = lazy(() => import("../page/subscription/Subscription"));
+const UpdateSubscription = lazy(() => import("../page/subscription/UpdateSubscription"));
+const PremiumSubscribers = lazy(() => import("../page/PremiumSubscribers/PremiumSubscribers"));
+const AdPromotion = lazy(() => import("../page/AdPromotion/AdPromotion"));
+const Faq = lazy(() => import("../page/Settings/Faq"));
+const Support = lazy(() => import("../page/Support/Support"));
+const CategoryManagement = lazy(() => import("../page/CategoryManagement/CategoryManagement"));
+const SubCategory = lazy(() => import("../page/SubCategory/SubCategory"));
+const Chat = lazy(() => import("../page/Chat/Chat"));
+const ResetPassword = lazy(() => import("../auth/ResetPassword"));
+const ForgetPassword = lazy(() => import("../auth/ForgetPassword"));
+const Users = lazy(() => import("../page/UserManagement/Users"));
+const SignIn = lazy(() => import("../auth/SignIn"));
+
+const withSuspense = (Comp) => (
+  <Suspense fallback={<Loader />}>
+    <Comp />
+  </Suspense>
+);
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <DashboardLayout />,
+    element: withSuspense(DashboardLayout),
     children: [
       {
         path: "/",
-        element: <Dashboard />,
+        element: withSuspense(Dashboard),
       },
       {
         path: "/dashboard/user-management",
-        element: <Users />,
+        element: withSuspense(Users),
       },
       {
         path: "/dashboard/seller-management",
-        element: <SellerManagement />,
+        element: withSuspense(SellerManagement),
       },
 
       {
         path: "/dashboard/subscription",
-        element: <Subscription />,
+        element: withSuspense(Subscription),
       },
       {
         path: "/dashboard/update-subscription",
-        element: <UpdateSubscription />,
+        element: withSuspense(UpdateSubscription),
       },
       {
         path: "/premium-subscribers",
-        element: <PremiumSubscribers />,
+        element: withSuspense(PremiumSubscribers),
       },
       {
         path: "/ads-promotion",
-        element: <AdPromotion />,
+        element: withSuspense(AdPromotion),
       },
       {
         path: "/dashboard/Settings/profile",
-        element: <Profile />,
+        element: withSuspense(Profile),
       },
       {
         path: "/dashboard/Settings/notification",
-        element: <Notification />,
+        element: withSuspense(Notification),
       },
       {
         path: "/dashboard/Settings/Terms&Condition",
-        element: <TermsCondition />,
+        element: withSuspense(TermsCondition),
       },
       {
         path: "/dashboard/Settings/PrivacyPolicy",
-        element: <PrivacyPolicy />,
+        element: withSuspense(PrivacyPolicy),
       },
       {
         path: "/faq",
-        element: <Faq />,
+        element: withSuspense(Faq),
       },
       {
         path: "/chat",
-        element: <Chat />,
+        element: withSuspense(Chat),
       },
       {
         path: "/support",
-        element: <Support />,
+        element: withSuspense(Support),
       },
       {
         path: "/category-management",
-        element: <CategoryManagement />,
+        element: withSuspense(CategoryManagement),
       },
       {
         path: "/category-management/:id/sub-categories",
-        element: <SubCategory />,
+        element: withSuspense(SubCategory),
       },
     ],
   },
   {
     path: "/login",
-    element: <SignIn />,
+    element: withSuspense(SignIn),
   },
   {
     path: "/forget-password",
-    element: <ForgetPassword />,
+    element: withSuspense(ForgetPassword),
   },
   {
     path: "/verify-mail",
-    element: <VerificationCode />,
+    element: withSuspense(VerificationCode),
   },
   {
     path: "/reset-password",
-    element: <ResetPassword />,
+    element: withSuspense(ResetPassword),
   }
 ]);

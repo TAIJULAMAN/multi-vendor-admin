@@ -41,7 +41,7 @@ export default function TermsAndCondition() {
     <div className="p-5">
       <PageHeading title="Terms And Condition" />
 
-      <div className=" bg-white rounded shadow p-5 h-full">
+      <div className=" bg-white rounded shadow p-5 h-full mt-5">
         <ReactQuill
           style={{ padding: "10px" }}
           theme="snow"

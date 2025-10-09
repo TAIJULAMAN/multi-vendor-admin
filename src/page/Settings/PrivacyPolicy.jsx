@@ -27,7 +27,7 @@ export default function PrivacyPolicy() {
   return (
     <div className="p-5 min-h-screen">
       <PageHeading title="Privacy Policy" />
-      <div className=" bg-white rounded shadow p-5 h-full">
+      <div className=" bg-white rounded shadow p-5 h-full mt-5">
         <ReactQuill
           style={{ padding: "10px" }}
           theme="snow"

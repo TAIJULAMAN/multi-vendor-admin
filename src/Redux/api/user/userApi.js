@@ -6,7 +6,7 @@ export const userApi = baseApi.injectEndpoints({
       query: (params) => ({
         url: "user/admin/users",
         method: "GET",
-        params, // e.g., { page: 1, limit: 10 }
+        params, // e.g., { page: 1, limit: 10, search: "" }
       }),
       
       providesTags: ["user"],
