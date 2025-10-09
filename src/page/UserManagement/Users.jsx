@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import { MdBlockFlipped } from "react-icons/md";
 import PageHeading from "../../shared/PageHeading";
@@ -9,10 +9,13 @@ import {
   useBlockUserMutation,
 } from "../../Redux/api/user/userApi";
 
-const Users = () => {
+export default function Users() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [blockUser, { isLoading: isBlocking }] = useBlockUserMutation();
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
 
   const handleOk = async () => {
     if (!selectedUser?.id) {
@@ -32,12 +35,29 @@ const Users = () => {
     }
   };
 
-  const { data: users } = useGetAllUsersQuery({ role: "customer" });
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search.trim()), 500);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  // Reset to first page when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
+  const { data: users, isFetching } = useGetAllUsersQuery({
+    role: "customer",
+    search: debouncedSearch ? debouncedSearch.trim() : undefined,
+    page,
+    limit: 10,
+  });
+
   const customerList =
     users?.data?.users?.filter((u) => {
       const role = (u?.role || u?.userRole || u?.type || "")
         .toString()
-        .toLowerCase();
+        .toLowerCase()
+        .trim();
       return role === "customer";
     }) || users?.data?.users;
 
@@ -110,6 +130,8 @@ const Users = () => {
           <input
             type="text"
             placeholder="Search..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             className="border-2 border-[#14803c] py-3 pl-12 pr-[65px] outline-none w-full rounded-md"
           />
           <span className=" text-gray-600 absolute top-0 left-0 h-full px-5 flex items-center justify-center rounded-r-md cursor-pointer">
@@ -117,7 +139,6 @@ const Users = () => {
           </span>
         </div>
       </div>
-
       <ConfigProvider
         theme={{
           components: {
@@ -149,7 +170,18 @@ const Users = () => {
         <Table
           dataSource={dataSource}
           columns={columns}
-          pagination={{ pageSize: 10 }}
+          loading={isFetching}
+          pagination={{
+            current: page,
+            pageSize: 10,
+            total:
+              users?.data?.meta?.total ||
+              users?.data?.total ||
+              dataSource?.length ||
+              0,
+            showSizeChanger: false,
+            onChange: (p) => setPage(p),
+          }}
           scroll={{ x: "max-content" }}
         />
 
@@ -166,6 +198,4 @@ const Users = () => {
       </ConfigProvider>
     </>
   );
-};
-
-export default Users;
+}
