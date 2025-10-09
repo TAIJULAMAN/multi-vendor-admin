@@ -10,7 +10,6 @@ import formatDate from "../../utils/formatDate";
 import useImageUpload from "../../hooks/useImageUpload";
 
 export function AdCard({ campaign }) {
-  // console.log(campaign)
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
@@ -93,14 +92,14 @@ export function AdCard({ campaign }) {
 
   return (
     <div className="bg-amber-200 rounded-lg overflow-hidden shadow-md">
-      <div className="p-4 pb-0">
+      <div className="p-5">
         <div className="flex justify-between items-center mb-3">
-          <h2 className="font-bold text-lg">{campaign.title}</h2>
+          <h2 className="font-semibold text-xl">{campaign.title}</h2>
 
           {/* Dropdown Menu */}
           <div className="relative" ref={menuRef}>
             <button
-              className="p-1 rounded-full hover:bg-black/10 transition-colors"
+              className=""
               onClick={() => setIsMenuOpen((prev) => !prev)}
             >
               <FiMoreVertical className="h-5 w-5" />
@@ -135,17 +134,17 @@ export function AdCard({ campaign }) {
           <img
             src={campaign.image}
             alt={campaign.title}
-            className="w-full h-48 md:h-56 rounded-lg"
+            className="w-full h-[200px] md:h-[300px] rounded-lg"
             onError={() => setImageError(true)}
           />
         ) : (
-          <div className="w-full h-48 md:h-56 bg-gray-100 flex items-center justify-center rounded-lg text-gray-500 text-sm">
+          <div className="w-full h-[200px] md:h-[300px] bg-gray-100 flex items-center justify-center rounded-lg text-gray-500 text-sm">
             Image is not available
           </div>
         )}
       </div>
 
-      <div className="grid grid-cols-2 text-center p-5 mt-5">
+      <div className="grid grid-cols-2 text-center p-5">
         <div className="flex flex-col">
           <span className="text-xl text-gray-800 mb-2 flex justify-start text-start">
             Start day

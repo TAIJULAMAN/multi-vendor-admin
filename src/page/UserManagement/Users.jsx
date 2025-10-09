@@ -2,13 +2,16 @@ import { useState } from "react";
 import { IoSearch } from "react-icons/io5";
 import { MdBlockFlipped } from "react-icons/md";
 import PageHeading from "../../shared/PageHeading";
-import { ConfigProvider, Modal, Table } from "antd";
-import { useGetAllUsersQuery, useBlockUserMutation } from "../../Redux/api/user/userApi";
+import { ConfigProvider, Table } from "antd";
+import BlockUserModal from "./Modals/BlockUserModal";
+import {
+  useGetAllUsersQuery,
+  useBlockUserMutation,
+} from "../../Redux/api/user/userApi";
 
 const Users = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  // console.log("selectedUser", selectedUser);
   const [blockUser, { isLoading: isBlocking }] = useBlockUserMutation();
 
   const handleOk = async () => {
@@ -17,7 +20,10 @@ const Users = () => {
       return;
     }
     try {
-      await blockUser({ id: selectedUser.id, isBlocked: !selectedUser.isBlocked }).unwrap();
+      await blockUser({
+        id: selectedUser.id,
+        isBlocked: !selectedUser.isBlocked,
+      }).unwrap();
     } catch (_) {
       // optionally handle error UI here
     } finally {
@@ -25,21 +31,15 @@ const Users = () => {
       setSelectedUser(null);
     }
   };
-  const handleCancel = () => {
-    setIsModalOpen(false);
-    setSelectedUser(null);
-  };
-  
 
-  // Request only customers from API if supported
   const { data: users } = useGetAllUsersQuery({ role: "customer" });
-  // console.log("users from user page", users);
-
-  // Fallback client-side filter to customers if API returns mixed roles
-  const customerList = users?.data?.users?.filter((u) => {
-    const role = (u?.role || u?.userRole || u?.type || "").toString().toLowerCase();
-    return role === "customer";
-  }) || users?.data?.users;
+  const customerList =
+    users?.data?.users?.filter((u) => {
+      const role = (u?.role || u?.userRole || u?.type || "")
+        .toString()
+        .toLowerCase();
+      return role === "customer";
+    }) || users?.data?.users;
 
   const dataSource = customerList?.map((user, index) => ({
     key: index + 1,
@@ -60,11 +60,6 @@ const Users = () => {
       key: "name",
       render: (_, record) => (
         <div className="flex items-center gap-3">
-          {/* <img
-            src={`https://avatar.iran.liara.run/public/${record.no}`}
-            className="w-10 h-10 object-cover rounded-full"
-            alt="User Avatar"
-          /> */}
           <span>{record.name}</span>
         </div>
       ),
@@ -78,7 +73,9 @@ const Users = () => {
       dataIndex: "isBlocked",
       key: "isBlocked",
       render: (v) => (
-        <span className={v ? "text-red-600" : ""}>{v ? "Blocked" : "Active"}</span>
+        <span className={v ? "text-red-600" : ""}>
+          {v ? "Blocked" : "Active"}
+        </span>
       ),
     },
     {
@@ -86,22 +83,24 @@ const Users = () => {
       key: "action",
       render: (_, record) => (
         <button
-          onClick={() => showModal(record)}
+          onClick={(record) => {
+            setSelectedUser(record);
+            setIsModalOpen(true);
+          }}
           disabled={isBlocking}
           className={` rounded-lg p-2 bg-[#d3e8e6] transition duration-200 ${
             isBlocking ? "opacity-60 cursor-not-allowed" : ""
           }`}
         >
-          <MdBlockFlipped className={`w-6 h-6 ${record?.isBlocked ? "text-red-600 " : "text-[#14803c]"}`} />
+          <MdBlockFlipped
+            className={`w-6 h-6 ${
+              record?.isBlocked ? "text-red-600 " : "text-[#14803c]"
+            }`}
+          />
         </button>
       ),
     },
   ];
-
-  const showModal = (record) => {
-    setSelectedUser(record);
-    setIsModalOpen(true);
-  };
 
   return (
     <>
@@ -118,6 +117,7 @@ const Users = () => {
           </span>
         </div>
       </div>
+
       <ConfigProvider
         theme={{
           components: {
@@ -153,38 +153,16 @@ const Users = () => {
           scroll={{ x: "max-content" }}
         />
 
-        <Modal
+        <BlockUserModal
           open={isModalOpen}
-          centered
-          onCancel={handleCancel}
-          footer={null}
-        >
-          <div className="p-5">
-            <h1 className="text-4xl text-center text-[#0D0D0D]">
-              {selectedUser?.isBlocked ? "Unblock user?" : "Block user?"}
-            </h1>
-
-            <div className="text-center py-5">
-              <button
-                onClick={handleOk}
-                disabled={isBlocking}
-                className={`bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200 ${
-                  isBlocking ? "opacity-60 cursor-not-allowed" : ""
-                }`}
-              >
-                {selectedUser?.isBlocked ? "Yes, Unblock" : "Yes, Block"}
-              </button>
-            </div>
-            <div className="text-center pb-5">
-              <button
-                onClick={handleCancel}
-                className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </Modal>
+          onCancel={() => {
+            setIsModalOpen(false);
+            setSelectedUser(null);
+          }}
+          onConfirm={handleOk}
+          loading={isBlocking}
+          isBlocked={selectedUser?.isBlocked}
+        />
       </ConfigProvider>
     </>
   );
