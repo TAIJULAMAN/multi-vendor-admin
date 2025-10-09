@@ -27,5 +27,8 @@ export const baseApi = createApi({
     "subCategory",
     "profile",
     "support",
+    "notification",
+    "ads",
+    "faq",
   ],
 });

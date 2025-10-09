@@ -1,12 +1,15 @@
 import { IoIosLogIn } from "react-icons/io";
 import { Modal } from "antd";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { logout } from "../../Redux/Slice/authSlice";
 import { baseApi } from "../../Redux/api/baseApi";
 import { persistor } from "../../Redux/store";
 
 export default function LogoutButton() {
+  const token = useSelector((state) => state.auth?.token);
+  // console.log("token from logout", token);
+
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -18,12 +21,12 @@ export default function LogoutButton() {
       cancelText: "Cancel",
       okButtonProps: { danger: true },
       centered: true,
-      onOk: () => {
+      onOk: async () => {
         dispatch(logout());
         dispatch(baseApi.util.resetApiState());
         localStorage.removeItem("accessToken");
         localStorage.removeItem("refreshToken");
-        persistor.purge();
+        await persistor.purge();
         navigate("/login");
       },
     });

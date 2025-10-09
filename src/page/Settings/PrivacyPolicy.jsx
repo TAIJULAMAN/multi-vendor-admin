@@ -8,13 +8,10 @@ import { useGetPrivacyQuery, useCreatePrivacyMutation } from "../../Redux/api/pr
 export default function PrivacyPolicy() {
   const [content, setContent] = useState("");
   const { data: privacyData, isFetching } = useGetPrivacyQuery();
-
-  console.log("privacyData", privacyData);
   const [createPrivacy, { isLoading: isSaving }] = useCreatePrivacyMutation();
 
   useEffect(() => {
     const initial = privacyData?.content;
-    console.log("initial", initial);
     setContent(initial);
   }, [privacyData]);
 

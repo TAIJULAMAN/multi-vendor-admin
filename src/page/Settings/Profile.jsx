@@ -14,8 +14,8 @@ function ProfilePage() {
   const [name, setName] = useState("");
   const [previewUrl, setPreviewUrl] = useState(null);
   const { data: getAdminProfile } = useGetAdminProfileQuery();
-  console.log("getAdminProfile", getAdminProfile);
-  const [updateProfile, { isLoading }] = useUpdateProfileMutation();
+  // console.log("getAdminProfile", getAdminProfile);
+  const [updateProfile] = useUpdateProfileMutation();
 
   // Prefill form when profile loads
   useEffect(() => {
@@ -35,15 +35,6 @@ function ProfilePage() {
     }
     setPreviewUrl(null);
   }, [image]);
-
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    const fd = new FormData();
-    if (image) fd.append("image", image);
-    if (name) fd.append("name", name);
-
-    await updateProfile(fd).unwrap();
-  };
 
   // Auto-upload image when changed (no button needed)
   const handleImageChange = async (e) => {

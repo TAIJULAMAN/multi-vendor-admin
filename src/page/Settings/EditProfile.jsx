@@ -12,7 +12,7 @@ export default function EditProfile() {
   const [language, setLanguage] = useState("");
 
   const { data: getAdminProfile } = useGetAdminProfileQuery();
-  console.log("getAdminProfile", getAdminProfile);
+  // console.log("getAdminProfile", getAdminProfile);
   const [updateProfile, { isLoading }] = useUpdateProfileMutation();
 
   // Prefill form when profile loads
