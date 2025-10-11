@@ -9,8 +9,8 @@ import { useDispatch } from "react-redux";
 import { useLogInMutation } from "../Redux/api/auth/authApi";
 
 export default function SignIn() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("techandtech360@gmail.com");
+  const [password, setPassword] = useState("securepass");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const [logIn, { isLoading }] = useLogInMutation();
@@ -71,6 +71,7 @@ export default function SignIn() {
             <input
               type="email"
               name="email"
+              defaultValue="techandtech360@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Enter your email"
@@ -87,6 +88,7 @@ export default function SignIn() {
                 type={showPassword ? "text" : "password"}
                 name="password"
                 value={password}
+                defaultValue="securepass"
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="**********"
                 className="w-full px-5 py-3 bg-white text-gray-600 border-2 border-[#FF914C] rounded-lg outline-none mt-5 placeholder:text-gray-600"

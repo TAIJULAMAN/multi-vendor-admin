@@ -4,6 +4,9 @@ import { RiSendPlane2Fill } from "react-icons/ri";
 import { FiMenu, FiMoreVertical } from "react-icons/fi";
 import { IoImagesOutline } from "react-icons/io5";
 import { BsCheck2All } from "react-icons/bs";
+import { useSocket } from "../../context/SocketContext";
+import { useGetChatQuery, useStartChatMutation } from "../../Redux/api/Chat/chatApis";
+import Loader from "../../components/common/Loader";
 
 const users = [
   {
@@ -82,6 +85,17 @@ const users = [
 
 const Chat = () => {
   const [selectedUser, setSelectedUser] = useState(users[0]);
+  const { sendMessage } = useSocket();
+  const { data: chat, isLoading } = useGetChatQuery();
+  const [startChat] = useStartChatMutation()
+  const [user, setUser] = useState(null)
+  console.log("user", user)
+  useEffect(() => {
+    if (chat?.data) {
+      // chat?.data?.filter((item) => setUser(item?.participants.filter((item) => item.role === "customer")))
+      console.log(chat?.data)
+    }
+  }, [chat])
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -128,7 +142,7 @@ const Chat = () => {
   const fileInputRef = useRef(null);
 
   const filteredUsers = users.filter((user) =>
-    user.name.toLowerCase().includes(searchTerm.toLowerCase())
+    user?.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const scrollToBottom = () => {
@@ -139,39 +153,16 @@ const Chat = () => {
     scrollToBottom();
   }, [messages]);
 
-  const sendMessage = () => {
+  const sendMessageHandler = () => {
     if (newMessage.trim()) {
-      const newMsg = {
-        id: messages.length + 1,
-        text: newMessage,
-        sender: "me",
-        time: new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        }),
-        status: "sent",
-      };
-      setMessages([...messages, newMsg]);
+      sendMessage({
+        chatId: selectedUser?.id,
+        content: newMessage,
+      });
       setNewMessage("");
-
-      // Simulate typing indicator and response
-      setIsTyping(true);
-      setTimeout(() => {
-        setIsTyping(false);
-        const response = {
-          id: messages.length + 2,
-          text: "Thank you for your message. I'll get back to you soon!",
-          sender: "them",
-          time: new Date().toLocaleTimeString([], {
-            hour: "2-digit",
-            minute: "2-digit",
-          }),
-          status: "delivered",
-        };
-        setMessages((prev) => [...prev, response]);
-      }, 2000);
     }
   };
+
 
   const handleKeyPress = (e) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -199,7 +190,7 @@ const Chat = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="flex flex-col h-[calc(100vh-80px)] bg-gradient-to-br from-gray-50 to-gray-100">
       {/* Header */}
       <div className="bg-white shadow-sm border-b border-gray-200 px-5 py-3">
         <div className="flex items-center justify-between">
@@ -215,9 +206,8 @@ const Chat = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar - User List */}
         <div
-          className={`absolute md:relative top-0 left-0 w-80 md:w-96 h-full bg-white shadow-lg md:shadow-none md:border-r border-gray-200 flex flex-col transition-all duration-300 z-50 ${
-            showSidebar ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-          }`}
+          className={`absolute md:relative top-0 left-0 w-80 md:w-96 h-full bg-white shadow-lg md:shadow-none md:border-r border-gray-200 flex flex-col transition-all duration-300 z-50 ${showSidebar ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+            }`}
         >
           {/* Mobile close button */}
           <div className="md:hidden flex justify-end p-4 border-b">
@@ -245,47 +235,48 @@ const Chat = () => {
 
           {/* User List */}
           <div className="flex-1 overflow-y-auto">
-            {filteredUsers.map((user) => (
-              <div
-                key={user.id}
-                className={`flex items-center gap-3 p-4 cursor-pointer border-b border-gray-50 hover:bg-gray-50 transition-colors ${
-                  selectedUser.id === user.id
+            {isLoading ?
+              <Loader />
+              : user?.map((user) => (
+                <div
+                  key={user?._id}
+                  className={`flex items-center gap-3 p-4 cursor-pointer border-b border-gray-50 hover:bg-gray-50 transition-colors ${selectedUser?.id === user?.id
                     ? "bg-[#0B704E]/10 border-r-4 border-r-[#0B704E]"
                     : ""
-                }`}
-                onClick={() => {
-                  setSelectedUser(user);
-                  setShowSidebar(false);
-                }}
-              >
-                <div className="relative">
-                  <img
-                    src={user.avatar}
-                    alt={user.name}
-                    className="h-12 w-12 rounded-full object-cover"
-                  />
-                  {user.online && (
-                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#14803c] border-2 border-white rounded-full"></div>
+                    }`}
+                  onClick={() => {
+                    setSelectedUser(user);
+                    setShowSidebar(false);
+                  }}
+                >
+                  <div className="relative">
+                    <img
+                      src={user?.image}
+                      alt={user?.name}
+                      className="h-12 w-12 rounded-full object-cover"
+                    />
+                    {user?.online && (
+                      <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#14803c] border-2 border-white rounded-full"></div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <h3 className="font-semibold text-[#111827] truncate">
+                        {user?.name}
+                      </h3>
+                      <span className="text-xs text-[#0B704E]">{user?.time}</span>
+                    </div>
+                    <p className="text-sm text-[#0B704E] truncate mt-1">
+                      {user?.message}
+                    </p>
+                  </div>
+                  {user?.unread > 0 && (
+                    <div className="bg-[#0B704E] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                      {user?.unread}
+                    </div>
                   )}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold text-[#111827] truncate">
-                      {user.name}
-                    </h3>
-                    <span className="text-xs text-[#0B704E]">{user.time}</span>
-                  </div>
-                  <p className="text-sm text-[#0B704E] truncate mt-1">
-                    {user.message}
-                  </p>
-                </div>
-                {user.unread > 0 && (
-                  <div className="bg-[#0B704E] text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    {user.unread}
-                  </div>
-                )}
-              </div>
-            ))}
+              ))}
           </div>
         </div>
 
@@ -296,20 +287,20 @@ const Chat = () => {
             <div className="flex items-center gap-4">
               <div className="relative">
                 <img
-                  src={selectedUser.avatar}
-                  alt={selectedUser.name}
+                  src={selectedUser?.avatar}
+                  alt={selectedUser?.name}
                   className="h-12 w-12 rounded-full object-cover border-2 border-white/20"
                 />
-                {selectedUser.online && (
+                {selectedUser?.online && (
                   <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-400 border-2 border-white rounded-full"></div>
                 )}
               </div>
               <div className="flex-1">
-                <h2 className="text-lg font-semibold">{selectedUser.name}</h2>
+                <h2 className="text-lg font-semibold">{selectedUser?.name}</h2>
                 <p className="text-sm text-[#E6F6EC]">
-                  {selectedUser.online
+                  {selectedUser?.online
                     ? "Online"
-                    : "Last seen " + selectedUser.time}
+                    : "Last seen " + selectedUser?.time}
                 </p>
               </div>
               <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
@@ -323,23 +314,20 @@ const Chat = () => {
             {messages.map((msg) => (
               <div
                 key={msg.id}
-                className={`flex ${
-                  msg.sender === "me" ? "justify-end" : "justify-start"
-                }`}
+                className={`flex ${msg.sender === "me" ? "justify-end" : "justify-start"
+                  }`}
               >
                 <div
-                  className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm ${
-                    msg.sender === "me"
-                      ? "bg-[#14803c] text-white rounded-br-md"
-                      : "bg-white text-[#111827] border rounded-bl-md"
-                  }`}
+                  className={`max-w-xs lg:max-w-md px-4 py-3 rounded-2xl shadow-sm ${msg.sender === "me"
+                    ? "bg-[#14803c] text-white rounded-br-md"
+                    : "bg-white text-[#111827] border rounded-bl-md"
+                    }`}
                 >
                   <p className="text-sm leading-relaxed">{msg.text}</p>
                   <div className="flex items-center justify-between mt-2 gap-2">
                     <span
-                      className={`text-xs ${
-                        msg.sender === "me" ? "text-[#E6F6EC]" : "text-gray-500"
-                      }`}
+                      className={`text-xs ${msg.sender === "me" ? "text-[#E6F6EC]" : "text-gray-500"
+                        }`}
                     >
                       {msg.time}
                     </span>
@@ -410,13 +398,12 @@ const Chat = () => {
                   <IoImagesOutline className="w-5 h-5" />
                 </button>
                 <button
-                  onClick={sendMessage}
+                  onClick={sendMessageHandler}
                   disabled={!newMessage.trim()}
-                  className={`p-3 rounded-full transition-all ${
-                    newMessage.trim()
-                      ? "bg-[#14803c] hover:bg-[#0B704E] text-white shadow-lg"
-                      : "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  }`}
+                  className={`p-3 rounded-full transition-all ${newMessage.trim()
+                    ? "bg-[#14803c] hover:bg-[#0B704E] text-white shadow-lg"
+                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    }`}
                 >
                   <RiSendPlane2Fill className="w-5 h-5" />
                 </button>
