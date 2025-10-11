@@ -20,7 +20,7 @@ export const subcategoryApi = baseApi.injectEndpoints({
     }),
     updateSubCategory: builder.mutation({
       query: ({ id, body }) => ({
-        url: `category/subcategory/${id}`,
+        url: `category/subcategories/${id}`,
         method: "PATCH",
         body, // expects { name }
       }),
@@ -28,7 +28,7 @@ export const subcategoryApi = baseApi.injectEndpoints({
     }),
     deleteSubCategory: builder.mutation({
       query: (id) => ({
-        url: `category/subcategory/${id}`,
+        url: `category/subcategories/${id}`,
         method: "DELETE",
       }),
       invalidatesTags: ["subCategory", "category"],
