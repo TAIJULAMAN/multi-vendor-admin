@@ -4,7 +4,7 @@ import PageHeading from "../../shared/PageHeading";
 import { CiEdit } from "react-icons/ci";
 import { AiOutlineEye } from "react-icons/ai";
 import { RiDeleteBin6Line } from "react-icons/ri";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AddEditCategoryModal from "./CategoryModals/AddEditCategoryModal";
 import BlockInfoModal from "./CategoryModals/BlockInfoModal";
@@ -28,43 +28,39 @@ export default function CategoryManagement() {
   const [deletingRecord, setDeletingRecord] = useState(null);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const [blockMessage, setBlockMessage] = useState("");
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useState(1);
 
-  const [deleteCategory, { isLoading: isDeleting }] =
-    useDeleteCategoryMutation();
+  const { data: categoriesData, isFetching } = useGetAllCategoriesQuery({
+    page,
+    search: debouncedSearch ? debouncedSearch.trim() : undefined,
+  });
+  console.log("categoriesData", categoriesData);
 
-  const handleOk = async () => {
-    if (!deletingRecord?.id) {
-      setIsModalOpen(false);
-      return;
-    }
-    try {
-      await deleteCategory(deletingRecord.id).unwrap();
-    } catch (_) {
-    } finally {
-      setIsModalOpen(false);
-      setDeletingRecord(null);
-    }
-  };
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search.trim()), 500);
+    return () => clearTimeout(t);
+  }, [search]);
 
-  const showModal = (record) => {
-    if ((record?.subCategories ?? record?.totalSubCategories ?? 0) > 0) {
-      setBlockMessage("Please delete all associated subcategories first.");
-      setIsBlockModalOpen(true);
-      return;
-    }
-    setDeletingRecord(record);
-    setIsModalOpen(true);
-  };
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
 
-  const { data: categoriesData } = useGetAllCategoriesQuery();
   const [createCategory, { isLoading: isCreating }] =
     useCreateCategoryMutation();
   const [updateCategory, { isLoading: isUpdating }] =
     useUpdateCategoryMutation();
+  const [deleteCategory, { isLoading: isDeleting }] =
+    useDeleteCategoryMutation();
 
-  const dataSource = categoriesData?.data?.categories?.map((item, index) => ({
-    key: index,
-    no: index + 1,
+  const list = categoriesData?.data?.categories || categoriesData?.data || [];
+  const pageSize = categoriesData?.pagination?.limit || 10;
+  const totalItems = categoriesData?.pagination?.total || 0;
+
+  const dataSource = list?.map((item, index) => ({
+    key: (page - 1) * pageSize + index + 1,
+    no: (page - 1) * pageSize + index + 1,
     id: item?._id || item?.id,
     categoryName: item?.name,
     totalSubCategories: item?.subCategories?.length,
@@ -212,6 +208,30 @@ export default function CategoryManagement() {
     } catch (e) {}
   };
 
+  const handleOk = async () => {
+    if (!deletingRecord?.id) {
+      setIsModalOpen(false);
+      return;
+    }
+    try {
+      await deleteCategory(deletingRecord.id).unwrap();
+    } catch (_) {
+    } finally {
+      setIsModalOpen(false);
+      setDeletingRecord(null);
+    }
+  };
+
+  const showModal = (record) => {
+    if ((record?.subCategories ?? record?.totalSubCategories ?? 0) > 0) {
+      setBlockMessage("Please delete all associated subcategories first.");
+      setIsBlockModalOpen(true);
+      return;
+    }
+    setDeletingRecord(record);
+    setIsModalOpen(true);
+  };
+
   return (
     <>
       <div className="my-5 md:my-10 flex flex-col md:flex-row gap-5 justify-between items-center">
@@ -221,6 +241,8 @@ export default function CategoryManagement() {
             <input
               type="text"
               placeholder="Search..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="border-2 border-[#14803c] py-3 pl-12 pr-[65px] outline-none w-full rounded-md"
             />
             <span className=" text-gray-600 absolute top-0 left-0 h-full px-5 flex items-center justify-center rounded-r-md cursor-pointer">
@@ -268,7 +290,14 @@ export default function CategoryManagement() {
         <Table
           dataSource={dataSource}
           columns={columns}
-          pagination={{ pageSize: 10 }}
+          loading={isFetching}
+          pagination={{
+            current: page,
+            pageSize,
+            total: totalItems,
+            showSizeChanger: false,
+            onChange: (p) => setPage(p),
+          }}
           tableLayout="fixed"
           scroll={{ x: true }}
         />

@@ -8,6 +8,7 @@ import {
   useGetAllUsersQuery,
   useBlockUserMutation,
 } from "../../Redux/api/user/userApi";
+import Loader from "../../components/common/Loader";
 
 export default function Users() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,53 +18,26 @@ export default function Users() {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
 
-  const handleOk = async () => {
-    if (!selectedUser?.id) {
-      setIsModalOpen(false);
-      return;
-    }
-    try {
-      await blockUser({
-        id: selectedUser.id,
-        isBlocked: !selectedUser.isBlocked,
-      }).unwrap();
-    } catch (_) {
-      // optionally handle error UI here
-    } finally {
-      setIsModalOpen(false);
-      setSelectedUser(null);
-    }
-  };
-
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search.trim()), 500);
-    return () => clearTimeout(t);
-  }, [search]);
-
-  // Reset to first page when search changes
-  useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch]);
-
   const { data: users, isFetching } = useGetAllUsersQuery({
     role: "customer",
     search: debouncedSearch ? debouncedSearch.trim() : undefined,
     page,
-    limit: 10,
   });
+  const pageSize = users?.pagination?.limit;
+  const totalItems = users?.pagination?.total;
 
   const customerList =
-    users?.data?.users?.filter((u) => {
+    users?.data?.filter((u) => {
       const role = (u?.role || u?.userRole || u?.type || "")
         .toString()
         .toLowerCase()
         .trim();
       return role === "customer";
-    }) || users?.data?.users;
+    }) || users?.data;
 
   const dataSource = customerList?.map((user, index) => ({
-    key: index + 1,
-    no: index + 1,
+    key: (page - 1) * pageSize + index + 1,
+    no: (page - 1) * pageSize + index + 1,
     id: user?.id || user?._id,
     country: user?.country,
     currency: user?.currency,
@@ -122,6 +96,38 @@ export default function Users() {
     },
   ];
 
+  const handleOk = async () => {
+    if (!selectedUser?.id) {
+      setIsModalOpen(false);
+      return;
+    }
+    try {
+      await blockUser({
+        id: selectedUser.id,
+        isBlocked: !selectedUser.isBlocked,
+      }).unwrap();
+    } catch (_) {
+      // optionally handle error UI here
+    } finally {
+      setIsModalOpen(false);
+      setSelectedUser(null);
+    }
+  };
+
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(search.trim()), 500);
+    return () => clearTimeout(t);
+  }, [search]);
+  
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
+
+  if (isFetching) {
+    return <Loader />;
+  }
+ 
+
   return (
     <>
       <div className="my-5 md:my-10 flex flex-col md:flex-row gap-5 justify-between items-center">
@@ -173,12 +179,8 @@ export default function Users() {
           loading={isFetching}
           pagination={{
             current: page,
-            pageSize: 10,
-            total:
-              users?.data?.meta?.total ||
-              users?.data?.total ||
-              dataSource?.length ||
-              0,
+            pageSize,
+            total: totalItems,
             showSizeChanger: false,
             onChange: (p) => setPage(p),
           }}

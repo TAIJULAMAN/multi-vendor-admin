@@ -1,11 +1,12 @@
 import { ConfigProvider, Table } from "antd";
 import { useGetAllUsersQuery } from "../../Redux/api/user/userApi";
+import Loader from "../common/Loader";
 
 export default function RecentSellerRequests() {
+  const { data: users, isLoading } = useGetAllUsersQuery();
+  console.log(users, "from recent seller requests");
 
-  const { data: users } = useGetAllUsersQuery();
-
-  const dataSource = users?.data?.users?.slice(0, 5)?.map((user, index) => ({
+  const dataSource = users?.data?.slice(0, 5)?.map((user, index) => ({
     key: index + 1,
     no: index + 1,
     country: user?.country,
@@ -14,7 +15,7 @@ export default function RecentSellerRequests() {
     name: user?.name,
     phone: user?.phone,
   }));
-  
+
   const columns = [
     { title: "No", dataIndex: "no", key: "no" },
     {
@@ -36,6 +37,10 @@ export default function RecentSellerRequests() {
     { title: "Country", dataIndex: "country", key: "country" },
     { title: "Currency", dataIndex: "currency", key: "currency" },
   ];
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <ConfigProvider
@@ -61,4 +66,4 @@ export default function RecentSellerRequests() {
       />
     </ConfigProvider>
   );
-};
+}

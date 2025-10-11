@@ -7,7 +7,6 @@ import { useGetAllDashboardQuery } from "../../Redux/api/dashboard/dashboardApi"
 
 export default function DashboardPage() {
   const { data: dashboardData } = useGetAllDashboardQuery();
-  // console.log(dashboardData, "from dashboard page");
 
   return (
     <div className="flex flex-col">
@@ -51,7 +50,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="mt-5">
-        <h1 className="text-2xl font-bold mb-5">Recent Seller Requests</h1>
+        <h1 className="text-2xl font-bold mb-5">Recent Users</h1>
         <RecentSellerRequests />
       </div>
     </div>
