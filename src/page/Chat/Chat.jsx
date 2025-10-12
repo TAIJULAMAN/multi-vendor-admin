@@ -9,6 +9,7 @@ import { useGetChatQuery, useGetMessageOfChatQuery, useSendMessageMutation, useS
 import Loader from "../../components/common/Loader";
 import { convertDate } from "../../utils/convertDate";
 import { useSelector } from "react-redux";
+import { X } from "lucide-react";
 
 const Chat = () => {
   const {
@@ -69,7 +70,6 @@ const Chat = () => {
 
       if (message.chat === selectedChat?._id) {
         setMessages(prev => {
-          // Dedupe by _id in case the same message arrives twice
           if (prev.some(m => m._id === message._id)) return prev;
           const filtered = prev.filter(msg => !msg._id.includes('temp-'));
           return [...filtered, message];
@@ -388,12 +388,15 @@ const Chat = () => {
                           } ${msg.status === 'sending' ? 'opacity-70' : ''}`}
                       >
                         {msg?.imageUrls?.length > 0 && (
-                          <div className="w-full h-48 rounded-2xl p-1 overflow-hidden">
-                            <img
-                              src={msg?.imageUrls[0]}
-                              alt="message"
-                              className="w-full h-full object-contain rounded-2xl"
-                            />
+                          <div className={`w-full p-1 grid grid-cols-${msg?.imageUrls?.length}`}>
+                            {msg?.imageUrls?.map((url, index) => (
+                              <img
+                                key={index}
+                                src={url}
+                                alt="message"
+                                className="w-full aspect-square h-full object-contain rounded-2xl"
+                              />
+                            ))}
                           </div>
                         )}
                         <p className="text-sm leading-relaxed">{msg?.content}</p>
@@ -447,6 +450,20 @@ const Chat = () => {
               <div className="bg-white border-t border-gray-200 p-4">
                 <div className="flex items-end gap-3">
                   <div className="flex-1 relative">
+                    {file.length > 0 && <div className="max-w-xl h-48 p-2 rounded-lg overflow-hidden absolute gap-1 -top-56 bottom-0 grid grid-cols-5">
+                      {file.map((f, index) => (
+                        <div key={index} className="col-span-1 relative bg-slate-200 rounded-md">
+                          <img
+                            src={URL.createObjectURL(f)}
+                            alt="file"
+                            className="w-full h-full object-contain"
+                          />
+                          <X className="absolute top-2 right-2 cursor-pointer" onClick={() => {
+                            setFile(prev => prev.filter((_, i) => i !== index));
+                          }} />
+                        </div>
+                      ))}
+                    </div>}
                     <textarea
                       value={newMessage}
                       onChange={handleInputChange}
@@ -456,7 +473,8 @@ const Chat = () => {
                       rows="1"
                     />
                   </div>
-                  <div className="flex gap-2">
+
+                  <div className="flex relative gap-2">
                     <input
                       type="file"
                       ref={fileInputRef}
