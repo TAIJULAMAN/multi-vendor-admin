@@ -6,15 +6,16 @@ export default function RecentSellerRequests() {
   const { data: users, isLoading } = useGetAllUsersQuery();
   console.log(users, "from recent seller requests");
 
-  const dataSource = users?.data?.slice(0, 5)?.map((user, index) => ({
-    key: index + 1,
-    no: index + 1,
-    country: user?.country,
-    currency: user?.currency,
-    email: user?.email,
-    name: user?.name,
-    phone: user?.phone,
-  }));
+  const dataSource = users && users?.data?.users
+    .slice(0, 5)?.map((user, index) => ({
+      key: index + 1,
+      no: index + 1,
+      country: user?.country,
+      currency: user?.currency,
+      email: user?.email,
+      name: user?.name,
+      phone: user?.phone,
+    }));
 
   const columns = [
     { title: "No", dataIndex: "no", key: "no" },
