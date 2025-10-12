@@ -14,6 +14,9 @@ const chatApi = baseApi.injectEndpoints({
         url: `/chat/${chatId}/messages`,
         method: "GET",
       }),
+      transformResponse: (response) => {
+        return response?.data?.reverse();
+      },
       providesTags: ["Chat"],
     }),
     startChat: builder.mutation({
