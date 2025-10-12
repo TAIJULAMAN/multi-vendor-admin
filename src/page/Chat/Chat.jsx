@@ -5,7 +5,7 @@ import { FiMenu, FiMoreVertical } from "react-icons/fi";
 import { IoImagesOutline } from "react-icons/io5";
 import { BsCheck2All } from "react-icons/bs";
 import { useSocket } from "../../context/SocketContext";
-import { useGetChatQuery, useGetMessageOfChatQuery, useStartChatMutation } from "../../Redux/api/Chat/chatApis";
+import { useGetChatQuery, useGetMessageOfChatQuery, useSendMessageMutation, useStartChatMutation } from "../../Redux/api/Chat/chatApis";
 import Loader from "../../components/common/Loader";
 import { convertDate } from "../../utils/convertDate";
 import { useSelector } from "react-redux";
@@ -27,9 +27,10 @@ const Chat = () => {
   const [selectedChat, setSelectedChat] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const { user } = useSelector((state) => state.auth);
+  const [sendMessageMutation] = useSendMessageMutation();
 
-  const [startChat, { data: startChatData }] = useStartChatMutation();
-  console.log("startChatData",startChatData)
+  const [startChat] = useStartChatMutation();
+
   const {
     data: messagesData,
     isLoading: messagesLoading,
@@ -43,11 +44,12 @@ const Chat = () => {
   const [newMessage, setNewMessage] = useState("");
   const [showSidebar, setShowSidebar] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
+  const [isTyping] = useState(false);
   const [typingTimeout, setTypingTimeout] = useState(null);
   const messagesEndRef = useRef(null);
   const fileInputRef = useRef(null);
   const [file, setFile] = useState([]);
+
   const [tempMessageId, setTempMessageId] = useState(null);
 
   useEffect(() => {
@@ -64,10 +66,11 @@ const Chat = () => {
 
   useEffect(() => {
     const handleNewMessage = (message) => {
-      console.log("Received new message via socket:", message);
 
       if (message.chat === selectedChat?._id) {
         setMessages(prev => {
+          // Dedupe by _id in case the same message arrives twice
+          if (prev.some(m => m._id === message._id)) return prev;
           const filtered = prev.filter(msg => !msg._id.includes('temp-'));
           return [...filtered, message];
         });
@@ -79,7 +82,6 @@ const Chat = () => {
     };
 
     const handleConversationUpdate = (data) => {
-      console.log("Conversation update received:", data);
       refetchChats();
     };
 
@@ -91,45 +93,6 @@ const Chat = () => {
       unsubscribeFromConversationUpdates(conversationHandlerId);
     };
   }, [selectedChat, subscribeToMessages, unsubscribeFromMessages, subscribeToConversationUpdates, unsubscribeFromConversationUpdates, refetchChats]);
-
-  // Directly subscribe to backend-specific events:
-  // - conversation_update/<myUserId>
-  // - new_message/<selectedUserId>
-  useEffect(() => {
-    if (!socket || !isConnected || !user?.id) return;
-
-    const convEvent = `conversation_update/${user.id}`;
-
-    const handleConversationUpdate = (data) => {
-      console.log("[direct] Conversation update received:", data);
-      refetchChats();
-    };
-
-    socket.on(convEvent, handleConversationUpdate);
-
-    let msgEvent;
-    const handlePeerMessage = (message) => {
-      console.log("[direct] Peer message received:", message);
-      if (message.chat === selectedChat?._id) {
-        setMessages((prev) => {
-          const filtered = prev.filter((msg) => !msg._id.includes("temp-"));
-          return [...filtered, message];
-        });
-        setTempMessageId(null);
-        refetchChats();
-      }
-    };
-
-    if (selectedUser?._id) {
-      msgEvent = `new_message/${selectedUser._id}`;
-      socket.on(msgEvent, handlePeerMessage);
-    }
-
-    return () => {
-      socket.off(convEvent, handleConversationUpdate);
-      if (msgEvent) socket.off(msgEvent, handlePeerMessage);
-    };
-  }, [socket, isConnected, user?.id, selectedUser?._id, selectedChat?._id, refetchChats]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -146,54 +109,48 @@ const Chat = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !selectedChat || !isConnected) {
-      console.error("Cannot send message: missing data or disconnected");
-      return;
-    }
+    if (!newMessage.trim() || !selectedChat || !isConnected) return;
 
-    const messageData = {
-      chatId: selectedChat._id,
+    const tempId = `temp-${Date.now()}`;
+    setTempMessageId(tempId);
+    const tempMessage = {
+      _id: tempId,
       content: newMessage.trim(),
-      ...(file.length > 0 && { imageUrls: file })
+      sender: { _id: user?.id, name: user?.name || "You" },
+      seenBy: [user?.id],
+      createdAt: new Date().toISOString(),
+      status: 'sending',
+      chat: selectedChat?._id,
+      imageUrls: []
     };
-
-    console.log("Sending message data:", messageData);
+    setMessages(prev => [...prev, tempMessage]);
 
     try {
-      const tempId = `temp-${Date.now()}`;
-      setTempMessageId(tempId);
+      let imageUrls = [];
 
-      const tempMessage = {
-        _id: tempId,
-        content: newMessage.trim(),
-        sender: {
-          _id: user?.id,
-          name: user?.name || "You"
-        },
-        seenBy: [user?.id],
-        createdAt: new Date().toISOString(),
-        status: 'sending',
-        chat: selectedChat._id
-      };
+      if (file.length > 0) {
+        const formData = new FormData();
+        formData.append("chatId", selectedChat?._id);
+        formData.append("content", newMessage.trim());
+        file.forEach(f => formData.append("image", f));
+        const res = await sendMessageMutation(formData).unwrap();
+        imageUrls = res?.data?.imageUrls || [];
+      } else {
+        const messageData = {
+          chatId: selectedChat?._id,
+          content: newMessage.trim(),
+        };
+        sendMessage(messageData);
+      }
 
-      setMessages(prev => [...prev, tempMessage]);
-      refetchMessages();
       setNewMessage("");
-      sendMessage(messageData);
-      
-
-      stopTyping({
-        chatId: selectedChat._id,
-        receiverId: selectedUser._id
-      });
-
+      setFile([]);
+      refetchMessages();
+      stopTyping({ chatId: selectedChat?._id, receiverId: selectedUser?._id });
       if (typingTimeout) {
         clearTimeout(typingTimeout);
         setTypingTimeout(null);
       }
-
-      setFile([]);
-
     } catch (error) {
       console.error("Error sending message:", error);
       setMessages(prev => prev.filter(msg => msg._id !== tempMessageId));
@@ -205,8 +162,8 @@ const Chat = () => {
     if (!selectedChat || !isConnected) return;
 
     startTyping({
-      chatId: selectedChat._id,
-      receiverId: selectedUser._id
+      chatId: selectedChat?._id,
+      receiverId: selectedUser?._id
     });
 
     if (typingTimeout) {
@@ -215,8 +172,8 @@ const Chat = () => {
 
     const timeout = setTimeout(() => {
       stopTyping({
-        chatId: selectedChat._id,
-        receiverId: selectedUser._id
+        chatId: selectedChat?._id,
+        receiverId: selectedUser?._id
       });
       setTypingTimeout(null);
     }, 2000);
@@ -237,9 +194,13 @@ const Chat = () => {
   };
 
   const handleFileUpload = (e) => {
-    const uploadedFile = e.target.files[0];
-    if (uploadedFile) {
-      setFile([uploadedFile]);
+    const selected = Array.from(e.target.files || []);
+    const total = file.length + selected.length;
+    if (total > 5) {
+      throw new Error("Cannot upload more than 5 files");
+    }
+    if (selected.length > 0) {
+      setFile(prev => [...prev, ...selected]);
     }
   };
 
@@ -250,7 +211,7 @@ const Chat = () => {
       const data = { participantId };
       await startChat(data).unwrap().then((res) => {
         if (res?.success) {
-          console.log("Chat started:", res.data);
+
           refetchChats();
         }
       });
@@ -260,9 +221,9 @@ const Chat = () => {
   };
 
   useEffect(() => {
-    console.log("Current messages:", messages);
-    console.log("Selected chat:", selectedChat);
-    console.log("Socket connected:", isConnected);
+
+
+
   }, [messages, selectedChat, isConnected]);
 
   const filteredChats = chat?.data?.filter(chatItem =>
@@ -426,6 +387,15 @@ const Chat = () => {
                           : "bg-white text-[#111827] border rounded-bl-md"
                           } ${msg.status === 'sending' ? 'opacity-70' : ''}`}
                       >
+                        {msg?.imageUrls?.length > 0 && (
+                          <div className="w-full h-48 rounded-2xl p-1 overflow-hidden">
+                            <img
+                              src={msg?.imageUrls[0]}
+                              alt="message"
+                              className="w-full h-full object-contain rounded-2xl"
+                            />
+                          </div>
+                        )}
                         <p className="text-sm leading-relaxed">{msg?.content}</p>
                         <div className="flex items-center justify-between mt-2 gap-2">
                           <span
@@ -490,6 +460,7 @@ const Chat = () => {
                     <input
                       type="file"
                       ref={fileInputRef}
+                      multiple
                       onChange={handleFileUpload}
                       className="hidden"
                       accept="image/*,application/pdf,.doc,.docx"

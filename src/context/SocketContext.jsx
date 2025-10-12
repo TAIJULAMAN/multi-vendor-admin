@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { io } from 'socket.io-client';
 import { useUserContext } from './userContext';
 import { useSelector } from 'react-redux';
@@ -39,6 +39,8 @@ export const SocketProvider = ({ children }) => {
   const { token } = useSelector((state) => state.auth);
   const [messageHandlers, setMessageHandlers] = useState(new Map());
   const [conversationUpdateHandlers, setConversationUpdateHandlers] = useState(new Map());
+  const messageHandlersRef = useRef(new Map());
+  const conversationUpdateHandlersRef = useRef(new Map());
 
   useEffect(() => {
     if (!currentUser?.user?._id || !token) {
@@ -74,15 +76,12 @@ export const SocketProvider = ({ children }) => {
     const handleMessageEvent = (msg) => {
       console.log("New incoming message:", msg);
 
-      messageHandlers.forEach((handler) => {
-        handler(msg);
+      messageHandlersRef.current.forEach((handler) => {
+        try { handler(msg); } catch (e) { console.error(e); }
       });
     };
 
-
-    socketInstance.on(SOCKET_EVENTS.NEW_MESSAGE, handleMessageEvent);
-
-
+    
     if (currentUser?.user?._id) {
       socketInstance.on(`${SOCKET_EVENTS.NEW_MESSAGE}/${currentUser.user._id}`, handleMessageEvent);
     }
@@ -90,8 +89,8 @@ export const SocketProvider = ({ children }) => {
 
     const handleConversationUpdateEvent = (data) => {
       console.log("Conversation update:", data);
-      conversationUpdateHandlers.forEach((handler) => {
-        handler(data);
+      conversationUpdateHandlersRef.current.forEach((handler) => {
+        try { handler(data); } catch (e) { console.error(e); }
       });
     };
 
@@ -123,7 +122,7 @@ export const SocketProvider = ({ children }) => {
       console.log("Cleaning up socket connection");
       socketInstance.disconnect();
     };
-  }, [currentUser, token, messageHandlers, conversationUpdateHandlers]);
+  }, [currentUser, token]);
 
   const sendMessage = useCallback((messageData) => {
     if (socket && isConnected) {
@@ -155,30 +154,40 @@ export const SocketProvider = ({ children }) => {
 
   const subscribeToMessages = useCallback((handler) => {
     const handlerId = Date.now().toString();
-    setMessageHandlers(prev => new Map(prev).set(handlerId, handler));
+    setMessageHandlers(prev => {
+      const next = new Map(prev).set(handlerId, handler);
+      messageHandlersRef.current = next;
+      return next;
+    });
     return handlerId;
   }, []);
 
   const unsubscribeFromMessages = useCallback((handlerId) => {
     setMessageHandlers(prev => {
-      const newHandlers = new Map(prev);
-      newHandlers.delete(handlerId);
-      return newHandlers;
+      const next = new Map(prev);
+      next.delete(handlerId);
+      messageHandlersRef.current = next;
+      return next;
     });
   }, []);
 
   const subscribeToConversationUpdates = useCallback((handler) => {
     console.log("Subscribing to conversation updates", handler);
     const handlerId = Date.now().toString();
-    setConversationUpdateHandlers(prev => new Map(prev).set(handlerId, handler));
+    setConversationUpdateHandlers(prev => {
+      const next = new Map(prev).set(handlerId, handler);
+      conversationUpdateHandlersRef.current = next;
+      return next;
+    });
     return handlerId;
   }, []);
 
   const unsubscribeFromConversationUpdates = useCallback((handlerId) => {
     setConversationUpdateHandlers(prev => {
-      const newHandlers = new Map(prev);
-      newHandlers.delete(handlerId);
-      return newHandlers;
+      const next = new Map(prev);
+      next.delete(handlerId);
+      conversationUpdateHandlersRef.current = next;
+      return next;
     });
   }, []);
 

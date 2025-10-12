@@ -27,6 +27,14 @@ const chatApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["Chat"],
     }),
+    sendMessage: builder.mutation({
+      query: (data) => ({
+        url: `/chat/message`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: ["Chat"],
+    }),
   }),
 });
 
@@ -34,4 +42,5 @@ export const {
   useGetChatQuery,
   useGetMessageOfChatQuery,
   useStartChatMutation,
+  useSendMessageMutation,
 } = chatApi;
