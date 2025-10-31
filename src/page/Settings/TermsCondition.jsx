@@ -14,7 +14,7 @@ export default function TermsAndCondition() {
   const [createTerms, { isLoading: isSaving }] = useCreateTermsMutation();
 
   useEffect(() => {
-    const initial = termsData?.content;
+    const initial = termsData?.data?.policy?.content;
     setContent(initial || "");
   }, [termsData]);
 
@@ -53,9 +53,8 @@ export default function TermsAndCondition() {
         <button
           onClick={handleSave}
           disabled={isSaving || isFetching}
-          className={`bg-[#0B704E] text-white font-semibold w-full py-2 rounded transition duration-200 ${
-            isSaving || isFetching ? "opacity-60 cursor-not-allowed" : ""
-          }`}
+          className={`bg-[#0B704E] text-white font-semibold w-full py-2 rounded transition duration-200 ${isSaving || isFetching ? "opacity-60 cursor-not-allowed" : ""
+            }`}
         >
           {isSaving ? "Saving..." : "Save changes"}
         </button>

@@ -22,7 +22,7 @@ export default function Users() {
     page: 1,
     limit: 100000,
   });
-  console.log("users", users);
+  console.log("users from seller page", users);
   const [blockUser, { isLoading: isBlocking }] = useBlockUserMutation();
 
   const customerList =

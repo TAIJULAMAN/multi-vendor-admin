@@ -1,123 +1,131 @@
-import { ConfigProvider, Modal, Table } from "antd";
+import { ConfigProvider, Table, Modal } from "antd";
 import { BsPatchCheckFill } from "react-icons/bs";
-import { MdBlockFlipped, MdEdit } from "react-icons/md";
+import { MdBlockFlipped } from "react-icons/md";
 import PageHeading from "../../shared/PageHeading";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Swal from "sweetalert2";
 import {
-  useGetAllSellersQuery,
   useApproveSellerMutation,
-  useBlockSellerMutation,
-  useUpdateSellerProfileMutation,
 } from "../../Redux/api/seller/sellerApi";
 import { IoSearch, IoChatbubbleEllipsesOutline } from "react-icons/io5";
+import Loader from "../../components/common/Loader";
+import { useBlockUserMutation, useGetAllUsersQuery } from "../../Redux/api/user/userApi";
 
 const SellerManagement = () => {
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [editForm, setEditForm] = useState({
-    shopName: "",
-    businessType: "",
-    distribution: "",
-    description: "",
-    country: "",
-  });
 
-  const { data: sellers, isLoading } = useGetAllSellersQuery();
-  console.log("sellers of sellerManagement",sellers );
+  const { data: users, isFetching } = useGetAllUsersQuery({
+    page: 1,
+    limit: 100000,
+  });
+  console.log("users", users);
+  const sellerList =
+    users?.data?.users?.filter((u) => {
+      const role = (u?.role || u?.userRole || u?.type || "")
+        .toString()
+        .toLowerCase()
+        .trim();
+      return role === "seller";
+    }) || [];
+  const [blockUser, { isLoading: isBlocking }] = useBlockUserMutation();
 
   const [approveSeller, { isLoading: isApproving }] =
     useApproveSellerMutation();
-  const [blockSeller, { isLoading: isBlocking }] = useBlockSellerMutation();
-  const [updateSellerProfile, { isLoading: isUpdating }] =
-    useUpdateSellerProfileMutation();
 
-  // Approve handler
   const handleApprove = async (userId) => {
     try {
       if (!userId) return;
-      await approveSeller(userId).unwrap();
-    } catch (_) {
-      // optionally toast
+      const response = await approveSeller(userId).unwrap();
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: response?.message || "Seller approved successfully",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Approval Failed",
+        text: error?.data?.message || "Failed to approve seller",
+      });
     }
   };
 
+
+
   // Block modal handlers
+  const showModal = (user) => {
+    setSelectedUser(user);
+    setIsModalOpen(true);
+  };
+
   const handleOk = async () => {
     try {
-      if (!selectedUser) return;
-      await blockSeller({
+      if (!selectedUser?.id) return;
+      await blockUser({
         id: selectedUser.id,
         isBlocked: !selectedUser.isBlocked,
       }).unwrap();
-    } catch (_) {
-      // optionally toast
+      Swal.fire({
+        icon: "success",
+        title: "Success!",
+        text: selectedUser.isBlocked ? "Seller unblocked successfully" : "Seller blocked successfully",
+        timer: 2000,
+        showConfirmButton: false,
+      });
+    } catch (error) {
+      Swal.fire({
+        icon: "error",
+        title: "Block Failed",
+        text: error?.data?.message || "Failed to block/unblock seller",
+      });
     } finally {
       setIsModalOpen(false);
       setSelectedUser(null);
     }
   };
 
-  const showModal = (user) => {
-    setSelectedUser(user);
-    setIsModalOpen(true);
-  };
+  const searchTerm = search.trim().toLowerCase();
+  const filteredSellers = (sellerList || []).filter((seller) => {
+    if (!searchTerm) return true;
+    const sellerName = (seller?.name || "").toString().toLowerCase();
+    return sellerName.includes(searchTerm);
+  });
 
-  // Edit seller
-  const openEdit = (record) => {
-    setSelectedUser(record);
-    setEditForm({
-      shopName: record?.shopName || "",
-      businessType: record?.businessType || "",
-      distribution: record?.distribution || "",
-      description: record?.description || "",
-      country: record?.country || "",
-    });
-    setIsEditOpen(true);
-  };
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedSellers = filteredSellers.slice(startIndex, endIndex);
+  const totalItems = filteredSellers.length;
 
-  const closeEdit = () => {
-    setIsEditOpen(false);
-    setSelectedUser(null);
-  };
-
-  const handleEditSave = async () => {
-    try {
-      if (!selectedUser?.userId) return;
-      const payload = {
-        userId: selectedUser.userId,
-        shopName: editForm.shopName,
-        businessType: editForm.businessType,
-        distributionType: editForm.distribution,
-        description: editForm.description,
-        country: editForm.country,
-      };
-      await updateSellerProfile(payload).unwrap();
-      setIsEditOpen(false);
-      setSelectedUser(null);
-    } catch (_) {
-      // optionally toast
-    }
-  };
-
-  const dataSource = sellers?.data?.sellers?.map((seller, index) => ({
-    key: index + 1,
-    no: index + 1,
-    businessType: seller?.businessType,
-    logo: seller?.logoUrl,
-    shopName: seller?.shopName,
+  const dataSource = paginatedSellers?.map((seller, index) => ({
+    key: startIndex + index + 1,
+    no: startIndex + index + 1,
+    id: seller?._id,
     email: seller?.email,
-    distribution: seller?.distributionType,
-    description: seller?.description,
-    status: seller?.status,
-    country: seller?.user?.country,
-    email: seller?.user?.email,
-    userImage: seller?.user?.image,
-    userName: seller?.user?.name,
-    userId: seller?.user?.id || seller?.user?._id,
+    userName: seller?.name,
+    phone: seller?.phone,
+    country: seller?.country,
     isBlocked: seller?.isBlocked,
+    shopName: seller?.sellerProfile?.shopName || "N/A",
+    businessType: seller?.businessType || "N/A",
+    distribution: seller?.distributionType || "N/A",
+    businessAddress: seller?.businessAddress || seller?.country || "N/A",
+    status: seller?.sellerProfile?.status || "N/A",
   }));
+
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  if (isFetching || isApproving || isBlocking) {
+    return <Loader />
+  }
 
   const columns = [
     { title: "No", dataIndex: "no", key: "no", width: 60, ellipsis: true },
@@ -157,8 +165,8 @@ const SellerManagement = () => {
     },
     {
       title: "Location",
-      dataIndex: "country",
-      key: "country",
+      dataIndex: "businessAddress",
+      key: "businessAddress",
       width: 240,
       ellipsis: true,
     },
@@ -177,28 +185,21 @@ const SellerManagement = () => {
         return (
           <div className="flex gap-2">
             <button
-              onClick={() => handleApprove(record.userId)}
-              disabled={isApproving}
-              className={`rounded-lg p-2 transition duration-200 ${
-                record.status === "approved"
-                  ? "border border-[#14803c] bg-[#d3e8e6] text-[#14803c]"
-                  : "border border-[#EF4444] bg-[#EF4444] text-[#EF4444]"
-              }`}
+              onClick={() => handleApprove(record.id)}
+              disabled={isApproving || record.status === "approved"}
+              className={`rounded-lg p-2 transition duration-200 ${record.status === "approved"
+                ? "border border-[#14803c] bg-[#d3e8e6] text-[#14803c]"
+                : "border border-[#EF4444] bg-[#FEE2E2] text-[#EF4444]"
+                } ${record.status === "approved" ? "opacity-60 cursor-not-allowed" : ""}`}
             >
               <BsPatchCheckFill
-                className={`w-6 h-6 ${
-                  record.status === "approved"
-                    ? "text-[#14803c]"
-                    : "text-[#EF4444]"
-                }`}
+                className={`w-6 h-6 ${record.status === "approved"
+                  ? "text-[#14803c]"
+                  : "text-[#EF4444]"
+                  }`}
               />
             </button>
-            <button
-              onClick={() => openEdit(record)}
-              className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200"
-            >
-              <MdEdit className="w-6 h-6 text-[#14803c]" />
-            </button>
+
             <Link to="/chat">
               <button className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200">
                 <IoChatbubbleEllipsesOutline className="w-6 h-6 text-[#14803c]" />
@@ -207,11 +208,15 @@ const SellerManagement = () => {
             <button
               onClick={() => showModal(record)}
               disabled={isBlocking}
-              className={`border border-[#14803c] text-[#14803c] rounded-lg p-2 bg-[#d3e8e6] hover:bg-[#b4d9d4] transition duration-200 ${
-                isBlocking ? "opacity-60 cursor-not-allowed" : ""
-              }`}
+              className={`rounded-lg p-2 transition duration-200 ${
+                record.isBlocked
+                  ? "border border-[#EF4444] bg-[#FEE2E2] text-[#EF4444]"
+                  : "border border-[#14803c] bg-[#d3e8e6] text-[#14803c]"
+              } ${isBlocking ? "opacity-60 cursor-not-allowed" : "hover:bg-[#b4d9d4]"}`}
             >
-              <MdBlockFlipped className="w-6 h-6 text-[#14803c]" />
+              <MdBlockFlipped className={`w-6 h-6 ${
+                record.isBlocked ? "text-[#EF4444]" : "text-[#14803c]"
+              }`} />
             </button>
           </div>
         );
@@ -228,6 +233,8 @@ const SellerManagement = () => {
             <input
               type="text"
               placeholder="Search..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               className="border-2 border-[#14803c] py-3 pl-12 pr-[65px] outline-none w-full rounded-md"
             />
             <span className=" text-gray-600 absolute top-0 left-0 h-full px-5 flex items-center justify-center rounded-r-md cursor-pointer">
@@ -267,11 +274,17 @@ const SellerManagement = () => {
         <Table
           dataSource={dataSource}
           columns={columns}
-          loading={isLoading || isApproving || isBlocking || isUpdating}
-          pagination={{ pageSize: 10 }}
+          pagination={{
+            current: page,
+            pageSize,
+            total: totalItems,
+            showSizeChanger: false,
+            onChange: (p) => setPage(p),
+          }}
           tableLayout="fixed"
           scroll={{ x: true }}
         />
+        {/* Block Modal */}
         <Modal
           open={isModalOpen}
           centered
@@ -283,7 +296,7 @@ const SellerManagement = () => {
         >
           <div className="p-5">
             <h1 className="text-4xl text-center text-[#0D0D0D]">
-              Are you sure you want to block ?
+              Are you sure you want to {selectedUser?.isBlocked ? "unblock" : "block"} this seller?
             </h1>
 
             <div className="text-center py-5">
@@ -291,7 +304,7 @@ const SellerManagement = () => {
                 onClick={handleOk}
                 className="bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200"
               >
-                Yes,Block
+                Yes, {selectedUser?.isBlocked ? "Unblock" : "Block"}
               </button>
             </div>
             <div className="text-center pb-5">
@@ -302,87 +315,7 @@ const SellerManagement = () => {
                 }}
                 className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
               >
-                No,Don’t Block
-              </button>
-            </div>
-          </div>
-        </Modal>
-        {/* Edit Modal */}
-        <Modal open={isEditOpen} centered onCancel={closeEdit} footer={null}>
-          <div className="p-5">
-            <h2 className="text-2xl font-bold mb-4">Edit Seller Profile</h2>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm mb-1">Shop Name</label>
-                <input
-                  type="text"
-                  className="w-full border rounded p-2"
-                  value={editForm.shopName}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, shopName: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm mb-1">Business Type</label>
-                <input
-                  type="text"
-                  className="w-full border rounded p-2"
-                  value={editForm.businessType}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, businessType: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm mb-1">Distribution Type</label>
-                <input
-                  type="text"
-                  className="w-full border rounded p-2"
-                  value={editForm.distribution}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, distribution: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm mb-1">Location</label>
-                <input
-                  type="text"
-                  className="w-full border rounded p-2"
-                  value={editForm.country}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, country: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm mb-1">Description</label>
-                <textarea
-                  className="w-full border rounded p-2"
-                  rows={4}
-                  value={editForm.description}
-                  onChange={(e) =>
-                    setEditForm({ ...editForm, description: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4 mt-6">
-              <button
-                onClick={closeEdit}
-                className="py-2 px-4 rounded-lg border border-[#EF4444] bg-red-50"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleEditSave}
-                disabled={isUpdating}
-                className={`py-2 px-4 rounded-lg bg-green-600 text-white ${
-                  isUpdating ? "opacity-60 cursor-not-allowed" : ""
-                }`}
-              >
-                Save
+                No, Don't {selectedUser?.isBlocked ? "Unblock" : "Block"}
               </button>
             </div>
           </div>
