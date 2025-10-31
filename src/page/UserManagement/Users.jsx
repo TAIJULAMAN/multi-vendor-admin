@@ -13,21 +13,20 @@ import Loader from "../../components/common/Loader";
 export default function Users() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
-  const [blockUser, { isLoading: isBlocking }] = useBlockUserMutation();
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
+  const pageSize = 10; // Client-side page size
 
+  // Fetch all users at once for client-side search and pagination
   const { data: users, isFetching } = useGetAllUsersQuery({
-    role: "customer",
-    search: debouncedSearch ? debouncedSearch.trim() : undefined,
-    page,
+    page: 1,
+    limit: 100000,
   });
-  const pageSize = users?.pagination?.limit;
-  const totalItems = users?.pagination?.total;
+  console.log("users", users);
+  const [blockUser, { isLoading: isBlocking }] = useBlockUserMutation();
 
   const customerList =
-    users?.data?.filter((u) => {
+    users?.data?.users?.filter((u) => {
       const role = (u?.role || u?.userRole || u?.type || "")
         .toString()
         .toLowerCase()
@@ -35,9 +34,23 @@ export default function Users() {
       return role === "customer";
     }) || users?.data;
 
-  const dataSource = customerList?.map((user, index) => ({
-    key: (page - 1) * pageSize + index + 1,
-    no: (page - 1) * pageSize + index + 1,
+  // Client-side search on all data (by name only)
+  const searchTerm = search.trim().toLowerCase();
+  const filteredUsers = (customerList || []).filter((u) => {
+    if (!searchTerm) return true;
+    const name = (u?.name || "").toString().toLowerCase();
+    return name.includes(searchTerm);
+  });
+
+  // Client-side pagination: slice the filtered results
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
+  const totalItems = filteredUsers.length;
+
+  const dataSource = paginatedUsers?.map((user, index) => ({
+    key: startIndex + index + 1,
+    no: startIndex + index + 1,
     id: user?.id || user?._id,
     country: user?.country,
     currency: user?.currency,
@@ -77,19 +90,17 @@ export default function Users() {
       key: "action",
       render: (_, record) => (
         <button
-          onClick={(record) => {
+          onClick={() => {
             setSelectedUser(record);
             setIsModalOpen(true);
           }}
           disabled={isBlocking}
-          className={` rounded-lg p-2 bg-[#d3e8e6] transition duration-200 ${
-            isBlocking ? "opacity-60 cursor-not-allowed" : ""
-          }`}
+          className={` rounded-lg p-2 bg-[#d3e8e6] transition duration-200 ${isBlocking ? "opacity-60 cursor-not-allowed" : ""
+            }`}
         >
           <MdBlockFlipped
-            className={`w-6 h-6 ${
-              record?.isBlocked ? "text-red-600 " : "text-[#14803c]"
-            }`}
+            className={`w-6 h-6 ${record?.isBlocked ? "text-red-600 " : "text-[#14803c]"
+              }`}
           />
         </button>
       ),
@@ -114,19 +125,15 @@ export default function Users() {
     }
   };
 
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search.trim()), 500);
-    return () => clearTimeout(t);
-  }, [search]);
-  
+  // Reset to page 1 when search changes
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch]);
+  }, [search]);
 
   if (isFetching) {
     return <Loader />;
   }
- 
+
 
   return (
     <>
