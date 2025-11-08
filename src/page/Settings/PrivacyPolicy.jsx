@@ -11,7 +11,7 @@ export default function PrivacyPolicy() {
   const [createPrivacy, { isLoading: isSaving }] = useCreatePrivacyMutation();
 
   useEffect(() => {
-    const initial = privacyData?.content;
+    const initial = privacyData?.data?.policy?.content;
     setContent(initial);
   }, [privacyData]);
 

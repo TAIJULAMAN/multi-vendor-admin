@@ -8,6 +8,7 @@ import {
   useCreateAdsMutation,
 } from "../../Redux/api/ads/adsApi";
 import useImageUpload from "../../hooks/useImageUpload";
+import { ConfigProvider, Pagination } from "antd";
 
 export default function AdPromotion() {
   const [addModalOpen, setAddModalOpen] = useState(false);
@@ -20,12 +21,19 @@ export default function AdPromotion() {
     });
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const { data: adsData } = useGetAllAdsQuery();
+  const [page, setPage] = useState(1);
+  const pageSize = 10;
+  
+  // Fetch all ads at once for client-side pagination
+  const { data: adsData } = useGetAllAdsQuery({
+    page: 1,
+    limit: 100000,
+  });
   const [createAds, { isLoading: isCreating }] = useCreateAdsMutation();
 
   const rawAds =
     adsData?.data?.ads ?? adsData?.data ?? adsData?.ads ?? adsData ?? [];
-  const campaigns = Array.isArray(rawAds)
+  const allCampaigns = Array.isArray(rawAds)
     ? rawAds.map((ad, idx) => ({
         id: ad?.id || ad?._id || idx,
         title: ad?.title || "Untitled Ad",
@@ -35,6 +43,14 @@ export default function AdPromotion() {
         status: ad?.status || "",
       }))
     : [];
+
+  // Client-side pagination
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const campaigns = allCampaigns.slice(startIndex, endIndex);
+  const totalItems = allCampaigns.length;
+  
+  console.log('Pagination Debug:', { totalItems, pageSize, page, campaignsCount: campaigns.length });
 
   return (
     <div className="p-6 bg-neutral-100 min-h-screen">
@@ -57,6 +73,43 @@ export default function AdPromotion() {
           <AdCard key={campaign.id} campaign={campaign} />
         ))}
       </div>
+      
+      {/* Pagination */}
+      {totalItems > 0 && (
+        <div className="flex justify-center mt-8">
+          <ConfigProvider
+            theme={{
+              components: {
+                InputNumber: {
+                  activeBorderColor: "#14803c",
+                },
+                Pagination: {
+                  colorPrimaryBorder: "rgb(19,194,194)",
+                  colorBorder: "rgb(82,196,26)",
+                  colorTextPlaceholder: "rgb(82,196,26)",
+                  colorTextDisabled: "rgb(82,196,26)",
+                  colorBgTextActive: "rgb(82,196,26)",
+                  itemActiveBgDisabled: "rgb(82,196,26)",
+                  itemActiveColorDisabled: "rgb(0,0,0)",
+                  itemBg: "rgb(82,196,26)",
+                  colorBgTextHover: "rgb(82,196,26)",
+                  colorPrimary: "rgb(82,196,26)",
+                  colorPrimaryHover: "rgb(82,196,26)",
+                },
+              },
+            }}
+          >
+            <Pagination
+              current={page}
+              pageSize={pageSize}
+              total={totalItems}
+              showSizeChanger={false}
+              onChange={(p) => setPage(p)}
+            />
+          </ConfigProvider>
+        </div>
+      )}
+      
       <AddAdModal
         open={addModalOpen}
         onCancel={() => {

@@ -28,12 +28,10 @@ export const sellerApi = baseApi.injectEndpoints({
       invalidatesTags: ["seller"],
     }),
     updateSellerProfile: builder.mutation({
-      // Updates the current seller's profile
-      // Pass the full payload as 'body' (JSON or FormData depending on backend)
-      query: (body) => ({
-        url: `user/seller/profile`,
+      // Admin updates seller by user ID
+      query: (userId) => ({
+        url: `admin/sellers/${userId}`,
         method: "PUT",
-        body,
       }),
       invalidatesTags: ["seller"],
     }),
@@ -44,5 +42,4 @@ export const {
   useGetAllSellersQuery,
   useBlockSellerMutation,
   useApproveSellerMutation,
-  useUpdateSellerProfileMutation,
 } = sellerApi;

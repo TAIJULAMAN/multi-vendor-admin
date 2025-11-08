@@ -29,23 +29,15 @@ export default function CategoryManagement() {
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const [blockMessage, setBlockMessage] = useState("");
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
+  const pageSize = 10;
 
+  // Fetch all categories at once for client-side search and pagination
   const { data: categoriesData, isFetching } = useGetAllCategoriesQuery({
-    page,
-    search: debouncedSearch ? debouncedSearch.trim() : undefined,
+    page: 1,
+    limit: 100000,
   });
   console.log("categoriesData", categoriesData);
-
-  useEffect(() => {
-    const t = setTimeout(() => setDebouncedSearch(search.trim()), 500);
-    return () => clearTimeout(t);
-  }, [search]);
-
-  useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch]);
 
   const [createCategory, { isLoading: isCreating }] =
     useCreateCategoryMutation();
@@ -55,12 +47,29 @@ export default function CategoryManagement() {
     useDeleteCategoryMutation();
 
   const list = categoriesData?.data?.categories || categoriesData?.data || [];
-  const pageSize = categoriesData?.pagination?.limit || 10;
-  const totalItems = categoriesData?.pagination?.total || 0;
 
-  const dataSource = list?.map((item, index) => ({
-    key: (page - 1) * pageSize + index + 1,
-    no: (page - 1) * pageSize + index + 1,
+  // Client-side search on all data (by category name)
+  const searchTerm = search.trim().toLowerCase();
+  const filteredCategories = list.filter((category) => {
+    if (!searchTerm) return true;
+    const categoryName = (category?.name || "").toString().toLowerCase();
+    return categoryName.includes(searchTerm);
+  });
+
+  // Client-side pagination: slice the filtered results
+  const startIndex = (page - 1) * pageSize;
+  const endIndex = startIndex + pageSize;
+  const paginatedCategories = filteredCategories.slice(startIndex, endIndex);
+  const totalItems = filteredCategories.length;
+
+  // Reset to page 1 when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
+
+  const dataSource = paginatedCategories?.map((item, index) => ({
+    key: startIndex + index + 1,
+    no: startIndex + index + 1,
     id: item?._id || item?.id,
     categoryName: item?.name,
     totalSubCategories: item?.subCategories?.length,

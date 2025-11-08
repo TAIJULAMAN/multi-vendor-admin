@@ -18,6 +18,7 @@ export default function RecentSellerRequests() {
     phone: user?.phone,
   }));
 
+
   const columns = [
     { title: "No", dataIndex: "no", key: "no" },
     {

@@ -3,12 +3,12 @@ import { baseApi } from "../baseApi";
 export const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getAllUsers: builder.query({
-      query: (params) => ({
+      query: ({ page, limit }) => ({
         url: "user/admin/users",
         method: "GET",
-        params, // e.g., { page: 1, limit: 10, search: "" }
+        params: { page, limit },
       }),
-      
+
       providesTags: ["user"],
     }),
     blockUser: builder.mutation({
