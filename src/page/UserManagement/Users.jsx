@@ -23,6 +23,9 @@ export default function Users() {
     search: debouncedSearch ? debouncedSearch.trim() : undefined,
     page,
   });
+
+  console.log("users from user page", users);
+
   const pageSize = users?.pagination?.limit;
   const totalItems = users?.pagination?.total;
 
@@ -118,7 +121,7 @@ export default function Users() {
     const t = setTimeout(() => setDebouncedSearch(search.trim()), 500);
     return () => clearTimeout(t);
   }, [search]);
-  
+
   useEffect(() => {
     setPage(1);
   }, [debouncedSearch]);
@@ -126,7 +129,6 @@ export default function Users() {
   if (isFetching) {
     return <Loader />;
   }
- 
 
   return (
     <>

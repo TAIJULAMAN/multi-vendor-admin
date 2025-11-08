@@ -6,7 +6,9 @@ export default function RecentSellerRequests() {
   const { data: users, isLoading } = useGetAllUsersQuery();
   console.log(users, "from recent seller requests");
 
-  const dataSource = users?.data?.slice(0, 5)?.map((user, index) => ({
+  const userList = Array.isArray(users?.data?.users) ? users.data.users : [];
+
+  const dataSource = userList.slice(0, 5).map((user, index) => ({
     key: index + 1,
     no: index + 1,
     country: user?.country,
@@ -59,7 +61,7 @@ export default function RecentSellerRequests() {
       }}
     >
       <Table
-        dataSource={dataSource}
+        dataSource={dataSource || []}
         columns={columns}
         pagination={false}
         scroll={{ x: "max-content" }}
