@@ -7,9 +7,9 @@ const Notification = () => {
   const [updateNotification] = useUpdateNotificationMutation();
 
   return (
-    <div className="py-4 max-h-[70vh] overflow-y-auto">
-      {NotificationData?.length > 0 ? (
-        NotificationData?.map((notification) => (
+    <div className="py-4 max-h-[90vh] overflow-y-auto scrollbar-none">
+      {NotificationData?.data?.length > 0 ? (
+        NotificationData?.data?.map((notification) => (
           <div
             key={notification?._id || notification?.id}
             className={`relative p-3 border rounded-lg mb-3 ${notification?.isRead ? "bg-white" : "bg-amber-50"}`}

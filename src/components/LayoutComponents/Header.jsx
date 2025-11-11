@@ -166,7 +166,7 @@ export default function Header() {
               <LuBell className="text-2xl text-[#0B704E] w-[40px] h-[40px]" />
             </Link>
             <span className="absolute -top-2 -right-2 bg-[#0B704E] text-xs rounded-full w-6 h-6 flex items-center justify-center">
-              {NotificationData?.length}
+              {NotificationData?.data?.length || 0}
             </span>
           </div>
           <div className="pl-5 border-gray-600">

@@ -3,41 +3,30 @@ import { IoSearch } from "react-icons/io5";
 import { MdBlockFlipped } from "react-icons/md";
 import PageHeading from "../../shared/PageHeading";
 import { ConfigProvider, Table } from "antd";
-import BlockUserModal from "./Modals/BlockUserModal";
 import {
   useGetAllUsersQuery,
   useBlockUserMutation,
 } from "../../Redux/api/user/userApi";
 import Loader from "../../components/common/Loader";
+import Swal from "sweetalert2";
 
 export default function Users() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  // const pageSize = 10;
-
-  // Fetch all users at once for client-side search and pagination
+  
   const { data: users, isFetching } = useGetAllUsersQuery({
     page: 1,
     limit: 100000,
   });
-
-  console.log("users from user page", users);
-
-  const pageSize = users?.pagination?.limit;
-  const totalItems = users?.pagination?.total;
-  console.log("users from seller page", users);
+  
+  const pageSize = 10;
   const [blockUser, { isLoading: isBlocking }] = useBlockUserMutation();
 
   const customerList =
     users?.data?.users?.filter((u) => {
-      const role = (u?.role || u?.userRole || u?.type || "")
-        .toString()
-        .toLowerCase()
-        .trim();
+      const role = (u?.role || "").toString().toLowerCase().trim();
       return role === "customer";
-    }) || users?.data;
+    }) || users?.data?.users;
 
   const searchTerm = search.trim().toLowerCase();
   const filteredUsers = (customerList || []).filter((u) => {
@@ -45,11 +34,12 @@ export default function Users() {
     const name = (u?.name || "").toString().toLowerCase();
     return name.includes(searchTerm);
   });
+  
+  const totalItems = filteredUsers.length;
 
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedUsers = filteredUsers.slice(startIndex, endIndex);
-  // const totalItems = filteredUsers.length;
 
   const dataSource = paginatedUsers?.map((user, index) => ({
     key: startIndex + index + 1,
@@ -93,42 +83,62 @@ export default function Users() {
       key: "action",
       render: (_, record) => (
         <button
-          onClick={() => {
-            setSelectedUser(record);
-            setIsModalOpen(true);
-          }}
+          onClick={() => handleBlockToggle(record)}
           disabled={isBlocking}
-          className={` rounded-lg p-2 bg-[#d3e8e6] transition duration-200 ${isBlocking ? "opacity-60 cursor-not-allowed" : ""
-            }`}
+          className={` rounded-lg p-2 bg-[#d3e8e6] transition duration-200 ${
+            isBlocking ? "opacity-60 cursor-not-allowed" : ""
+          }`}
         >
           <MdBlockFlipped
-            className={`w-6 h-6 ${record?.isBlocked ? "text-red-600 " : "text-[#14803c]"
-              }`}
+            className={`w-6 h-6 ${
+              record?.isBlocked ? "text-red-600 " : "text-[#14803c]"
+            }`}
           />
         </button>
       ),
     },
   ];
 
-  const handleOk = async () => {
-    if (!selectedUser?.id) {
-      setIsModalOpen(false);
+  const handleBlockToggle = async (user) => {
+    if (!user?.id) {
       return;
     }
+
+    const willBlock = !user.isBlocked;
+    const result = await Swal.fire({
+      title: willBlock ? "Block user?" : "Unblock user?",
+      text: `Are you sure you want to ${willBlock ? "block" : "unblock"} ${user?.name || "this user"}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: willBlock ? "Block" : "Unblock",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#14803c",
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
     try {
       await blockUser({
-        id: selectedUser.id,
-        isBlocked: !selectedUser.isBlocked,
+        id: user.id,
+        isBlocked: willBlock,
       }).unwrap();
+      await Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: `User ${willBlock ? "blocked" : "unblocked"} successfully`,
+        confirmButtonColor: "#14803c",
+      });
     } catch (_) {
-      // optionally handle error UI here
-    } finally {
-      setIsModalOpen(false);
-      setSelectedUser(null);
+      await Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: "Something went wrong. Please try again.",
+      });
     }
   };
 
-  // Reset to page 1 when search changes
   useEffect(() => {
     setPage(1);
   }, [search]);
@@ -194,17 +204,6 @@ export default function Users() {
             onChange: (p) => setPage(p),
           }}
           scroll={{ x: "max-content" }}
-        />
-
-        <BlockUserModal
-          open={isModalOpen}
-          onCancel={() => {
-            setIsModalOpen(false);
-            setSelectedUser(null);
-          }}
-          onConfirm={handleOk}
-          loading={isBlocking}
-          isBlocked={selectedUser?.isBlocked}
         />
       </ConfigProvider>
     </>

@@ -84,7 +84,7 @@ export default function EditProfile() {
           />
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        {/* <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="text-xl text-[#0D0D0D] mb-2 font-bold">
               Country
@@ -111,7 +111,7 @@ export default function EditProfile() {
               onChange={(e) => setLanguage(e.target.value)}
             />
           </div>
-        </div>
+        </div> */}
 
         {/* Image upload removed as requested */}
 

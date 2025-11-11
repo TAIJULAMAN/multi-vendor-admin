@@ -39,6 +39,16 @@ export const adsApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["ads"],
     }),
+
+    // my ads
+    getMyAds: builder.query({
+      query: (params) => ({
+        url: "ads/me/ads",
+        method: "GET",
+        params,
+      }),
+      providesTags: ["ads"],
+    }),
   }),
 });
 
@@ -47,4 +57,5 @@ export const {
   useGetAllAdsQuery,
   useUpdateAdsMutation,
   useDeleteAdsMutation,
+  useGetMyAdsQuery,
 } = adsApi;

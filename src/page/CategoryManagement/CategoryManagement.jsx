@@ -6,9 +6,9 @@ import { AiOutlineEye } from "react-icons/ai";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import AddEditCategoryModal from "./CategoryModals/AddEditCategoryModal";
 import BlockInfoModal from "./CategoryModals/BlockInfoModal";
-import DeleteCategoryModal from "./CategoryModals/DeleteCategoryModal";
 
 import {
   useGetAllCategoriesQuery,
@@ -24,31 +24,28 @@ export default function CategoryManagement() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [modalMode, setModalMode] = useState("add");
   const [editingRecord, setEditingRecord] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [deletingRecord, setDeletingRecord] = useState(null);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const [blockMessage, setBlockMessage] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 10;
 
-  // Fetch all categories at once for client-side search and pagination
+  // all categories
   const { data: categoriesData, isFetching } = useGetAllCategoriesQuery({
     page: 1,
     limit: 100000,
   });
-  console.log("categoriesData", categoriesData);
+  // console.log("categoriesData", categoriesData);
 
   const [createCategory, { isLoading: isCreating }] =
     useCreateCategoryMutation();
   const [updateCategory, { isLoading: isUpdating }] =
     useUpdateCategoryMutation();
-  const [deleteCategory, { isLoading: isDeleting }] =
-    useDeleteCategoryMutation();
+  const [deleteCategory] = useDeleteCategoryMutation();
 
   const list = categoriesData?.data?.categories || categoriesData?.data || [];
 
-  // Client-side search on all data (by category name)
+  // search
   const searchTerm = search.trim().toLowerCase();
   const filteredCategories = list.filter((category) => {
     if (!searchTerm) return true;
@@ -56,13 +53,12 @@ export default function CategoryManagement() {
     return categoryName.includes(searchTerm);
   });
 
-  // Client-side pagination: slice the filtered results
+  // pagination
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const paginatedCategories = filteredCategories.slice(startIndex, endIndex);
   const totalItems = filteredCategories.length;
 
-  // Reset to page 1 when search changes
   useEffect(() => {
     setPage(1);
   }, [search]);
@@ -217,17 +213,34 @@ export default function CategoryManagement() {
     } catch (e) {}
   };
 
-  const handleOk = async () => {
-    if (!deletingRecord?.id) {
-      setIsModalOpen(false);
-      return;
-    }
+  const handleDelete = async (record) => {
+    if (!record?.id) return;
+    const result = await Swal.fire({
+      title: "Delete category?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#14803c",
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
-      await deleteCategory(deletingRecord.id).unwrap();
+      await deleteCategory(record.id).unwrap();
+      await Swal.fire({
+        icon: "success",
+        title: "Deleted",
+        text: "Category deleted successfully",
+        confirmButtonColor: "#14803c",
+      });
     } catch (_) {
-    } finally {
-      setIsModalOpen(false);
-      setDeletingRecord(null);
+      await Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: "Failed to delete category. Please try again.",
+      });
     }
   };
 
@@ -237,8 +250,7 @@ export default function CategoryManagement() {
       setIsBlockModalOpen(true);
       return;
     }
-    setDeletingRecord(record);
-    setIsModalOpen(true);
+    handleDelete(record);
   };
 
   return (
@@ -268,6 +280,7 @@ export default function CategoryManagement() {
           </div>
         </div>
       </div>
+
       <ConfigProvider
         theme={{
           components: {
@@ -310,6 +323,7 @@ export default function CategoryManagement() {
           tableLayout="fixed"
           scroll={{ x: true }}
         />
+
         <AddEditCategoryModal
           open={addModalOpen}
           mode={modalMode}
@@ -321,16 +335,11 @@ export default function CategoryManagement() {
           onSave={handleSaveCategory}
           loading={isCreating || isUpdating}
         />
+
         <BlockInfoModal
           open={isBlockModalOpen}
           onClose={() => setIsBlockModalOpen(false)}
           message={blockMessage}
-        />
-        <DeleteCategoryModal
-          open={isModalOpen}
-          onCancel={() => setIsModalOpen(false)}
-          onConfirm={handleOk}
-          loading={isDeleting}
         />
       </ConfigProvider>
     </>

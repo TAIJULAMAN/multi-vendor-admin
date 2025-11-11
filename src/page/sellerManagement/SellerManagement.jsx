@@ -1,29 +1,26 @@
-import { ConfigProvider, Table, Modal } from "antd";
-import { BsPatchCheckFill } from "react-icons/bs";
+import { ConfigProvider, Table } from "antd";
 import { MdBlockFlipped } from "react-icons/md";
 import PageHeading from "../../shared/PageHeading";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Swal from "sweetalert2";
-import {
-  useApproveSellerMutation,
-} from "../../Redux/api/seller/sellerApi";
+// import { useApproveSellerMutation } from "../../Redux/api/seller/sellerApi";
 import { IoSearch, IoChatbubbleEllipsesOutline } from "react-icons/io5";
 import Loader from "../../components/common/Loader";
-import { useBlockUserMutation, useGetAllUsersQuery } from "../../Redux/api/user/userApi";
+import {
+  useBlockUserMutation,
+  useGetAllUsersQuery,
+} from "../../Redux/api/user/userApi";
 
 const SellerManagement = () => {
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 10;
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
 
   const { data: users, isFetching } = useGetAllUsersQuery({
     page: 1,
     limit: 100000,
   });
-  console.log("users", users);
   const sellerList =
     users?.data?.users?.filter((u) => {
       const role = (u?.role || u?.userRole || u?.type || "")
@@ -34,60 +31,58 @@ const SellerManagement = () => {
     }) || [];
   const [blockUser, { isLoading: isBlocking }] = useBlockUserMutation();
 
-  const [approveSeller, { isLoading: isApproving }] =
-    useApproveSellerMutation();
+  // const [approveSeller, { isLoading: isApproving }] =
+  //   useApproveSellerMutation();
 
-  const handleApprove = async (userId) => {
+  // const handleApprove = async (userId) => {
+  //   try {
+  //     if (!userId) return;
+  //     const response = await approveSeller(userId).unwrap();
+  //     Swal.fire({
+  //       icon: "success",
+  //       title: "Success!",
+  //       text: response?.message || "Seller approved successfully",
+  //       timer: 2000,
+  //       showConfirmButton: false,
+  //     });
+  //   } catch (error) {
+  //     Swal.fire({
+  //       icon: "error",
+  //       title: "Approval Failed",
+  //       text: error?.data?.message || "Failed to approve seller",
+  //     });
+  //   }
+  // };
+
+  const handleBlockToggle = async (user) => {
+    if (!user?.id) return;
+    const willBlock = !user.isBlocked;
+    const result = await Swal.fire({
+      title: willBlock ? "Block seller?" : "Unblock seller?",
+      text: `Are you sure you want to ${willBlock ? "block" : "unblock"} ${user?.userName || "this seller"}?`,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: willBlock ? "Block" : "Unblock",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#14803c",
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
-      if (!userId) return;
-      const response = await approveSeller(userId).unwrap();
-      Swal.fire({
+      await blockUser({ id: user.id, isBlocked: willBlock }).unwrap();
+      await Swal.fire({
         icon: "success",
-        title: "Success!",
-        text: response?.message || "Seller approved successfully",
-        timer: 2000,
-        showConfirmButton: false,
+        title: "Success",
+        text: `Seller ${willBlock ? "blocked" : "unblocked"} successfully`,
+        confirmButtonColor: "#14803c",
       });
     } catch (error) {
-      Swal.fire({
+      await Swal.fire({
         icon: "error",
-        title: "Approval Failed",
-        text: error?.data?.message || "Failed to approve seller",
+        title: "Failed",
+        text: error?.data?.message || "Something went wrong. Please try again.",
       });
-    }
-  };
-
-
-
-  // Block modal handlers
-  const showModal = (user) => {
-    setSelectedUser(user);
-    setIsModalOpen(true);
-  };
-
-  const handleOk = async () => {
-    try {
-      if (!selectedUser?.id) return;
-      await blockUser({
-        id: selectedUser.id,
-        isBlocked: !selectedUser.isBlocked,
-      }).unwrap();
-      Swal.fire({
-        icon: "success",
-        title: "Success!",
-        text: selectedUser.isBlocked ? "Seller unblocked successfully" : "Seller blocked successfully",
-        timer: 2000,
-        showConfirmButton: false,
-      });
-    } catch (error) {
-      Swal.fire({
-        icon: "error",
-        title: "Block Failed",
-        text: error?.data?.message || "Failed to block/unblock seller",
-      });
-    } finally {
-      setIsModalOpen(false);
-      setSelectedUser(null);
     }
   };
 
@@ -123,8 +118,8 @@ const SellerManagement = () => {
     setPage(1);
   }, [search]);
 
-  if (isFetching || isApproving || isBlocking) {
-    return <Loader />
+  if (isFetching || isBlocking) {
+    return <Loader />;
   }
 
   const columns = [
@@ -184,7 +179,7 @@ const SellerManagement = () => {
       render: (_, record) => {
         return (
           <div className="flex gap-2">
-            <button
+            {/* <button
               onClick={() => handleApprove(record.id)}
               disabled={isApproving || record.status === "approved"}
               className={`rounded-lg p-2 transition duration-200 ${record.status === "approved"
@@ -198,7 +193,7 @@ const SellerManagement = () => {
                   : "text-[#EF4444]"
                   }`}
               />
-            </button>
+            </button> */}
 
             <Link to="/chat">
               <button className="border border-[#14803c] rounded-lg p-2 bg-[#d3e8e6] text-[#14803c] hover:bg-[#b4d9d4] transition duration-200">
@@ -206,17 +201,23 @@ const SellerManagement = () => {
               </button>
             </Link>
             <button
-              onClick={() => showModal(record)}
+              onClick={() => handleBlockToggle(record)}
               disabled={isBlocking}
               className={`rounded-lg p-2 transition duration-200 ${
                 record.isBlocked
                   ? "border border-[#EF4444] bg-[#FEE2E2] text-[#EF4444]"
                   : "border border-[#14803c] bg-[#d3e8e6] text-[#14803c]"
-              } ${isBlocking ? "opacity-60 cursor-not-allowed" : "hover:bg-[#b4d9d4]"}`}
+              } ${
+                isBlocking
+                  ? "opacity-60 cursor-not-allowed"
+                  : ""
+              }`}
             >
-              <MdBlockFlipped className={`w-6 h-6 ${
-                record.isBlocked ? "text-[#EF4444]" : "text-[#14803c]"
-              }`} />
+              <MdBlockFlipped
+                className={`w-6 h-6 ${
+                  record.isBlocked ? "text-[#EF4444]" : "text-[#14803c]"
+                }`}
+              />
             </button>
           </div>
         );
@@ -284,42 +285,7 @@ const SellerManagement = () => {
           tableLayout="fixed"
           scroll={{ x: true }}
         />
-        {/* Block Modal */}
-        <Modal
-          open={isModalOpen}
-          centered
-          onCancel={() => {
-            setIsModalOpen(false);
-            setSelectedUser(null);
-          }}
-          footer={null}
-        >
-          <div className="p-5">
-            <h1 className="text-4xl text-center text-[#0D0D0D]">
-              Are you sure you want to {selectedUser?.isBlocked ? "unblock" : "block"} this seller?
-            </h1>
-
-            <div className="text-center py-5">
-              <button
-                onClick={handleOk}
-                className="bg-[#14803c] text-white font-semibold w-full py-2 rounded transition duration-200"
-              >
-                Yes, {selectedUser?.isBlocked ? "Unblock" : "Block"}
-              </button>
-            </div>
-            <div className="text-center pb-5">
-              <button
-                onClick={() => {
-                  setIsModalOpen(false);
-                  setSelectedUser(null);
-                }}
-                className="text-[#14803c] border-2 border-green-600 bg-white font-semibold w-full py-2 rounded transition duration-200"
-              >
-                No, Don't {selectedUser?.isBlocked ? "Unblock" : "Block"}
-              </button>
-            </div>
-          </div>
-        </Modal>
+        {/* Block Modal removed; using SweetAlert confirmation */}
       </ConfigProvider>
     </>
   );

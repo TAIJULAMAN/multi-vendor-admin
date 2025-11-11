@@ -9,9 +9,9 @@ export default function DashboardLayout() {
         <SideBar />
       </div>
 
-      <div className="lg:flex-1 lg:ml-80">
+      <div className="lg:flex-1 lg:ml-80 flex flex-col h-screen">
         <Header />
-        <div className="p-5 overflow-y-auto bg-[#f7f7f7] h-full w-full">
+        <div className="p-5 overflow-y-auto bg-[#f7f7f7] flex-1 min-h-0 w-full">
           <Outlet />
         </div>
       </div>

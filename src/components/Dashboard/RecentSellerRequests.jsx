@@ -3,12 +3,11 @@ import { useGetAllUsersQuery } from "../../Redux/api/user/userApi";
 import Loader from "../common/Loader";
 
 export default function RecentSellerRequests() {
-  const { data: users, isLoading } = useGetAllUsersQuery();
-  console.log(users, "from recent seller requests");
+  const { data: users, isLoading } = useGetAllUsersQuery({ page: 1, limit: 5 });
+console.log(users, "from recent user page");
+console.log(users?.data?.users, "from recent user page");
 
-  const userList = Array.isArray(users?.data?.users) ? users.data.users : [];
-
-  const dataSource = userList.slice(0, 5).map((user, index) => ({
+  const dataSource = users?.data?.users?.slice(0, 5)?.map((user, index) => ({
     key: index + 1,
     no: index + 1,
     country: user?.country,
@@ -17,7 +16,6 @@ export default function RecentSellerRequests() {
     name: user?.name,
     phone: user?.phone,
   }));
-
 
   const columns = [
     { title: "No", dataIndex: "no", key: "no" },

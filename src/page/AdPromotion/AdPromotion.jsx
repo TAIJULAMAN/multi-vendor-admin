@@ -23,8 +23,8 @@ export default function AdPromotion() {
   const [endDate, setEndDate] = useState("");
   const [page, setPage] = useState(1);
   const pageSize = 10;
-  
-  // Fetch all ads at once for client-side pagination
+
+  // ads
   const { data: adsData } = useGetAllAdsQuery({
     page: 1,
     limit: 100000,
@@ -44,13 +44,18 @@ export default function AdPromotion() {
       }))
     : [];
 
-  // Client-side pagination
+  // pagination
   const startIndex = (page - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const campaigns = allCampaigns.slice(startIndex, endIndex);
   const totalItems = allCampaigns.length;
-  
-  console.log('Pagination Debug:', { totalItems, pageSize, page, campaignsCount: campaigns.length });
+
+  // console.log("Pagination Debug:", {
+  //   totalItems,
+  //   pageSize,
+  //   page,
+  //   campaignsCount: campaigns.length,
+  // });
 
   return (
     <div className="p-6 bg-neutral-100 min-h-screen">
@@ -73,7 +78,7 @@ export default function AdPromotion() {
           <AdCard key={campaign.id} campaign={campaign} />
         ))}
       </div>
-      
+
       {/* Pagination */}
       {totalItems > 0 && (
         <div className="flex justify-center mt-8">
@@ -109,7 +114,7 @@ export default function AdPromotion() {
           </ConfigProvider>
         </div>
       )}
-      
+
       <AddAdModal
         open={addModalOpen}
         onCancel={() => {

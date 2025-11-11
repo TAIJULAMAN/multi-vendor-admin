@@ -4,14 +4,13 @@ import {
   useDeleteAdsMutation,
   useUpdateAdsMutation,
 } from "../../Redux/api/ads/adsApi";
-import DeleteAdModal from "./DeleteAdModal";
+import Swal from "sweetalert2";
 import EditAdModal from "./EditAdModal";
 import formatDate from "../../utils/formatDate";
 import useImageUpload from "../../hooks/useImageUpload";
 
 export function AdCard({ campaign }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [deleteAds, { isLoading: isDeleting }] = useDeleteAdsMutation();
@@ -21,13 +20,34 @@ export function AdCard({ campaign }) {
   const [editEndDate, setEditEndDate] = useState("");
   const menuRef = useRef(null);
 
-  const handleOk = async () => {
+  const handleDelete = async () => {
+    const result = await Swal.fire({
+      title: "Delete this ad?",
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#14803c",
+    });
+
+    if (!result.isConfirmed) return;
+
     try {
       if (!campaign?.id) return;
       await deleteAds(campaign.id).unwrap();
+      await Swal.fire({
+        icon: "success",
+        title: "Deleted",
+        text: "Ad deleted successfully",
+        confirmButtonColor: "#14803c",
+      });
     } catch (_) {
-    } finally {
-      setIsModalOpen(false);
+      await Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: "Failed to delete ad. Please try again.",
+      });
     }
   };
 
@@ -119,7 +139,7 @@ export function AdCard({ campaign }) {
                 <button
                   onClick={() => {
                     setIsMenuOpen(false);
-                    setIsModalOpen(true);
+                    handleDelete();
                   }}
                   className="block px-4 py-2 text-sm text-red-500"
                 >
@@ -163,12 +183,6 @@ export function AdCard({ campaign }) {
         </div>
       </div>
 
-      <DeleteAdModal
-        open={isModalOpen}
-        onCancel={() => setIsModalOpen(false)}
-        onConfirm={handleOk}
-        loading={isDeleting}
-      />
       <EditAdModal
         open={updateModalOpen}
         onCancel={() => setUpdateModalOpen(false)}

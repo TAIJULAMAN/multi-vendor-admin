@@ -1,4 +1,5 @@
 import { Table, ConfigProvider, Modal } from "antd";
+import Swal from "sweetalert2";
 import PageHeading from "../../shared/PageHeading";
 import { useLocation } from "react-router-dom";
 import { useState } from "react";
@@ -21,11 +22,11 @@ const SubCategory = () => {
   const [currentValue, setCurrentValue] = useState("");
   const [editId, setEditId] = useState(null);
 
-  // Fetch subcategories from API for the given categoryId
+  // subcategories
   const { data, isLoading } = useGetAllSubCategoriesQuery({
     categoryId: categoryId,
   });
-  console.log("subCategories of sub category", data);
+  // console.log("subCategories of sub category", data);
 
   const [createSubCategory, { isLoading: isCreating }] =
     useCreateSubCategoryMutation();
@@ -34,7 +35,6 @@ const SubCategory = () => {
   const [deleteSubCategory, { isLoading: isDeleting }] =
     useDeleteSubCategoryMutation();
 
-  // Modal helpers
   const openAdd = () => {
     setCurrentValue("");
     setEditId(null);
@@ -68,22 +68,34 @@ const SubCategory = () => {
     setIsModalOpen(true);
   };
 
-  const openDelete = (id) => {
-    Modal.confirm({
+  const openDelete = async (id) => {
+    const result = await Swal.fire({
       title: "Delete this sub category?",
-      content: "This action cannot be undone.",
-      okText: "Delete",
-      okButtonProps: { danger: true },
-      cancelText: "Cancel",
-      centered: true,
-      onOk: async () => {
-        try {
-          await deleteSubCategory(id).unwrap();
-        } catch (_) {
-          // optionally handle error UI
-        }
-      },
+      text: "This action cannot be undone.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Delete",
+      cancelButtonText: "Cancel",
+      confirmButtonColor: "#14803c",
     });
+
+    if (!result.isConfirmed) return;
+
+    try {
+      await deleteSubCategory(id).unwrap();
+      await Swal.fire({
+        icon: "success",
+        title: "Deleted",
+        text: "Sub category deleted successfully",
+        confirmButtonColor: "#14803c",
+      });
+    } catch (_) {
+      await Swal.fire({
+        icon: "error",
+        title: "Failed",
+        text: "Failed to delete sub category. Please try again.",
+      });
+    }
   };
 
   const dataSource =

@@ -4,7 +4,7 @@ export default function DeleteCategoryModal({ open, onCancel, onConfirm, loading
   return (
     <Modal open={open} centered onCancel={onCancel} footer={null}>
       <div className="p-5">
-        <h1 className="text-4xl text-center text-[#0D0D0D]">
+        <h1 className="text-xl text-center text-[#0D0D0D]">
           Are you sure you want to Delete ?
         </h1>
 
