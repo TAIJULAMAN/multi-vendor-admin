@@ -66,11 +66,7 @@ export default function Header() {
   };
 
   const { data: getAdminProfile } = useGetAdminProfileQuery();
-  // console.log("getAdminProfile", getAdminProfile);
   const { data: NotificationData } = useGetAllNotificationQuery();
-
-  // console.log("NotificationData", NotificationData);
-
 
   return (
     <div className="bg-[#FF914C] text-white px-5 py-4">
@@ -96,10 +92,11 @@ export default function Header() {
                 <div key={item.key}>
                   <Link
                     to={item.link}
-                    className={`menu-item my-4 mx-5 py-3 px-3 flex items-center cursor-pointer ${selectedKey === item.key
-                      ? "bg-[#0B704E] text-white rounded-md"
-                      : "bg-white rounded-md"
-                      }`}
+                    className={`menu-item my-4 mx-5 py-3 px-3 flex items-center cursor-pointer ${
+                      selectedKey === item.key
+                        ? "bg-[#0B704E] text-white rounded-md"
+                        : "bg-white rounded-md"
+                    }`}
                     onClick={(e) => {
                       if (item.children) {
                         e.preventDefault();
@@ -116,16 +113,18 @@ export default function Header() {
                     </span>
                     {item.children && (
                       <FaChevronRight
-                        className={`ml-auto transform transition-all duration-300 ${expandedKeys.includes(item.key) ? "rotate-90" : ""
-                          }`}
+                        className={`ml-auto transform transition-all duration-300 ${
+                          expandedKeys.includes(item.key) ? "rotate-90" : ""
+                        }`}
                       />
                     )}
                   </Link>
 
                   {item.children && (
                     <div
-                      className={`children-menu bg-white -my-2 mx-5 text-black transition-all duration-300 ${expandedKeys.includes(item.key) ? "expanded" : ""
-                        }`}
+                      className={`children-menu bg-white -my-2 mx-5 text-black transition-all duration-300 ${
+                        expandedKeys.includes(item.key) ? "expanded" : ""
+                      }`}
                       style={{
                         maxHeight: expandedKeys.includes(item.key)
                           ? `${contentRef.current[item.key]?.scrollHeight}px`
@@ -137,10 +136,11 @@ export default function Header() {
                         <Link
                           key={child.key}
                           to={child.link}
-                          className={`menu-item p-4 flex items-center cursor-pointer ${selectedKey === child.key
-                            ? "bg-[#0B704E] text-white"
-                            : ""
-                            }`}
+                          className={`menu-item p-4 flex items-center cursor-pointer ${
+                            selectedKey === child.key
+                              ? "bg-[#0B704E] text-white"
+                              : ""
+                          }`}
                           onClick={() => {
                             setSelectedKey(child.key);
                             setExpandedKeys([]);
@@ -166,7 +166,7 @@ export default function Header() {
               <LuBell className="text-2xl text-[#0B704E] w-[40px] h-[40px]" />
             </Link>
             <span className="absolute -top-2 -right-2 bg-[#0B704E] text-xs rounded-full w-6 h-6 flex items-center justify-center">
-              {NotificationData?.data?.length || 0}
+              {NotificationData?.data?.filter((n) => !n?.isRead)?.length || 0}
             </span>
           </div>
           <div className="pl-5 border-gray-600">
