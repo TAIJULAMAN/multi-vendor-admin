@@ -7,7 +7,7 @@ const Notification = () => {
   const [updateNotification] = useUpdateNotificationMutation();
 
   return (
-    <div className="py-4 max-h-[90vh] overflow-y-auto scrollbar-none">
+    <div className="py-4 max-h-[90vh] overflow-y-auto no-scrollbar">
       {NotificationData?.data?.length > 0 ? (
         NotificationData?.data?.map((notification) => (
           <div

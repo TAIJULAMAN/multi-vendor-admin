@@ -8,66 +8,30 @@
 }
 
 select option {
-  background-color: #FF914C;
+  background-color: #ff914c;
   color: #fff;
   padding: 10px;
 }
-
-
-
-/* Hover effect for buttons */
-
-/* In your CSS file or inside a styled-components if you're using them */
-/* .no-border-radius-modal .ant-modal {
-  border-radius: 0 !important;
-}
-
-:where(.css-dev-only-do-not-override-49qm).ant-checkbox-checked
-  .ant-checkbox-inner {
-  background-color: #000000;
-  border-color: #000000;
-} */
-
-/* :where(.css-dev-only-do-not-override-49qm).ant-tabs
-  .ant-tabs-tab.ant-tabs-tab-active
-  .ant-tabs-tab-btn {
-  color: #ff3916;
-}
-
-.custom-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-  color: red !important;
-}
-
-.custom-tabs .ant-tabs-ink-bar {
-  background-color: red !important;
-}
-
-.custom-tabs .ant-tabs-tab:hover {
-  color: inherit !important;
-}
-
-.custom-tabs .ant-tabs-tab-btn:hover {
-  color: inherit !important;
-}
-
-.custom-tabs .ant-tabs-tab {
-  border-bottom: none !important;
-}
-
-.custom-tabs .ant-tabs-tab-active {
-  border-bottom: 2px solid red !important;
-} */
 
 *::-webkit-scrollbar {
   height: 0.5rem;
   width: 0.5rem;
 }
 *::-webkit-scrollbar-thumb {
-  background-color: #FF914C;
+  background-color: #ff914c;
   /* border-radius: 10px; */
 }
 
 *::-webkit-scrollbar-track {
   background-color: #ff3916;
   /* border-radius: 50px; */
+}
+
+/* Hide scrollbar but keep scrollable */
+.no-scrollbar {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
