@@ -18,11 +18,16 @@ export const dashboardApi = baseApi.injectEndpoints({
       }),
       providesTags: ["dashboard"],
     }),
-    
+    getSellerOverview: builder.query({
+      query: ({ year } = {}) => ({
+        url: "dashboard/seller-growth",
+        method: "GET",
+        params: { year },
+      }),
+      providesTags: ["dashboard"],
+    }),
   }),
 });
 
-export const {
-  useGetAllDashboardQuery,
-  useGetSalesOverviewQuery,
-} = dashboardApi;
+export const { useGetAllDashboardQuery, useGetSalesOverviewQuery, useGetSellerOverviewQuery } =
+  dashboardApi;
