@@ -11,7 +11,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
-import { useGetSalesOverviewQuery } from "../../Redux/api/dashboard/dashboardApi";
+import { useGetSellerOverviewQuery } from "../../Redux/api/dashboard/dashboardApi";
 
 export default function SellerGrowth() {
   const currentYear = dayjs().year();
@@ -29,28 +29,31 @@ export default function SellerGrowth() {
     setIsOpen(false);
   };
 
-  const { data: salesData, isLoading } = useGetSalesOverviewQuery({
+  const { data: salesData, isLoading } = useGetSellerOverviewQuery({
     year: selectedYear,
   });
-  const apiMonths = Array.isArray(salesData?.data?.overview)
-    ? salesData.data.overview
-    : [];
+  const sellerData = salesData?.data || salesData || {};
+  const monthlyData =
+    sellerData?.monthlyData ||
+    sellerData?.data?.monthlyData ||
+    [];
+  const apiMonths = Array.isArray(monthlyData) ? monthlyData : [];
   const chartData = apiMonths.map((m) => {
-    const month = m?.month || m?.name || m?.label || "";
-    const normalSale =
-      m?.normalSale ?? m?.normal_sales ?? m?.normal ?? m?.salesNormal ?? 0;
-    const totalAmount =
-      m?.totalAmount ?? m?.totalSale ?? m?.total_sales ?? m?.total ?? 0;
-    return { month, normalSale, totalAmount };
+    const month = m?.monthName || "";
+    const appUsers = Number(m?.appUsers ?? 0);
+    const activeUsers = Number(m?.activeUsers ?? 0);
+    return { month, appUsers, activeUsers };
   });
+  const currentStats = sellerData?.currentStats || sellerData?.data?.currentStats || null;
+  const totals = sellerData?.totals || sellerData?.data?.totals || null;
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
-      const { month, normalSale, totalAmount } = payload[0].payload;
+      const { month, appUsers, activeUsers } = payload[0].payload;
       return (
         <div className="bg-white py-2 px-3 rounded shadow border">
           <p className="text-black font-semibold">{`Month: ${month}`}</p>
-          <p className="text-[#FF914C]">{`Normal Sale: ${normalSale}`}</p>
-          <p className="text-[#083E24]">{`Total Sale: ${totalAmount}`}</p>
+          <p className="text-[#FF914C]">{`App Users: ${appUsers}`}</p>
+          <p className="text-[#083E24]">{`Active Users: ${activeUsers}`}</p>
         </div>
       );
     }
@@ -88,7 +91,37 @@ export default function SellerGrowth() {
           )}
         </div>
       </div>
+      {/* KPIs from currentStats and totals */}
+      {/* <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <div className="p-4 bg-white border rounded-md">
+          <p className="text-sm text-gray-500">Total Sellers</p>
+          <p className="text-2xl font-semibold text-[#0B704E]">{totals?.totalSellers ?? 0}</p>
+        </div>
+        <div className="p-4 bg-white border rounded-md">
+          <p className="text-sm text-gray-500">Total Active Sellers</p>
+          <p className="text-2xl font-semibold text-[#0B704E]">{totals?.totalActiveSellers ?? 0}</p>
+        </div>
+        <div className="p-4 bg-white border rounded-md">
+          <p className="text-sm text-gray-500">This Month</p>
+          <p className="text-sm text-gray-700">{currentStats?.monthName || "-"}</p>
+          <div className="mt-1 flex gap-6">
+            <div>
+              <p className="text-xs text-gray-500">App Users</p>
+              <p className="text-lg font-semibold">{currentStats?.appUsers ?? 0}</p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Active Users</p>
+              <p className="text-lg font-semibold">{currentStats?.activeUsers ?? 0}</p>
+            </div>
+          </div>
+        </div>
+      </div> */}
       <div className="w-full h-[300px]">
+        {isLoading ? (
+          <div className="w-full h-full flex items-center justify-center text-gray-500">Loading...</div>
+        ) : chartData.length === 0 ? (
+          <div className="w-full h-full flex items-center justify-center text-gray-500">No data to display</div>
+        ) : (
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={chartData}
@@ -101,21 +134,22 @@ export default function SellerGrowth() {
             <Tooltip content={<CustomTooltip />} />
             <Legend />
             <Bar
-              dataKey="normalSale"
+              dataKey="appUsers"
               fill="#FF914C"
               barSize={30}
               radius={[5, 5, 0, 0]}
-              name="Normal Sale"
+              name="App Users"
             />
             <Bar
-              dataKey="totalAmount"
+              dataKey="activeUsers"
               fill="#083E24"
               barSize={30}
               radius={[5, 5, 0, 0]}
-              name="Total Sale"
+              name="Active Users"
             />
           </BarChart>
         </ResponsiveContainer>
+        )}
       </div>
     </>
   );
